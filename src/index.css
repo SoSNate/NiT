@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Heebo', sans-serif;
+}
+
+body {
+  background: #0f1c2e;
+  color: #f1f5f9;
+  direction: rtl;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Math inline helper — LTR inside RTL */
+.math {
+  direction: ltr;
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+}
+
+/* Fraction rendering */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  font-size: 0.9em;
+  margin: 0 2px;
+}
+.frac > span:first-child {
+  border-bottom: 1px solid currentColor;
+  padding: 0 3px;
+  line-height: 1.2;
+}
+.frac > span:last-child {
+  padding: 0 3px;
+  line-height: 1.2;
+}
+
+/* ── KaTeX overrides — high-contrast, large, dark-theme ────────────────── */
+
+/* KaTeX uses its own fonts — keep Hebrew (Heebo) outside math spans */
+.math-block .katex,
+.math-inline .katex {
+  font-size: 1.3em;
+  color: #f1f5f9;              /* slate-100 — high contrast */
+}
+
+/* Fractions: make the vinculum (fraction bar) thicker and brighter */
+.math-block .katex .frac-line,
+.math-inline .katex .frac-line {
+  border-bottom-width: 2px;
+  border-color: #e2e8f0;
+}
+
+/* Operators, relations: bright emerald to pop against dark */
+.math-block .katex .mrel,
+.math-block .katex .mbin {
+  color: #34d399;              /* emerald-400 */
+}
+
+/* Integrals, sums, products: slightly larger */
+.math-block .katex .mop {
+  font-size: 1.1em;
+  color: #60a5fa;              /* blue-400 */
+}
+
+/* Prevent KaTeX from inheriting RTL direction */
+.katex { direction: ltr !important; text-align: left; }
+.katex-display { direction: ltr !important; text-align: center !important; }
+
+/* Smooth scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a1525; }
+::-webkit-scrollbar-thumb { background: #253a56; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+/* High-contrast text utilities */
+.text-hi { color: #f8fafc; }
+.text-body { color: #cbd5e1; }
+.text-muted { color: #64748b; }
+
+/* Step content transitions */
+.step-enter { animation: fadeSlide 0.3s ease; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
