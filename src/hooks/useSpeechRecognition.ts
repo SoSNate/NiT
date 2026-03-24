@@ -19,6 +19,8 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
   const shouldListenRef = useRef(false)
   // stable ref to current onTranscript callback so auto-restart uses latest version
   const onTranscriptRef = useRef<((text: string) => void) | null>(null)
+  // ref to createAndStart so onend can call it without stale closure
+  const createAndStartRef = useRef<() => void>(() => {})
 
   const getAPI = (): (new () => SpeechRecognitionInstance) | undefined => {
     if (typeof window === 'undefined') return undefined
@@ -56,17 +58,22 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     }
 
     recognition.onend = () => {
-      // Auto-restart if the browser stopped us (e.g. silence timeout) but user didn't press stop
+      // Auto-restart if the browser stopped us (e.g. silence timeout) but user didn't press stop.
+      // IMPORTANT: create a FRESH instance via createAndStartRef — never call recognition.start()
+      // on the same instance, because Chrome keeps accumulated results and re-emits them → doubled text.
       if (shouldListenRef.current) {
-        try { recognition.start() } catch (_) { /* ignore race condition */ }
+        createAndStartRef.current()
       } else {
         setIsListening(false)
       }
     }
 
     recognition.onerror = (event: any) => {
-      // 'no-speech' is a normal silence timeout — restart
-      if (shouldListenRef.current && event.error === 'no-speech') return
+      // 'no-speech' is a normal silence timeout — restart via fresh instance
+      if (shouldListenRef.current && event.error === 'no-speech') {
+        createAndStartRef.current()
+        return
+      }
       shouldListenRef.current = false
       setIsListening(false)
     }
@@ -75,6 +82,9 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     recognition.start()
     setIsListening(true)
   }, [])
+
+  // Keep ref in sync so onend always calls the latest version
+  createAndStartRef.current = createAndStart
 
   const start = useCallback((onTranscript: (text: string) => void) => {
     onTranscriptRef.current = onTranscript
