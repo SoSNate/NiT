@@ -1,98 +1,132 @@
 import React, { useState, useEffect, useRef } from 'react'
 import GenericLearningModule, { QuizQuestion, GuideSection, TheoryCard } from '../../components/GenericLearningModule'
 import { BlockMath, InlineMath } from '../../components/Math'
+import { GlassCard, StyledSlider, SimReadout } from '../../components/SimulatorShell'
 
-function EMWavesSim({ currentStep }: { currentStep: number }) {
-  const [t, setT] = useState(0)
-  const [E0, setE0] = useState(1)
+// ── Isometric 3D helper ───────────────────────────────────────────────────────
+// Projects (x_along_z, y_E, y_B) into 2D canvas with pseudo-3D perspective.
+// z-axis goes right, E-field (y) goes up, B-field (x) goes bottom-right.
+const ISO_ANGLE = Math.PI / 6  // 30°
+const cx0 = 200, cy0 = 130   // SVG origin
+function isoE(zPos: number, eVal: number) {
+  return { x: cx0 + zPos, y: cy0 - eVal }                              // E: up/down
+}
+function isoB(zPos: number, bVal: number) {
+  return {                                                               // B: diagonal
+    x: cx0 + zPos + bVal * Math.cos(ISO_ANGLE),
+    y: cy0 + bVal * Math.sin(ISO_ANGLE),
+  }
+}
+
+function EMWavesSim({ currentStep: _cs }: { currentStep: number }) {
+  const [t, setT]     = useState(0)
+  const [E0, setE0]   = useState(1.2)
   const [freq, setFreq] = useState(1)
-  const rafRef = useRef<number>()
+  const rafRef  = useRef<number>()
   const lastRef = useRef<number>(0)
 
   useEffect(() => {
     const tick = (now: number) => {
-      const dt = (now - lastRef.current) / 1000
+      const dt = Math.min((now - lastRef.current) / 1000, 0.05)
       lastRef.current = now
       setT(prev => prev + dt)
       rafRef.current = requestAnimationFrame(tick)
     }
+    lastRef.current = performance.now()
     rafRef.current = requestAnimationFrame(tick)
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
   }, [])
 
-  const c = 3e8
-  const k = (2 * Math.PI * freq) / (c / 1e8) // scaled
-  const omega = 2 * Math.PI * freq
-  const B0 = E0 / c * 1e8 // scaled
+  const omega  = 2 * Math.PI * freq
+  const kWave  = 2 * Math.PI * freq           // visual k (same scale)
+  const B0_vis = E0 * 0.4                     // visual only — keeps E/B ratio clear
 
-  const N = 30
-  const W = 240
+  const N     = 50
+  const zSpan = 180                           // px span of z-axis
+  const eAmp  = E0 * 42
+  const bAmp  = B0_vis * 42
+
+  const ePoints = Array.from({ length: N }, (_, i) => {
+    const zFrac = i / (N - 1)
+    const zPx   = -90 + zFrac * zSpan
+    const val   = eAmp * Math.sin(kWave * zFrac * 2 * Math.PI - omega * t)
+    const p = isoE(zPx, val)
+    return `${p.x},${p.y}`
+  }).join(' ')
+
+  const bPoints = Array.from({ length: N }, (_, i) => {
+    const zFrac = i / (N - 1)
+    const zPx   = -90 + zFrac * zSpan
+    const val   = bAmp * Math.sin(kWave * zFrac * 2 * Math.PI - omega * t)
+    const p = isoB(zPx, val)
+    return `${p.x},${p.y}`
+  }).join(' ')
+
+  // z-axis start/end in SVG coords
+  const zStart = isoE(-90, 0)
+  const zEnd   = isoE(90 + 8, 0)
+
+  // E axis arrow
+  const eAxisTop = isoE(0, 55)
+  const eAxisBot = isoE(0, -12)
+
+  // B axis arrow
+  const bAxisFar = isoB(0, 52)
+  const bAxisNear = isoB(0, -12)
 
   return (
-    <div className="w-full flex flex-col items-center gap-3">
-      <svg viewBox={`0 0 ${W} 160`} width="240" height="160">
-        {/* Propagation axis (z) */}
-        <line x1="10" y1="80" x2={W - 10} y2="80" stroke="#334155" strokeWidth="1.5" />
-        <text x={W - 6} y="84" fill="#64748b" fontSize="8">z</text>
+    <div className="w-full space-y-4" dir="ltr">
+      <GlassCard className="bg-slate-950 overflow-hidden">
+        <svg viewBox="0 0 400 240" className="w-full" style={{ maxHeight: 220 }}>
+          <defs>
+            <marker id="em-arr-z" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#475569" />
+            </marker>
+            <marker id="em-arr-e" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa" />
+            </marker>
+            <marker id="em-arr-b" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#f87171" />
+            </marker>
+          </defs>
 
-        {/* E field (y-axis, blue) */}
-        <polyline
-          fill="none"
-          stroke="#60a5fa"
-          strokeWidth="2"
-          points={Array.from({ length: N }, (_, i) => {
-            const x = 10 + (i / (N - 1)) * (W - 20)
-            const z = i / (N - 1) * 4
-            const y = 80 - E0 * 35 * Math.sin(k * z - omega * t)
-            return `${x},${y}`
-          }).join(' ')}
-        />
+          {/* Z axis */}
+          <line x1={zStart.x} y1={zStart.y} x2={zEnd.x} y2={zEnd.y}
+            stroke="#475569" strokeWidth="1.5" markerEnd="url(#em-arr-z)" />
+          <text x={zEnd.x + 4} y={zEnd.y + 4} fill="#64748b" fontSize="9">z</text>
 
-        {/* B field (x-axis, red, 90° rotated) */}
-        <polyline
-          fill="none"
-          stroke="#f87171"
-          strokeWidth="1.5"
-          strokeDasharray="4,2"
-          points={Array.from({ length: N }, (_, i) => {
-            const x = 10 + (i / (N - 1)) * (W - 20)
-            const z = i / (N - 1) * 4
-            const y = 80 - B0 * 20 * Math.sin(k * z - omega * t)
-            return `${x},${y}`
-          }).join(' ')}
-        />
+          {/* E axis (up) */}
+          <line x1={eAxisBot.x} y1={eAxisBot.y} x2={eAxisTop.x} y2={eAxisTop.y}
+            stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.3" markerEnd="url(#em-arr-e)" />
+          <text x={eAxisTop.x + 3} y={eAxisTop.y - 2} fill="#60a5fa" fontSize="9">E</text>
 
-        {/* Labels */}
-        <text x="12" y="20" fill="#60a5fa" fontSize="9">E (כחול)</text>
-        <text x="12" y="32" fill="#f87171" fontSize="9">B (אדום)</text>
-        <text x={W / 2} y="155" textAnchor="middle" fill="#64748b" fontSize="8">
-          כיוון התקדמות: z →
-        </text>
-      </svg>
+          {/* B axis (diagonal) */}
+          <line x1={bAxisNear.x} y1={bAxisNear.y} x2={bAxisFar.x} y2={bAxisFar.y}
+            stroke="#f87171" strokeWidth="1" strokeOpacity="0.3" markerEnd="url(#em-arr-b)" />
+          <text x={bAxisFar.x + 3} y={bAxisFar.y + 6} fill="#f87171" fontSize="9">B</text>
 
-      <div className="w-full space-y-2 px-3">
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-            <span>E₀ (שדה חשמלי)</span>
-            <span className="text-blue-400 font-bold">{E0.toFixed(1)}</span>
-          </div>
-          <input type="range" min="0.2" max="2" step="0.1" value={E0}
-            onChange={e => setE0(+e.target.value)}
-            className="w-full accent-blue-500 h-1.5 rounded-full" />
-        </div>
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-            <span>תדר (יחסי)</span>
-            <span className="text-yellow-400 font-bold">{freq.toFixed(1)}</span>
-          </div>
-          <input type="range" min="0.2" max="3" step="0.1" value={freq}
-            onChange={e => setFreq(+e.target.value)}
-            className="w-full accent-yellow-500 h-1.5 rounded-full" />
-        </div>
-        <div className="bg-white/10 rounded-xl p-2 text-xs text-center">
-          <p className="text-slate-400" dir="ltr">c = E₀/B₀ = 3×10⁸ m/s</p>
-          <p className="text-slate-400 mt-0.5" dir="ltr">S = E×B/μ₀ (Poynting)</p>
-        </div>
+          {/* E wave (blue) */}
+          <polyline fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeOpacity="0.9"
+            points={ePoints} />
+
+          {/* B wave (red dashed) */}
+          <polyline fill="none" stroke="#f87171" strokeWidth="2" strokeDasharray="5,3"
+            strokeOpacity="0.8" points={bPoints} />
+
+          {/* Legend */}
+          <rect x="10" y="8" width="8" height="3" fill="#60a5fa" />
+          <text x="22" y="14" fill="#60a5fa" fontSize="8">E — שדה חשמלי (ŷ)</text>
+          <line x1="10" y1="22" x2="18" y2="22" stroke="#f87171" strokeWidth="2" strokeDasharray="3,2" />
+          <text x="22" y="25" fill="#f87171" fontSize="8">B — שדה מגנטי (x̂)</text>
+          <text x="200" y="230" textAnchor="middle" fill="#475569" fontSize="8">התקדמות: +ẑ</text>
+        </svg>
+      </GlassCard>
+
+      <SimReadout label="c = E₀/B₀" value="3×10⁸" unit="m/s" />
+      <StyledSlider label="E₀ (שדה חשמלי)" value={E0} min={0.3} max={2} step={0.1} unit="" onChange={setE0} />
+      <StyledSlider label="תדר (יחסי)" value={freq} min={0.3} max={3} step={0.1} unit="" onChange={setFreq} />
+      <div className="text-xs text-center text-slate-500">
+        B₀ = E₀/c — B תמיד קטן פי {(3e8).toExponential(0)} מ-E
       </div>
     </div>
   )
