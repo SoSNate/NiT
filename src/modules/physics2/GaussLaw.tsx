@@ -3,112 +3,134 @@
  * Source: Gemini pipeline → C:\Users\12nat\Desktop\איפון למידה\
  * Built: 2026-03-24
  */
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
 import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { GlassCard, StyledSlider, SimReadout, ToggleGroup } from '../../components/SimulatorShell'
 import type { QuizQuestion, GuideSection } from '../../types'
 
-// ── SIMULATOR — בוחר סימטריה ומציג E(r) ────────────────────────────────────
-function Sim({ currentStep }: { currentStep: number }) {
+// ── SIMULATOR — upgraded with framer-motion + GlassCard ──────────────────────
+function Sim({ currentStep: _cs }: { currentStep: number }) {
   const [sym, setSym] = useState<'sphere' | 'cylinder' | 'plane'>('sphere')
-  const [R, setR]     = useState(0.3)   // m — רדיוס הגוף
-  const [r, setR2]    = useState(0.6)   // m — מרחק נקודת המדידה
-  const [Q, setQ]     = useState(1e-6)  // C
+  const [r, setR]     = useState(0.6)   // m — distance
+  const [Q, setQ]     = useState(2)     // nC
 
+  const R = 0.3 // fixed body radius
   const eps0 = 8.85e-12
   const k    = 9e9
-  const lambda = Q / 1   // C/m (מניחים L=1m)
-  const sigma  = Q / (4 * Math.PI * R * R) // C/m²
+  const Qc   = Q * 1e-9
+  const lambda = Qc / 1
 
-  let E = 0
-  let label = ''
-  const inside = r < R
+  const { E, eLabel } = useMemo(() => {
+    const inside = r < R
+    if (sym === 'sphere') {
+      const val = inside ? 0 : k * Qc / (r * r)
+      return { E: val, eLabel: inside ? 'E = 0 (בתוך)' : val.toExponential(2) + ' N/C' }
+    }
+    if (sym === 'cylinder') {
+      const val = inside ? 0 : lambda / (2 * Math.PI * eps0 * r)
+      return { E: val, eLabel: inside ? 'E = 0 (בתוך)' : val.toExponential(2) + ' N/C' }
+    }
+    const sigma = Qc / (4 * Math.PI * R * R)
+    const val   = sigma / (2 * eps0)
+    return { E: val, eLabel: val.toExponential(2) + ' N/C (לא תלוי r)' }
+  }, [sym, r, Q])
 
-  if (sym === 'sphere') {
-    E = inside ? 0 : k * Q / (r * r)
-    label = inside ? 'E = 0 (בתוך מוליך)' : `E = kQ/r² = ${E.toExponential(2)} N/C`
-  } else if (sym === 'cylinder') {
-    E = inside ? 0 : lambda / (2 * Math.PI * eps0 * r)
-    label = inside ? 'E = 0 (בתוך)' : `E = λ/(2πε₀r) = ${E.toExponential(2)} N/C`
-  } else {
-    E = sigma / (2 * eps0)
-    label = `E = σ/(2ε₀) = ${E.toExponential(2)} N/C (לא תלוי r)`
-  }
-
-  const W = 260, H = 170, cx = W / 2, cy = H / 2
+  const cx = 200, cy = 200
   const bodyR = 38
-  const pointX = Math.min(cx + (r / 1.2) * (W / 2 - 20 - bodyR), W - 20)
-  const eLen = Math.min(35, E * 1e-3 * 10) + 8
-
+  const gRadius = Math.max(bodyR + 5, r * 100)
+  const clampedGR = Math.min(gRadius, 160)
   const symColor = sym === 'sphere' ? '#60a5fa' : sym === 'cylinder' ? '#a78bfa' : '#34d399'
 
+  const fieldLines = useMemo(() =>
+    Array.from({ length: 12 }, (_, i) => {
+      const angle = (i * 30 * Math.PI) / 180
+      const len = 60 + Math.min(E * 5e-3, 50)
+      return {
+        x1: cx + Math.cos(angle) * (bodyR + 4),
+        y1: cy + Math.sin(angle) * (bodyR + 4),
+        x2: cx + Math.cos(angle) * (bodyR + 4 + len),
+        y2: cy + Math.sin(angle) * (bodyR + 4 + len),
+      }
+    }), [E])
+
   return (
-    <div className="w-full flex flex-col items-center gap-3">
-      {/* SVG */}
-      <svg viewBox={`0 0 ${W} ${H}`} width="260" height="170">
-        {/* Gauss surface hint */}
-        <circle cx={cx} cy={cy} r={bodyR + 22} fill="none" stroke="#fbbf24" strokeWidth={1}
-          strokeDasharray="5 4" opacity={0.4} />
-        <text x={cx + bodyR + 26} y={cy - 14} fill="#fbbf24" fontSize="7" opacity={0.7}>משטח גאוס</text>
+    <div className="w-full space-y-4" dir="ltr">
+      <GlassCard className="overflow-hidden bg-slate-950">
+        <svg viewBox="0 0 400 400" className="w-full" style={{ maxHeight: 280 }}>
+          <defs>
+            <radialGradient id="gauss-charge-grad">
+              <stop offset="0%" stopColor={symColor} />
+              <stop offset="100%" stopColor={symColor} stopOpacity="0.4" />
+            </radialGradient>
+            <pattern id="gauss-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0L0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" strokeOpacity="0.04" />
+            </pattern>
+          </defs>
+          <rect width="400" height="400" fill="url(#gauss-grid)" />
 
-        {/* Body */}
-        {sym === 'plane' ? (
-          <rect x={cx - 6} y={10} width={12} height={H - 20} fill={symColor} fillOpacity={0.25}
-            stroke={symColor} strokeWidth={1.5} rx={3} />
-        ) : (
-          <circle cx={cx} cy={cy} r={bodyR} fill={symColor} fillOpacity={0.2}
-            stroke={symColor} strokeWidth={2} />
-        )}
+          {/* Field lines */}
+          <AnimatePresence>
+            {E > 0 && (
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                {fieldLines.map((l, i) => (
+                  <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+                    stroke="rgba(34,211,238,0.35)" strokeWidth="1.5" strokeDasharray="4 4" />
+                ))}
+              </motion.g>
+            )}
+          </AnimatePresence>
 
-        {/* Measurement point */}
-        <circle cx={pointX} cy={cy} r={5} fill="#f87171" />
-        <text x={pointX + 7} y={cy + 4} fill="#f87171" fontSize="8">P</text>
+          {/* Gauss surface */}
+          <motion.circle
+            cx={cx} cy={cy}
+            fill="rgba(34,211,238,0.04)"
+            stroke="#22d3ee" strokeWidth="2" strokeDasharray="8 4"
+            animate={{ r: clampedGR }}
+            transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+          />
 
-        {/* E arrow */}
-        {E > 0 && (
-          <line x1={pointX} y1={cy} x2={pointX + eLen} y2={cy}
-            stroke="#fbbf24" strokeWidth={2.5} markerEnd="url(#earr)" />
-        )}
+          {/* Body */}
+          {sym === 'plane' ? (
+            <rect x={cx - 8} y={cy - 80} width={16} height={160}
+              fill={symColor} fillOpacity={0.2} stroke={symColor} strokeWidth={2} rx={4} />
+          ) : (
+            <circle cx={cx} cy={cy} r={bodyR}
+              fill={`url(#gauss-charge-grad)`} fillOpacity={0.25}
+              stroke={symColor} strokeWidth={2} />
+          )}
+          <text x={cx} y={cy + 5} textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">+Q</text>
 
-        <defs>
-          <marker id="earr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#fbbf24" />
-          </marker>
-        </defs>
+          {/* Labels */}
+          <text x={cx + clampedGR + 6} y={cy - 8} fill="#22d3ee" fontSize="9" fontFamily="monospace">
+            r = {r.toFixed(2)}m
+          </text>
+          <text x={cx} y={cy + clampedGR + 16} textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">
+            {eLabel}
+          </text>
+        </svg>
+      </GlassCard>
 
-        {/* E label */}
-        <text x={W / 2} y={H - 8} textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">
-          {label}
-        </text>
-      </svg>
+      {/* Readout */}
+      <SimReadout label="עוצמת שדה E" value={E > 0 ? E.toExponential(2) : '0'} unit="N/C" />
 
       {/* Controls */}
-      <div className="w-full space-y-2 px-3">
-        {/* Symmetry selector */}
-        <div className="flex gap-1.5 text-xs">
-          {(['sphere', 'cylinder', 'plane'] as const).map(s => (
-            <button key={s} onClick={() => setSym(s)}
-              className={`flex-1 py-1 rounded-lg font-bold transition-all ${
-                sym === s ? 'bg-white/20 text-white' : 'bg-white/5 text-slate-500'
-              }`}>
-              {s === 'sphere' ? 'כדור' : s === 'cylinder' ? 'גליל' : 'מישור'}
-            </button>
-          ))}
-        </div>
-
-        {sym !== 'plane' && (
-          <div>
-            <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-              <span>r (מרחק נקודה)</span>
-              <span className={r < R ? 'text-blue-400 font-bold' : 'text-yellow-400 font-bold'}>
-                {r.toFixed(2)} m {r < R ? '← בפנים' : '← בחוץ'}
-              </span>
-            </div>
-            <input type="range" min={0.05} max={1.2} step={0.05} value={r}
-              onChange={e => setR2(+e.target.value)}
-              className="w-full h-1.5 rounded-full accent-yellow-400" />
-          </div>
-        )}
+      <ToggleGroup
+        value={sym}
+        onChange={v => setSym(v as typeof sym)}
+        options={[
+          { value: 'sphere',   label: 'כדורי' },
+          { value: 'cylinder', label: 'גלילי' },
+          { value: 'plane',    label: 'לוח' },
+        ]}
+      />
+      <StyledSlider label="מטען Q" value={Q} min={0.1} max={10} step={0.1} unit="nC" onChange={setQ} />
+      {sym !== 'plane' && (
+        <StyledSlider label="מרחק r" value={r} min={0.1} max={1.5} step={0.05} unit="m" onChange={setR} />
+      )}
+      <div className="text-xs text-center text-slate-500 mt-1">
+        {r < R && sym !== 'plane' ? '📍 נקודה בתוך הגוף — E = 0' : '📍 נקודה מחוץ לגוף'}
       </div>
     </div>
   )

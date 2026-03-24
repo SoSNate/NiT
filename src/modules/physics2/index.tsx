@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ArrowRight, Zap, Magnet, Activity, Cpu, Radio, Eye, FlaskConical } from 'lucide-react'
+import { ArrowRight, Zap, Magnet, Activity, Cpu, Radio, Eye, Atom, FlaskConical } from 'lucide-react'
 import CoulombsLaw from './CoulombsLaw'
 import GaussLaw from './GaussLaw'
 import ElectricField from './ElectricField'
@@ -8,8 +8,9 @@ import Induction from './Induction'
 import RLCCircuits from './RLCCircuits'
 import EMWaves from './EMWaves'
 import Optics from './Optics'
+import PhysicsLab from './PhysicsLab'
 
-type ModuleId = 'coulomb' | 'gauss' | 'efield' | 'bfield' | 'induction' | 'rlc' | 'emwaves' | 'optics' | null
+type ModuleId = 'coulomb' | 'gauss' | 'efield' | 'bfield' | 'induction' | 'rlc' | 'emwaves' | 'optics' | 'lab' | null
 
 interface ModuleCard {
   id: ModuleId
@@ -26,7 +27,7 @@ const MODULES: ModuleCard[] = [
     id: 'coulomb',
     title: 'חוק קולון',
     subtitle: 'כוחות בין מטענים — גודל, כיוון, וקטורים',
-    icon: <FlaskConical size={22} />,
+    icon: <Atom size={22} />,
     color: 'from-orange-500/15 to-red-500/5',
     border: 'border-orange-500/25',
     examFreq: 'בסיס הכל',
@@ -94,6 +95,15 @@ const MODULES: ModuleCard[] = [
     border: 'border-pink-500/25',
     examFreq: 'כמעט כל מבחן',
   },
+  {
+    id: 'lab',
+    title: 'מעבדה בפיזיקה',
+    subtitle: 'הידרוסטטיקה — לחץ, ארכימדס, כלים שלובים',
+    icon: <FlaskConical size={22} />,
+    color: 'from-teal-500/15 to-cyan-500/5',
+    border: 'border-teal-500/25',
+    examFreq: 'ניסוי מעבדה',
+  },
 ]
 
 interface Props {
@@ -113,6 +123,7 @@ export default function Physics2Hub({ onBack }: Props) {
   if (activeModule === 'rlc') return <RLCCircuits onBack={backToHub} />
   if (activeModule === 'emwaves') return <EMWaves onBack={backToHub} />
   if (activeModule === 'optics') return <Optics onBack={backToHub} />
+  if (activeModule === 'lab') return <PhysicsLab onBack={backToHub} />
 
   return (
     <div className="min-h-screen p-6" dir="rtl">
@@ -142,7 +153,7 @@ export default function Physics2Hub({ onBack }: Props) {
           {/* Progress summary */}
           <div className="bg-white/5 rounded-2xl border border-white/10 p-4 mt-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-400">8 מודולים · מהבסיס עד המבחן</span>
+              <span className="text-slate-400">9 מודולים · מהבסיס עד המבחן</span>
               <span className="text-emerald-400 font-semibold">בחר מודול להתחיל</span>
             </div>
           </div>

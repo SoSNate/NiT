@@ -6,6 +6,7 @@ import Calculus2Hub from './modules/calculus2/index'
 import SeriesHub from './modules/series/index'
 import LearningDashboard from './components/LearningDashboard'
 import Onboarding from './components/Onboarding'
+import LearningJournal, { JournalProvider } from './components/LearningJournal'
 
 type Course = 'home' | 'physics2' | 'diffeq' | 'calculus2' | 'series' | 'dashboard'
 
@@ -73,10 +74,10 @@ export default function App() {
 
   if (showOnboarding) return <Onboarding onDone={() => setShowOnboarding(false)} />
 
-  if (activeCourse === 'physics2') return <Physics2Hub onBack={() => setActiveCourse('home')} />
-  if (activeCourse === 'diffeq') return <DiffeqHub onBack={() => setActiveCourse('home')} />
-  if (activeCourse === 'calculus2') return <Calculus2Hub onBack={() => setActiveCourse('home')} />
-  if (activeCourse === 'series') return <SeriesHub onBack={() => setActiveCourse('home')} />
+  if (activeCourse === 'physics2') return <JournalProvider><Physics2Hub onBack={() => setActiveCourse('home')} /><LearningJournal /></JournalProvider>
+  if (activeCourse === 'diffeq') return <JournalProvider><DiffeqHub onBack={() => setActiveCourse('home')} /><LearningJournal /></JournalProvider>
+  if (activeCourse === 'calculus2') return <JournalProvider><Calculus2Hub onBack={() => setActiveCourse('home')} /><LearningJournal /></JournalProvider>
+  if (activeCourse === 'series') return <JournalProvider><SeriesHub onBack={() => setActiveCourse('home')} /><LearningJournal /></JournalProvider>
   if (activeCourse === 'dashboard') return <LearningDashboard onBack={() => setActiveCourse('home')} />
 
   return (

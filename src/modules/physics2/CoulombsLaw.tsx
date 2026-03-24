@@ -1,102 +1,108 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
 import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { GlassCard, StyledSlider, SimReadout } from '../../components/SimulatorShell'
 import type { QuizQuestion, GuideSection } from '../../types'
 
-// ── SIMULATOR ─────────────────────────────────────────────────────────────────
-function Sim({ currentStep }: { currentStep: number }) {
+// ── SIMULATOR — upgraded with framer-motion ───────────────────────────────────
+function Sim({ currentStep: _cs }: { currentStep: number }) {
   const [q1, setQ1] = useState(2)   // μC
   const [q2, setQ2] = useState(3)   // μC
   const [r, setR]   = useState(1.0) // m
 
   const k = 9e9
-  const F = k * (Math.abs(q1) * 1e-6) * (Math.abs(q2) * 1e-6) / (r * r)
+  const F = useMemo(
+    () => k * (Math.abs(q1) * 1e-6) * (Math.abs(q2) * 1e-6) / (r * r),
+    [q1, q2, r]
+  )
   const attract = (q1 > 0) !== (q2 > 0)
 
-  const W = 260, H = 160
-  const cx1 = 55, cx2 = W - 55, cy = H / 2
-
-  const arrowLen = Math.min(40, F * 0.003)
+  const cx1 = 80, cx2 = 320, cy = 120
   const color1 = q1 >= 0 ? '#f87171' : '#60a5fa'
   const color2 = q2 >= 0 ? '#f87171' : '#60a5fa'
+  const arrowLen = Math.min(55, F * 0.003 + 8)
 
   return (
-    <div className="w-full flex flex-col items-center gap-3">
-      <svg viewBox={`0 0 ${W} ${H}`} width="260" height="160">
-        {/* Charges */}
-        <circle cx={cx1} cy={cy} r={18} fill={color1} fillOpacity={0.25} stroke={color1} strokeWidth={2} />
-        <text x={cx1} y={cy + 5} textAnchor="middle" fill={color1} fontSize="13" fontWeight="bold">
-          {q1 > 0 ? '+' : ''}{q1}μ
-        </text>
+    <div className="w-full space-y-4" dir="ltr">
+      <GlassCard className="bg-slate-950 overflow-hidden">
+        <svg viewBox="0 0 400 220" className="w-full" style={{ maxHeight: 200 }}>
+          <defs>
+            <pattern id="coulomb-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0L0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" strokeOpacity="0.04" />
+            </pattern>
+            <marker id="carr1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill={color1} />
+            </marker>
+            <marker id="carr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill={color2} />
+            </marker>
+          </defs>
+          <rect width="400" height="220" fill="url(#coulomb-grid)" />
 
-        <circle cx={cx2} cy={cy} r={18} fill={color2} fillOpacity={0.25} stroke={color2} strokeWidth={2} />
-        <text x={cx2} y={cy + 5} textAnchor="middle" fill={color2} fontSize="13" fontWeight="bold">
-          {q2 > 0 ? '+' : ''}{q2}μ
-        </text>
+          {/* Charge q1 */}
+          <motion.circle cx={cx1} cy={cy} r={22} fill={color1} fillOpacity={0.2}
+            stroke={color1} strokeWidth={2}
+            animate={{ r: 18 + Math.abs(q1) * 1.5 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          />
+          <text x={cx1} y={cy + 5} textAnchor="middle" fill={color1} fontSize="12" fontWeight="bold">
+            {q1 > 0 ? '+' : ''}{q1}μ
+          </text>
 
-        {/* Distance line */}
-        <line x1={cx1 + 20} y1={cy + 28} x2={cx2 - 20} y2={cy + 28} stroke="#334155" strokeWidth={1} strokeDasharray="4 3" />
-        <text x={W / 2} y={cy + 42} textAnchor="middle" fill="#64748b" fontSize="9">r = {r} m</text>
+          {/* Charge q2 */}
+          <motion.circle cx={cx2} cy={cy} r={22} fill={color2} fillOpacity={0.2}
+            stroke={color2} strokeWidth={2}
+            animate={{ r: 18 + Math.abs(q2) * 1.5 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          />
+          <text x={cx2} y={cy + 5} textAnchor="middle" fill={color2} fontSize="12" fontWeight="bold">
+            {q2 > 0 ? '+' : ''}{q2}μ
+          </text>
 
-        {/* Force arrows */}
-        {attract ? (
-          <>
-            <line x1={cx1 + 20} y1={cy} x2={cx1 + 20 + arrowLen} y2={cy} stroke={color1} strokeWidth={2.5} markerEnd="url(#arr)" />
-            <line x1={cx2 - 20} y1={cy} x2={cx2 - 20 - arrowLen} y2={cy} stroke={color2} strokeWidth={2.5} markerEnd="url(#arr2)" />
-            <text x={W / 2} y={cy - 18} textAnchor="middle" fill="#34d399" fontSize="8">← נמשכים →</text>
-          </>
-        ) : (
-          <>
-            <line x1={cx1 + 20} y1={cy} x2={cx1 + 20 - arrowLen} y2={cy} stroke={color1} strokeWidth={2.5} markerEnd="url(#arr)" />
-            <line x1={cx2 - 20} y1={cy} x2={cx2 - 20 + arrowLen} y2={cy} stroke={color2} strokeWidth={2.5} markerEnd="url(#arr2)" />
-            <text x={W / 2} y={cy - 18} textAnchor="middle" fill="#f87171" fontSize="8">← דוחים →</text>
-          </>
-        )}
+          {/* Distance line */}
+          <line x1={cx1 + 25} y1={cy + 35} x2={cx2 - 25} y2={cy + 35}
+            stroke="#334155" strokeWidth={1} strokeDasharray="4 3" />
+          <text x={200} y={cy + 50} textAnchor="middle" fill="#64748b" fontSize="9">r = {r} m</text>
 
-        <defs>
-          <marker id="arr"  markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill={color1} />
-          </marker>
-          <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill={color2} />
-          </marker>
-        </defs>
+          {/* Force arrows */}
+          {attract ? (
+            <>
+              <motion.line
+                x1={cx1 + 25} y1={cy}
+                animate={{ x2: cx1 + 25 + arrowLen }}
+                transition={{ type: 'spring', stiffness: 150 }}
+                stroke={color1} strokeWidth={2.5} markerEnd="url(#carr1)" />
+              <motion.line
+                x1={cx2 - 25} y1={cy}
+                animate={{ x2: cx2 - 25 - arrowLen }}
+                transition={{ type: 'spring', stiffness: 150 }}
+                stroke={color2} strokeWidth={2.5} markerEnd="url(#carr2)" />
+              <text x={200} y={cy - 30} textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">← נמשכים →</text>
+            </>
+          ) : (
+            <>
+              <motion.line
+                x1={cx1 + 25} y1={cy}
+                animate={{ x2: cx1 + 25 - arrowLen }}
+                transition={{ type: 'spring', stiffness: 150 }}
+                stroke={color1} strokeWidth={2.5} markerEnd="url(#carr1)" />
+              <motion.line
+                x1={cx2 - 25} y1={cy}
+                animate={{ x2: cx2 - 25 + arrowLen }}
+                transition={{ type: 'spring', stiffness: 150 }}
+                stroke={color2} strokeWidth={2.5} markerEnd="url(#carr2)" />
+              <text x={200} y={cy - 30} textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">← דוחים →</text>
+            </>
+          )}
+        </svg>
+      </GlassCard>
 
-        {/* Force value */}
-        <text x={W / 2} y={H - 8} textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">
-          F = {F.toFixed(2)} N
-        </text>
-      </svg>
+      <SimReadout label="כוח קולון F" value={F.toFixed(3)} unit="N" />
 
-      <div className="w-full space-y-2 px-3">
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-            <span>q₁ (μC)</span>
-            <span className={q1 >= 0 ? 'text-red-400 font-bold' : 'text-blue-400 font-bold'}>{q1 > 0 ? '+' : ''}{q1}μC</span>
-          </div>
-          <input type="range" min="-5" max="5" step="1" value={q1}
-            onChange={e => setQ1(+e.target.value)}
-            className="w-full h-1.5 rounded-full accent-red-400" />
-        </div>
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-            <span>q₂ (μC)</span>
-            <span className={q2 >= 0 ? 'text-red-400 font-bold' : 'text-blue-400 font-bold'}>{q2 > 0 ? '+' : ''}{q2}μC</span>
-          </div>
-          <input type="range" min="-5" max="5" step="1" value={q2}
-            onChange={e => setQ2(+e.target.value)}
-            className="w-full h-1.5 rounded-full accent-blue-400" />
-        </div>
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-            <span>מרחק r</span>
-            <span className="text-yellow-400 font-bold">{r} m</span>
-          </div>
-          <input type="range" min="0.2" max="3" step="0.1" value={r}
-            onChange={e => setR(+e.target.value)}
-            className="w-full h-1.5 rounded-full accent-yellow-400" />
-        </div>
-      </div>
+      <StyledSlider label="q₁" value={q1} min={-5} max={5} step={1} unit="μC" onChange={setQ1} />
+      <StyledSlider label="q₂" value={q2} min={-5} max={5} step={1} unit="μC" onChange={setQ2} />
+      <StyledSlider label="מרחק r" value={r} min={0.2} max={3} step={0.1} unit="m" onChange={setR} />
     </div>
   )
 }

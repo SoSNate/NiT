@@ -1,63 +1,70 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
 import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { GlassCard, StyledSlider, SimReadout } from '../../components/SimulatorShell'
 import type { QuizQuestion, GuideSection } from '../../types'
 
-function Sim({ currentStep }: { currentStep: number }) {
-  const [a, setA] = useState(0.5)
-  const [N, setN] = useState(8)
+function Sim({ currentStep: _cs }: { currentStep: number }) {
+  const [a, setA]   = useState(0.7)
+  const [n0, setN0] = useState(0)
+  const N = 13
 
-  const W = 240, H = 160, ox = 20, oy = H - 20
+  const stems = useMemo(() =>
+    Array.from({ length: N }, (_, n) => ({
+      n,
+      value: n >= n0 ? Math.pow(a, n - n0) : 0,
+    })),
+    [a, n0]
+  )
 
-  // x[n] = aⁿ·u[n]
-  const terms = Array.from({ length: N }, (_, k) => ({
-    n: k,
-    val: Math.pow(a, k),
-  }))
-
-  const partialSum = terms.reduce((s, t) => s + t.val, 0)
-  const infSum = Math.abs(a) < 1 ? 1 / (1 - a) : Infinity
+  const maxVal = Math.max(...stems.map(s => s.value), 0.01)
+  const svgW = 400, svgH = 200
+  const padL = 28, padR = 12, padT = 18, padB = 32
+  const innerW = svgW - padL - padR
+  const innerH = svgH - padT - padB
+  const colW = innerW / N
 
   return (
-    <div className="w-full flex flex-col items-center gap-3">
-      <svg viewBox={`0 0 ${W} ${H}`} width="240" height="160">
-        <line x1={ox} y1="10" x2={ox} y2={oy + 3} stroke="#334155" strokeWidth="1.5" />
-        <line x1={ox} y1={oy} x2={W - 8} y2={oy} stroke="#334155" strokeWidth="1.5" />
-        <text x={W - 12} y={oy + 10} fill="#475569" fontSize="9">n</text>
-        <text x={ox + 2} y="16" fill="#475569" fontSize="9">x[n]=aⁿ</text>
+    <div className="w-full space-y-4" dir="ltr">
+      <GlassCard className="bg-slate-950 overflow-hidden">
+        <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full">
+          <line x1={padL} y1={padT + innerH} x2={svgW - padR} y2={padT + innerH} stroke="#334155" strokeWidth="1.5" />
+          <line x1={padL} y1={padT} x2={padL} y2={padT + innerH} stroke="#334155" strokeWidth="1.5" />
+          {stems.map(({ n, value }) => {
+            const x = padL + n * colW + colW / 2
+            const barH = (value / maxVal) * (innerH - 6)
+            const y = padT + innerH - barH
+            const active = value > 0
+            return (
+              <g key={n}>
+                <motion.line x1={x} y1={padT + innerH} x2={x}
+                  animate={{ y2: y }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+                  stroke={active ? '#f59e0b' : '#1e293b'} strokeWidth="2.5" />
+                <motion.circle cx={x}
+                  animate={{ cy: y }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+                  r={4} fill={active ? '#f59e0b' : '#1e293b'} />
+                <text x={x} y={padT + innerH + 14} textAnchor="middle" fill="#475569" fontSize="8">{n}</text>
+              </g>
+            )
+          })}
+          <text x={svgW - padR - 6} y={padT + innerH - 4} fill="#475569" fontSize="9">n</text>
+          <text x={padL + 3} y={padT + 10} fill="#475569" fontSize="9">x[n]</text>
+        </svg>
+      </GlassCard>
 
-        {terms.map(({ n, val }) => {
-          const px = ox + 10 + n * ((W - ox - 20) / (N - 0.5))
-          const py = oy - val * (H - 40)
-          return (
-            <g key={n}>
-              <line x1={px} y1={oy} x2={px} y2={py} stroke="#f59e0b" strokeWidth="2" />
-              <circle cx={px} cy={py} r="3" fill="#f59e0b" />
-              <text x={px - 2} y={oy + 10} fill="#475569" fontSize="7">{n}</text>
-            </g>
-          )
-        })}
-      </svg>
+      <SimReadout
+        label="X(z)"
+        value={n0 === 0 ? `z/(z−${a})` : `z·z⁻${n0}/(z−${a})`}
+        unit={`ROC: |z|>${a}`}
+      />
 
-      <div className="w-full space-y-2 px-3">
-        {[
-          { label: 'a (בסיס)', val: a, set: setA, min: -0.9, max: 0.9, step: 0.1, color: 'yellow' },
-          { label: 'N (איברים)', val: N, set: setN, min: 2, max: 15, step: 1, color: 'blue' },
-        ].map(c => (
-          <div key={c.label}>
-            <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-              <span>{c.label}</span>
-              <span className={`text-${c.color}-400 font-bold`}>{c.val}</span>
-            </div>
-            <input type="range" min={c.min} max={c.max} step={c.step} value={c.val}
-              onChange={e => c.set(+e.target.value)}
-              className={`w-full accent-${c.color}-500 h-1.5 rounded-full`} />
-          </div>
-        ))}
-        <div className="bg-white/10 rounded-xl p-2 text-xs" dir="ltr">
-          <p className="font-mono text-slate-300">Z{'{aⁿu[n]}'} = z/(z-a), |z|&gt;|a|={Math.abs(a)}</p>
-          <p className="font-mono text-yellow-400">סכום חלקי: {partialSum.toFixed(3)} | ∞: {isFinite(infSum) ? infSum.toFixed(3) : '∞'}</p>
-        </div>
+      <StyledSlider label="בסיס a" value={a} min={0.1} max={1.8} step={0.05} unit="" onChange={setA} />
+      <StyledSlider label="הזזה n₀" value={n0} min={0} max={5} step={1} unit="דגימות" onChange={setN0} />
+      <div className="text-xs text-center text-slate-500">
+        {a < 1 ? '|a| < 1 → דועך (יציב)' : a === 1 ? '|a| = 1 → קבוע' : '|a| > 1 → גדל (לא יציב)'}
       </div>
     </div>
   )
