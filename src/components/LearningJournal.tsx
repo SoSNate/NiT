@@ -1,5 +1,7 @@
-import React, { useState, useEffect, createContext, useContext } from 'react'
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Mic, MicOff } from 'lucide-react'
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface JournalEntry {
@@ -84,13 +86,28 @@ export default function LearningJournal() {
   const [open, setOpen]     = useState(false)
   const [text, setText]     = useState('')
   const [entries, setEntries] = useState<JournalEntry[]>(loadEntries)
+  // Filter: 'all' | current module id
+  const [filterModule, setFilterModule] = useState<'all' | string>('all')
+
+  const { isListening, isSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
+  const textRef = useRef(text)
+  useEffect(() => { textRef.current = text }, [text])
+
+  // When module changes, auto-switch filter to current module
+  useEffect(() => {
+    if (activeModuleId !== 'general') setFilterModule(activeModuleId)
+  }, [activeModuleId])
 
   useEffect(() => {
-    if (!open) setText('')
-  }, [open])
+    if (!open) {
+      setText('')
+      if (isListening) stopSpeech()
+    }
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function saveEntry() {
     if (!text.trim()) return
+    if (isListening) stopSpeech()
     const now = new Date()
     const entry: JournalEntry = {
       id:        now.getTime().toString(),
@@ -110,6 +127,24 @@ export default function LearningJournal() {
     setEntries(next)
     saveEntries(next)
   }
+
+  function toggleMic() {
+    if (isListening) {
+      stopSpeech()
+    } else {
+      startSpeech(transcript => {
+        const c = textRef.current
+        setText(c + (c && !c.endsWith(' ') ? ' ' : '') + transcript)
+      })
+    }
+  }
+
+  const displayedEntries = filterModule === 'all'
+    ? entries
+    : entries.filter(e => e.moduleId === filterModule)
+
+  // Unique module ids for filter buttons
+  const moduleIds = Array.from(new Set(entries.map(e => e.moduleId))).filter(Boolean)
 
   return (
     <>
@@ -155,7 +190,7 @@ export default function LearningJournal() {
                 <div>
                   <h2 className="text-white font-bold text-sm">📓 יומן למידה</h2>
                   <p className="text-slate-500 text-xs mt-0.5">
-                    מודול: <span className="text-cyan-400">{activeModuleId}</span>
+                    נושא: <span className="text-cyan-400">{activeModuleId}</span>
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -177,13 +212,30 @@ export default function LearningJournal() {
 
               {/* Input area */}
               <div className="p-4 border-b border-white/10">
-                <textarea
-                  value={text}
-                  onChange={e => setText(e.target.value)}
-                  placeholder="מה קשה, לא מובן, או שיש באג?..."
-                  rows={4}
-                  className="w-full bg-slate-800/50 border border-white/10 rounded-xl p-3 text-sm text-slate-200 placeholder-slate-600 resize-none focus:outline-none focus:border-cyan-500/50 transition-colors"
-                />
+                <div className="relative">
+                  <textarea
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveEntry() }}
+                    placeholder="מה קשה, לא מובן, או תובנה?..."
+                    rows={4}
+                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl p-3 pl-10 text-sm text-slate-200 placeholder-slate-600 resize-none focus:outline-none focus:border-cyan-500/50 transition-colors"
+                  />
+                  {/* Mic button inside textarea */}
+                  {isSupported && (
+                    <button
+                      onClick={toggleMic}
+                      title={isListening ? 'הפסק הקלטה' : 'דבר — יכתב אוטומטית'}
+                      className={`absolute bottom-3 left-3 p-1.5 rounded-lg transition-all ${
+                        isListening
+                          ? 'bg-red-500/30 text-red-400 animate-pulse'
+                          : 'bg-slate-700/60 text-slate-400 hover:text-cyan-400'
+                      }`}
+                    >
+                      {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+                    </button>
+                  )}
+                </div>
                 <button
                   onClick={saveEntry}
                   disabled={!text.trim()}
@@ -193,12 +245,41 @@ export default function LearningJournal() {
                 </button>
               </div>
 
+              {/* Filter bar */}
+              {moduleIds.length > 1 && (
+                <div className="px-4 py-2 border-b border-white/10 flex gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => setFilterModule('all')}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                      filterModule === 'all'
+                        ? 'bg-cyan-500 text-white'
+                        : 'bg-white/5 text-slate-500 hover:bg-white/10'
+                    }`}
+                  >
+                    הכל
+                  </button>
+                  {moduleIds.map(id => (
+                    <button
+                      key={id}
+                      onClick={() => setFilterModule(id)}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                        filterModule === id
+                          ? 'bg-cyan-500 text-white'
+                          : 'bg-white/5 text-slate-500 hover:bg-white/10'
+                      }`}
+                    >
+                      {id}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Entries list */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {entries.length === 0 && (
+                {displayedEntries.length === 0 && (
                   <p className="text-slate-600 text-xs text-center mt-8">אין הערות עדיין</p>
                 )}
-                {entries.map(entry => (
+                {displayedEntries.map(entry => (
                   <div key={entry.id}
                     className="bg-slate-800/50 rounded-xl p-3 border border-white/5 group relative">
                     <div className="flex items-center justify-between mb-1">

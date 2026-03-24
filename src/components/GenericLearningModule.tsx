@@ -4,7 +4,7 @@ import { BlockMath } from './Math'
 import { useNotes, useProgress } from '../hooks/useNotes'
 import { useLearningData } from '../hooks/useLearningData'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
-import type { JournalEntryType } from '../types'
+import { useJournal } from './LearningJournal'
 
 export interface QuizQuestion {
   question: string
@@ -82,19 +82,16 @@ export default function GenericLearningModule({
   const [activeGuide, setActiveGuide] = useState(0)
   const [copied, setCopied] = useState(false)
   const { note, setNote } = useNotes(moduleId)
-  const { saveQuizResult, addJournalEntry } = useLearningData()
+  const { saveQuizResult } = useLearningData()
   const { isListening, isSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
+  const { setActiveModuleId } = useJournal()
   const [quizSaved, setQuizSaved] = useState(false)
-  const [quickJournalText, setQuickJournalText] = useState('')
-  const [quickJournalType, setQuickJournalType] = useState<JournalEntryType>('question')
-  const [journalAdded, setJournalAdded] = useState(false)
-  // Track which mic is active: 'notes' | 'journal' | null
-  const activeMicRef = useRef<'notes' | 'journal' | null>(null)
-  // Refs to always have latest values inside speech callbacks
+  // Ref to always have latest note value inside speech callback
   const noteRef = useRef(note)
-  const journalRef = useRef(quickJournalText)
   useEffect(() => { noteRef.current = note }, [note])
-  useEffect(() => { journalRef.current = quickJournalText }, [quickJournalText])
+
+  // Tell the journal which module is currently open
+  useEffect(() => { setActiveModuleId(moduleId) }, [moduleId, setActiveModuleId])
 
   const goStep = (s: number) => {
     if (s > maxReached) {
@@ -122,14 +119,6 @@ export default function GenericLearningModule({
       setQuizSaved(true)
     }
   }, [quizDone, quizSaved, quizAnswers, quizQuestions, score, moduleId, saveQuizResult])
-
-  const handleQuickJournal = () => {
-    if (!quickJournalText.trim()) return
-    addJournalEntry(quickJournalText, quickJournalType, moduleId)
-    setQuickJournalText('')
-    setJournalAdded(true)
-    setTimeout(() => setJournalAdded(false), 2000)
-  }
 
   const copyGreenNote = () => {
     const text = greenNote.map((s, i) => `${i + 1}. ${s}`).join('\n')
@@ -589,23 +578,20 @@ export default function GenericLearningModule({
                 {isSupported && (
                   <button
                     onClick={() => {
-                      if (isListening && activeMicRef.current === 'notes') {
+                      if (isListening) {
                         stopSpeech()
-                        activeMicRef.current = null
                       } else {
-                        if (isListening) stopSpeech()
-                        activeMicRef.current = 'notes'
-                        startSpeech(text => { const c = noteRef.current; setNote(c + (c && !c.endsWith(' ') ? ' ' : '') + text) })
+                        startSpeech(t => { const c = noteRef.current; setNote(c + (c && !c.endsWith(' ') ? ' ' : '') + t) })
                       }
                     }}
-                    title={isListening && activeMicRef.current === 'notes' ? 'הפסק הקלטה' : 'דבר — יכתב אוטומטית'}
+                    title={isListening ? 'הפסק הקלטה' : 'דבר — יכתב אוטומטית'}
                     className={`p-1.5 rounded-lg transition-all ${
-                      isListening && activeMicRef.current === 'notes'
+                      isListening
                         ? 'bg-red-500/30 text-red-400 animate-pulse'
                         : 'bg-teal-800/30 text-teal-600 hover:text-teal-400'
                     }`}
                   >
-                    {isListening && activeMicRef.current === 'notes' ? <MicOff size={13} /> : <Mic size={13} />}
+                    {isListening ? <MicOff size={13} /> : <Mic size={13} />}
                   </button>
                 )}
               </div>
@@ -618,73 +604,7 @@ export default function GenericLearningModule({
               dir="rtl"
             />
 
-            {/* Quick Journal Entry */}
-            <div className="mt-3 pt-3 border-t border-teal-800/30">
-              <div className="flex items-center justify-between mb-1.5">
-                <p className="text-teal-600 text-[10px] font-semibold">הוסף ליומן Claude</p>
-                <div className="flex items-center gap-1">
-                  {quickJournalText && (
-                    <button
-                      onClick={() => setQuickJournalText('')}
-                      title="מחק טקסט"
-                      className="p-1 rounded-lg text-slate-700 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                    >
-                      <X size={10} />
-                    </button>
-                  )}
-                  {isSupported && (
-                    <button
-                      onClick={() => {
-                        if (isListening && activeMicRef.current === 'journal') {
-                          stopSpeech()
-                          activeMicRef.current = null
-                        } else {
-                          if (isListening) stopSpeech()
-                          activeMicRef.current = 'journal'
-                          startSpeech(text => { const c = journalRef.current; setQuickJournalText(c + (c && !c.endsWith(' ') ? ' ' : '') + text) })
-                        }
-                      }}
-                      className={`p-1 rounded-lg transition-all ${
-                        isListening && activeMicRef.current === 'journal'
-                          ? 'bg-red-500/30 text-red-400 animate-pulse'
-                          : 'bg-teal-800/30 text-teal-600 hover:text-teal-400'
-                      }`}
-                    >
-                      {isListening && activeMicRef.current === 'journal' ? <MicOff size={11} /> : <Mic size={11} />}
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-1.5 mb-2">
-                {(['question', 'insight', 'struggle'] as JournalEntryType[]).map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setQuickJournalType(t)}
-                    className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                      quickJournalType === t
-                        ? 'bg-teal-500 text-white'
-                        : 'bg-white/5 text-slate-500 hover:bg-white/10'
-                    }`}
-                  >
-                    {t === 'question' ? 'שאלה' : t === 'insight' ? 'תובנה' : 'קושי'}
-                  </button>
-                ))}
-              </div>
-              <textarea
-                value={quickJournalText}
-                onChange={e => setQuickJournalText(e.target.value)}
-                placeholder="משהו שקשה, תובנה, שאלה לClaude... או לחץ מיקרופון"
-                className="w-full bg-transparent text-teal-300 placeholder-teal-900 text-xs resize-none outline-none min-h-[40px]"
-                dir="rtl"
-              />
-              <button
-                onClick={handleQuickJournal}
-                disabled={!quickJournalText.trim()}
-                className="mt-1 text-[10px] text-teal-500 hover:text-teal-300 font-bold disabled:opacity-30 transition-colors"
-              >
-                {journalAdded ? '✓ נוסף ליומן!' : '+ הוסף'}
-              </button>
-            </div>
+            <p className="text-teal-800 text-[10px] mt-2 text-center">לחץ 📓 לשמור ביומן</p>
           </div>
         </div>
       </div>
