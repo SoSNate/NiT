@@ -6,6 +6,8 @@ import Optimization from './Optimization'
 import DoubleIntegrals from './DoubleIntegrals'
 import LineIntegrals from './LineIntegrals'
 import SurfaceIntegrals from './SurfaceIntegrals'
+import TaylorSeries from './TaylorSeries'
+import ParametricCurves from './ParametricCurves'
 
 // ── Course registry ─────────────────────────────────────────────────────────
 // To add a new module: import it and add an entry to course.modules below.
@@ -79,6 +81,26 @@ const course: CourseMeta = {
       border: 'border-indigo-500/25',
       Component: SurfaceIntegrals,
     },
+    {
+      id: 'taylor',
+      title: 'טורי טיילור',
+      subtitle: 'מקלורן, שארית לגרנז\', גבולות',
+      icon: 'T',
+      examFreq: 'כמעט כל מבחן',
+      color: 'from-orange-500/15 to-amber-500/5',
+      border: 'border-orange-500/25',
+      Component: TaylorSeries,
+    },
+    {
+      id: 'parametric',
+      title: 'עקומות פרמטריות',
+      subtitle: 'פרמטרי, קוטלי, אורך קשת, שטח',
+      icon: 'γ',
+      examFreq: 'כמעט כל מבחן',
+      color: 'from-fuchsia-500/15 to-purple-500/5',
+      border: 'border-fuchsia-500/25',
+      Component: ParametricCurves,
+    },
   ],
 }
 
@@ -89,6 +111,8 @@ const quickFormulas = [
   { ltr: true, text: 'Conservative: ∂P/∂y = ∂Q/∂x' },
   { ltr: true, text: 'Critical: f_x=0, f_y=0; D=f_xx·f_yy-(f_xy)²' },
   { ltr: true, text: 'Lagrange: ∇f = λ∇g' },
+  { ltr: true, text: 'Taylor: f(x) = Σ f⁽ⁿ⁾(x₀)/n! · (x-x₀)ⁿ' },
+  { ltr: true, text: 'Polar area: A = ½∫r(θ)² dθ' },
 ]
 
 export default function Calculus2Hub({ onBack }: { onBack: () => void }) {

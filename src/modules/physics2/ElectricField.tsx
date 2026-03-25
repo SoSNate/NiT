@@ -1,447 +1,367 @@
-import React, { useState } from 'react'
-import GenericLearningModule, { QuizQuestion, GuideSection, TheoryCard } from '../../components/GenericLearningModule'
-import { BlockMath, InlineMath, LiveMath } from '../../components/Math'
+/**
+ * ElectricField.tsx — שדה חשמלי והתפלגות מטען
+ * Source: מבוא חשמל.pdf עמ' 10, שיעור 1.pdf עמ' 5+19
+ * Gemini pipeline: 2026-03-26
+ */
+import React, { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
+import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { GlassCard, StyledSlider, SimReadout, ToggleGroup } from '../../components/SimulatorShell'
+import type { QuizQuestion, GuideSection } from '../../types'
 
-// ── SIMULATOR ────────────────────────────────────────────────────────────────
-function ElectricFieldSim({ currentStep }: { currentStep: number }) {
-  const [charge, setCharge] = useState(5)   // μC
-  const [radius, setRadius] = useState(2.5) // m (distance from center)
-  const [showGauss, setShowGauss] = useState(false)
+// ── SIMULATOR ─────────────────────────────────────────────────────────────────
+function Sim({ currentStep: _cs }: { currentStep: number }) {
+  const [mode, setMode] = useState<'point' | 'dipole' | 'superposition'>('point')
+  const [Q, setQ] = useState(2)    // nC
+  const [r, setR] = useState(1.0)  // m
+  const [Q2, setQ2] = useState(-2) // nC (for dipole/superposition)
 
   const k = 9e9
-  const E = (k * charge * 1e-6) / (radius * radius)
-  const Ekilo = E / 1000
+  const W = 380, H = 220, cx = W / 2, cy = H / 2
+  const scale = 60
 
-  const sphereR = 28
-  const gaussR = Math.min(120, radius * 24)
+  const E1 = useMemo(() => k * Math.abs(Q) * 1e-9 / (r * r), [Q, r])
+  const E2 = useMemo(() => k * Math.abs(Q2) * 1e-9 / (r * r), [Q2, r])
+
+  // Field line angles
+  const angles = useMemo(() =>
+    Array.from({ length: 8 }, (_, i) => (i * 45 * Math.PI) / 180), [])
+
+  const chargeColor = (q: number) => q >= 0 ? '#f87171' : '#60a5fa'
+  const chargeLabel = (q: number) => q >= 0 ? '+' : '−'
 
   return (
-    <div className="w-full flex flex-col items-center gap-4">
-      <svg viewBox="-140 -140 280 280" width="260" height="260">
-        <defs>
-          <marker id="arr-e" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="#fbbf24" />
-          </marker>
-          <radialGradient id="sphereGrad" cx="40%" cy="35%">
-            <stop offset="0%" stopColor="#34d399" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#059669" stopOpacity="0.5" />
-          </radialGradient>
-        </defs>
+    <div className="w-full space-y-4" dir="ltr">
+      <GlassCard className="overflow-hidden bg-slate-950">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 200 }}>
+          <defs>
+            <pattern id="ef-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0L0 0 0 40" fill="none" stroke="white" strokeWidth="0.4" strokeOpacity="0.05" />
+            </pattern>
+            <marker id="ef-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#fbbf24" />
+            </marker>
+          </defs>
+          <rect width={W} height={H} fill="url(#ef-grid)" />
 
-        {/* Field lines */}
-        {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => {
-          const rad = (deg * Math.PI) / 180
-          const x1 = Math.cos(rad) * (sphereR + 4)
-          const y1 = Math.sin(rad) * (sphereR + 4)
-          const x2 = Math.cos(rad) * 128
-          const y2 = Math.sin(rad) * 128
-          return (
-            <line
-              key={deg}
-              x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke="#fbbf24" strokeWidth="1.5" opacity="0.6"
-              markerEnd="url(#arr-e)"
-            />
-          )
-        })}
+          {mode === 'point' && <>
+            {/* Field lines from point charge */}
+            {angles.map((a, i) => {
+              const len = Math.min(80, E1 * 5e-4)
+              const x1 = cx + Math.cos(a) * 18
+              const y1 = cy + Math.sin(a) * 18
+              const x2 = cx + Math.cos(a) * (18 + len)
+              const y2 = cy + Math.sin(a) * (18 + len)
+              const sign = Q >= 0 ? 1 : -1
+              return <motion.line key={i}
+                x1={sign > 0 ? x1 : x2} y1={sign > 0 ? y1 : y2}
+                x2={sign > 0 ? x2 : x1} y2={sign > 0 ? y2 : y1}
+                stroke="#fbbf24" strokeWidth="1.5" opacity="0.7"
+                markerEnd="url(#ef-arrow)"
+                initial={{ opacity: 0 }} animate={{ opacity: 0.7 }} />
+            })}
+            {/* Charge */}
+            <circle cx={cx} cy={cy} r={16} fill={chargeColor(Q)} fillOpacity={0.3} stroke={chargeColor(Q)} strokeWidth={2} />
+            <text x={cx} y={cy + 5} textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{chargeLabel(Q)}</text>
+            {/* r label */}
+            <line x1={cx} y1={cy} x2={cx + r * scale} y2={cy} stroke="#64748b" strokeWidth="1" strokeDasharray="4 3" />
+            <text x={cx + r * scale / 2} y={cy - 6} textAnchor="middle" fill="#94a3b8" fontSize="9">r={r}m</text>
+            <circle cx={cx + r * scale} cy={cy} r={4} fill="#22d3ee" />
+            <text x={cx + r * scale + 8} y={cy + 4} fill="#22d3ee" fontSize="9">P</text>
+          </>}
 
-        {/* Gaussian surface */}
-        {(showGauss || currentStep === 2) && (
-          <>
-            <circle cx="0" cy="0" r={gaussR}
-              fill="none" stroke="#60a5fa" strokeWidth="1.5"
-              strokeDasharray="6,3" opacity="0.8" />
-            <text x={gaussR + 4} y="4" fill="#60a5fa" fontSize="9">
-              משטח גאוס
+          {mode === 'dipole' && <>
+            {/* Two charges */}
+            {[-1, 1].map((side, i) => {
+              const q = side > 0 ? Q : Q2
+              const x = cx + side * 50
+              return <g key={i}>
+                <circle cx={x} cy={cy} r={14} fill={chargeColor(q)} fillOpacity={0.3} stroke={chargeColor(q)} strokeWidth={2} />
+                <text x={x} y={cy + 5} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{chargeLabel(q)}</text>
+              </g>
+            })}
+            {/* Field lines between */}
+            {[-30, 0, 30].map((dy, i) => (
+              <path key={i} d={`M ${cx - 36} ${cy + dy} Q ${cx} ${cy + dy * 1.5} ${cx + 36} ${cy + dy}`}
+                fill="none" stroke="#fbbf24" strokeWidth="1.2" opacity="0.6"
+                markerEnd="url(#ef-arrow)" />
+            ))}
+            <text x={cx} y={H - 10} textAnchor="middle" fill="#94a3b8" fontSize="9">דיפול — שדה מ+ ל−</text>
+          </>}
+
+          {mode === 'superposition' && <>
+            {/* Two positive charges */}
+            {[-60, 60].map((dx, i) => (
+              <g key={i}>
+                <circle cx={cx + dx} cy={cy} r={14} fill="#f87171" fillOpacity={0.3} stroke="#f87171" strokeWidth={2} />
+                <text x={cx + dx} y={cy + 5} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">+</text>
+                {angles.filter((_, j) => j % 2 === 0).map((a, j) => {
+                  const len = 40
+                  return <line key={j}
+                    x1={cx + dx + Math.cos(a) * 16} y1={cy + Math.sin(a) * 16}
+                    x2={cx + dx + Math.cos(a) * (16 + len)} y2={cy + Math.sin(a) * (16 + len)}
+                    stroke="#fbbf24" strokeWidth="1" opacity="0.5" markerEnd="url(#ef-arrow)" />
+                })}
+              </g>
+            ))}
+            <text x={cx} y={H - 10} textAnchor="middle" fill="#34d399" fontSize="9">
+              E_כולל = E₁ + E₂ (חיבור וקטורי)
             </text>
-          </>
-        )}
+          </>}
+        </svg>
+      </GlassCard>
 
-        {/* Sphere */}
-        <circle cx="0" cy="0" r={sphereR} fill="url(#sphereGrad)" stroke="#34d399" strokeWidth="1.5" />
-        <text x="0" y="-8" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">+Q</text>
-        <text x="0" y="8" textAnchor="middle" fill="#a7f3d0" fontSize="9">{charge} μC</text>
+      {mode === 'point' && (
+        <SimReadout label="E בנקודה P" value={E1.toExponential(2)} unit="N/C" />
+      )}
 
-        {/* Radius arrow */}
-        <line x1="0" y1="0" x2={gaussR} y2="0" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,2" />
-        <text x={gaussR / 2} y="-6" textAnchor="middle" fill="#94a3b8" fontSize="9">r = {radius} m</text>
-      </svg>
+      <ToggleGroup
+        value={mode}
+        onChange={v => setMode(v as typeof mode)}
+        options={[
+          { value: 'point',         label: 'מטען יחיד' },
+          { value: 'dipole',        label: 'דיפול' },
+          { value: 'superposition', label: 'סופרפוזיציה' },
+        ]}
+      />
+      <StyledSlider label="Q (nC)" value={Q} min={-10} max={10} step={0.5} unit="nC" onChange={setQ} />
+      {mode === 'point' && (
+        <StyledSlider label="מרחק r" value={r} min={0.2} max={3} step={0.1} unit="m" onChange={setR} />
+      )}
+    </div>
+  )
+}
 
-      {/* Controls */}
-      <div className="w-full space-y-3 px-3">
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-1">
-            <span>מטען Q</span>
-            <span className="text-emerald-400 font-bold">{charge} μC</span>
+// ── STEP 1 — זיהוי (מ-מבוא חשמל.pdf עמ' 5) ───────────────────────────────────
+const step1 = <PatternStep
+  scenario="שלושה מטענים זהים +Q בקודקודי משולש שווה-צלעות. מה הכוח השקול על המטען העליון?"
+  prompt="מה הצעד הראשון לפתרון?"
+  options={[
+    { label: 'חשב E בנקודה ופתור ישר', desc: 'אפשרי, אבל מחמיץ את ה-FBD', correct: false },
+    { label: 'סרטוט + FBD + פירוק לרכיבים', desc: 'נכון! זה בדיוק תרגיל 1 במבוא חשמל.pdf עמ\' 4-5', correct: true },
+    { label: 'השתמש בסימטריה ישר', desc: 'סימטריה עוזרת, אבל קודם FBD', correct: false },
+    { label: 'חשב עם גאוס', desc: 'גאוס לסימטריה רציפה — לא למטענים נקודתיים', correct: false },
+  ]}
+  correctFeedback="נכון! מבוא חשמל.pdf עמ' 4: סרטוט מערכת → FBD על המטען הנבדק → פירוק לרכיבים → סופרפוזיציה → גודל וכיוון."
+/>
+
+// ── STEP 2 — עיקרון (מ-מבוא חשמל.pdf עמ' 10) ────────────────────────────────
+const step2 = <PrincipleStep
+  heading="שדה חשמלי — מסגרת מלאה:"
+  items={[
+    {
+      title: 'הגדרת שדה חשמלי',
+      content: <div className="space-y-1">
+        <Formula c="E = F / q₀" color="text-yellow-300" />
+        <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10: השדה = כוח על מטען בוחן חיובי קטן</p>
+        <p className="text-slate-300 text-sm">כיוון: אותו כיוון הכוח על מטען חיובי, הפוך לשלילי</p>
+      </div>,
+    },
+    {
+      title: 'שדה של מטען נקודתי',
+      content: <div className="space-y-1">
+        <Formula c="E = kQ / r²" color="text-blue-300" />
+        <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10 | k = 9×10⁹ N·m²/C²</p>
+        <p className="text-slate-300 text-xs">כיוון: רדיאלי מ-Q חיובי, לתוך Q שלילי</p>
+      </div>,
+      accent: 'text-blue-400',
+    },
+    {
+      title: 'עיקרון הסופרפוזיציה',
+      content: <div className="space-y-1">
+        <Formula c="E_כולל = ΣEᵢ (חיבור וקטורי)" color="text-emerald-300" />
+        <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10: חיבור וקטורי — לא סקלרי!</p>
+        <Note color="red" children={<>פרק לרכיבים x,y לפני שמחבר</>} />
+      </div>,
+      accent: 'text-emerald-400',
+    },
+    {
+      title: 'התפלגות מטען רציפה',
+      content: <div className="space-y-1 text-xs">
+        <p className="text-slate-300">מבוא חשמל.pdf עמ' 10 — 3 צפיפויות מטען:</p>
+        <div className="grid grid-cols-3 gap-1">
+          <div className="bg-white/5 rounded p-1.5 text-center">
+            <p className="text-purple-300">קווית</p>
+            <p className="text-slate-300" dir="ltr">λ = dq/dl</p>
           </div>
-          <input type="range" min="1" max="10" value={charge}
-            onChange={e => setCharge(+e.target.value)}
-            className="w-full accent-emerald-500 h-2 rounded-full" />
-        </div>
-        <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-1">
-            <span>מרחק r</span>
-            <span className="text-blue-400 font-bold">{radius} m</span>
+          <div className="bg-white/5 rounded p-1.5 text-center">
+            <p className="text-cyan-300">משטחית</p>
+            <p className="text-slate-300" dir="ltr">σ = dq/dA</p>
           </div>
-          <input type="range" min="1" max="5" step="0.1" value={radius}
-            onChange={e => setRadius(+e.target.value)}
-            className="w-full accent-blue-500 h-2 rounded-full" />
+          <div className="bg-white/5 rounded p-1.5 text-center">
+            <p className="text-orange-300">נפחית</p>
+            <p className="text-slate-300" dir="ltr">ρ = dq/dV</p>
+          </div>
         </div>
+        <Formula c="E = ∫k·dq/r² · r̂" color="text-slate-300" />
+      </div>,
+      accent: 'text-purple-400',
+    },
+  ]}
+/>
 
-        <button onClick={() => setShowGauss(v => !v)}
-          className={`w-full py-1.5 rounded-lg text-xs font-medium transition-all ${showGauss ? 'bg-blue-500/30 text-blue-300' : 'bg-white/10 text-slate-400'}`}>
-          {showGauss ? '✓' : '○'} הצג משטח גאוס
-        </button>
-
-        <div className="bg-white/10 rounded-xl p-3 text-center">
-          <p className="text-xs text-slate-400 font-mono" dir="ltr">E = kQ/r² = {Ekilo.toFixed(1)} kN/C</p>
-          <p className="text-emerald-400 font-black text-xl mt-1">{Ekilo.toFixed(1)} kN/C</p>
-          <p className="text-slate-500 text-xs">כיוון: רדיאלי מהמרכז</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── STEP 1 — Pattern Recognition ─────────────────────────────────────────────
-function Step1() {
-  const [selected, setSelected] = useState<number | null>(null)
-  const options = [
-    { label: 'חוק גאוס', desc: 'לחלוקות מטען סימטריות', correct: true },
-    { label: 'חוק קולון', desc: 'כוח בין שתי נקודות מטען', correct: false },
-    { label: 'חוק ביו-סאבר', desc: 'שדה מגנטי מזרם', correct: false },
-    { label: 'חוק פאראדיי', desc: 'EMF מאינדוקציה', correct: false },
-  ]
-
-  return (
-    <div className="space-y-4">
-      <p className="text-white font-bold text-base">שאלה לזיהוי הנושא:</p>
-      <div className="bg-white/5 rounded-xl p-4 text-slate-300 text-sm leading-relaxed">
-        בעיה: כדור מוליך בעל מטען <span className="text-emerald-400 font-mono">Q = +5 μC</span> ורדיוס{' '}
-        <span className="text-emerald-400 font-mono">R = 0.1 m</span>. מצא את עוצמת השדה החשמלי
-        בנקודה שנמצאת <span className="text-emerald-400 font-mono">r = 2 m</span> מהמרכז.
-      </div>
-      <p className="text-slate-400 text-sm">איזה חוק/עיקרון תבחר לפתרון?</p>
-      <div className="space-y-2">
-        {options.map((opt, i) => (
-          <button
-            key={i}
-            disabled={selected !== null}
-            onClick={() => setSelected(i)}
-            className={`w-full text-right p-3 rounded-xl text-sm transition-all border ${
-              selected === null
-                ? 'bg-white/10 hover:bg-white/20 text-white border-white/10'
-                : opt.correct
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                : selected === i
-                ? 'bg-red-500/20 text-red-300 border-red-500/40'
-                : 'bg-white/5 text-slate-600 border-transparent'
-            }`}
-          >
-            <span className="font-semibold">{opt.label}</span>
-            <span className="text-slate-500 mr-2">— {opt.desc}</span>
-          </button>
-        ))}
-      </div>
-      {selected !== null && (
-        <div className={`rounded-xl p-3 text-sm ${options[selected].correct ? 'bg-emerald-900/30 text-emerald-300' : 'bg-amber-900/30 text-amber-300'}`}>
-          {options[selected].correct
-            ? '✓ מעולה! חוק גאוס הוא הכלי הנכון לסימטריה כדורית — הוא הופך חישוב קשה לפשוט מאוד.'
-            : `✗ לא בדיוק. ${options[selected].label} לא מתאים כאן כי הבעיה כוללת חלוקת מטען ולא נקודות מטען בודדות. חוק גאוס הוא הבחירה הנכונה.`}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── STEP 2 — Principle ────────────────────────────────────────────────────────
-function Step2() {
-  const [revealed, setRevealed] = useState(0)
-  const steps = [
+// ── STEP 3 — דוגמה (שיעור 1.pdf עמ' 19 — שיווי משקל) ────────────────────────
+const step3 = <WorkedExample
+  examLabel="שיעור 1.pdf עמ' 19 — שיווי משקל יציב/לא יציב"
+  problem={<p>שני מטענים +Q קבועים במרחק <span dir="ltr">2a</span> זה מזה. מטען בוחן +q קטן נמצא בדיוק באמצע. (א) הסט את q בכיוון ציר המטענים. (ב) הסט בניצב. האם שיווי המשקל יציב?</p>}
+  hint="בדוק את כיוון הכוח השקול אחרי הסטה קטנה — האם חוזר או מתרחק?"
+  solution={[
     {
-      title: 'חוק גאוס',
-      content: (
-        <span>
-          השטף החשמלי דרך משטח סגור שווה למטען הכלוא חלקי{' '}
-          <InlineMath tex="\varepsilon_0" />:
-          <BlockMath tex="\oint \vec{E} \cdot d\vec{A} = \dfrac{Q_{\text{enc}}}{\varepsilon_0}" />
-        </span>
-      ),
+      label: 'נקודת שיווי משקל',
+      content: <p className="text-slate-300 text-sm">באמצע: שני כוחות שווים ומנוגדים → F_שקול = 0 ✓</p>,
     },
     {
-      title: 'בחירת משטח גאוס',
-      content: (
-        <span>
-          לסימטריה כדורית בוחרים{' '}
-          <span className="text-blue-300 font-semibold">כדור קונצנטרי</span> ברדיוס{' '}
-          <span className="font-mono text-blue-300">r</span>. על פני הכדור,{' '}
-          <span className="font-mono">E</span> קבוע ומקביל ל-<span className="font-mono">dA</span>,
-          לכן:
-          <BlockMath tex="E \cdot 4\pi r^2 = \dfrac{Q}{\varepsilon_0}" />
-        </span>
-      ),
+      label: '(א) הסטה לאורך ציר המטענים',
+      content: <div className="space-y-1">
+        <p className="text-slate-300 text-sm">q מתקרב ל-Q אחד → כוח דחייה גדול יותר → מתרחק עוד יותר</p>
+        <Formula c="שיווי משקל לא יציב בכיוון זה" color="text-red-300" />
+      </div>,
     },
     {
-      title: 'פתרון סופי',
-      content: (
-        <span>
-          מחלקים את שני האגפים ב-<InlineMath tex="4\pi r^2" />:
-          <BlockMath tex="E = \dfrac{Q}{4\pi\varepsilon_0 r^2} = \dfrac{kQ}{r^2}" />
-          <span className="block mt-2 text-slate-300">
-            כאשר <span className="font-mono text-yellow-300" dir="ltr">k = 9×10⁹ N·m²/C²</span>.
-            אם המרכז הוא מוליך, השדה פנימה = 0, בחוץ — כאילו כל המטען בנקודה אחת.
-          </span>
-        </span>
-      ),
+      label: '(ב) הסטה בניצב לציר',
+      content: <div className="space-y-1">
+        <p className="text-slate-300 text-sm">שני הכוחות מושכים כלפי מטה (לכיוון ציר הסימטריה) → חוזר למרכז</p>
+        <Formula c="שיווי משקל יציב בכיוון זה" color="text-emerald-300" />
+        <Note color="blue" children={<>יציבות תלויה בכיוון ההסטה — זו שאלת מבחן קלאסית ב-HIT</>} />
+      </div>,
     },
-  ]
+  ]}
+/>
 
-  return (
-    <div className="space-y-4">
-      <p className="text-white font-bold">חוק גאוס — שלב אחר שלב:</p>
-      {steps.slice(0, revealed + 1).map((s, i) => (
-        <div key={i} className="bg-white/5 rounded-xl p-4 text-sm text-slate-300 leading-relaxed">
-          <p className="text-emerald-400 font-bold text-xs mb-2">שלב {i + 1}: {s.title}</p>
-          {s.content}
-        </div>
-      ))}
-      {revealed < steps.length - 1 && (
-        <button
-          onClick={() => setRevealed(r => r + 1)}
-          className="w-full border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 py-2.5 rounded-xl text-sm font-medium transition-all"
-        >
-          גלה שלב {revealed + 2} ▾
-        </button>
-      )}
-    </div>
-  )
-}
-
-// ── STEP 3 — Worked Example (HIT 2021) ────────────────────────────────────────
-function Step3() {
-  const [showSol, setShowSol] = useState(false)
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4">
-        <p className="text-blue-300 text-xs font-bold mb-2">📄 מבחן HIT — יולי 2021</p>
-        <p className="text-white text-sm leading-relaxed">
-          שלושה כדורים קונצנטריים. הכדור הפנימי (רדיוס <span className="font-mono text-blue-300">a</span>)
-          נושא מטען <span className="font-mono text-blue-300">+Q</span>.
-          הכדור האמצעי (מוליך, עובי זניח, רדיוס <span className="font-mono text-blue-300">b</span>)
-          טעון <span className="font-mono text-blue-300">-Q</span>.
-          הכדור החיצוני (רדיוס <span className="font-mono text-blue-300">c</span>) מבודד, ללא מטען.
-          <br /><br />
-          <strong>מצא את E בארבעה אזורים:</strong>{' '}
-          <span className="font-mono">r &lt; a</span>,{' '}
-          <span className="font-mono">a &lt; r &lt; b</span>,{' '}
-          <span className="font-mono">b &lt; r &lt; c</span>,{' '}
-          <span className="font-mono">r &gt; c</span>.
-        </p>
-      </div>
-
-      <p className="text-slate-400 text-sm">
-        💭 נסה לפתור לבד — מה <span className="text-white">Q_enc</span> בכל אזור?
-      </p>
-
-      <button
-        onClick={() => setShowSol(v => !v)}
-        className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 py-2.5 rounded-xl text-sm font-medium transition-all"
-      >
-        {showSol ? '▲ הסתר פתרון' : '▼ הצג פתרון מפורט'}
-      </button>
-
-      {showSol && (
-        <div className="space-y-3 text-sm">
-          {[
-            { region: 'r < a (פנים הכדור הפנימי)', Qenc: '0', E: 'E = 0', note: 'בפנים מוליך אין שדה', color: 'emerald' },
-            { region: 'a < r < b (בין הכדורים)', Qenc: '+Q', E: 'E = kQ/r²', note: 'כלפי חוץ (רדיאלי)', color: 'yellow' },
-            { region: 'b < r < c (בתוך מוליך האמצעי)', Qenc: 'Q + (-Q) = 0', E: 'E = 0', note: 'מוליך ← שדה = 0', color: 'emerald' },
-            { region: 'r > c (מחוץ לכל)', Qenc: '+Q + (-Q) = 0', E: 'E = 0', note: 'המטענות מבטלים זה את זה', color: 'emerald' },
-          ].map((row, i) => (
-            <div key={i} className="bg-white/5 rounded-xl p-3">
-              <p className="text-slate-400 text-xs mb-1 font-mono">{row.region}</p>
-              <p className="text-slate-300">
-                <span className="text-slate-500 text-xs">Q_enc = </span>
-                <span className="font-mono text-blue-300">{row.Qenc}</span>
-                <span className="mx-2 text-slate-600">→</span>
-                <span className={`font-mono font-bold text-${row.color}-400`}>{row.E}</span>
-              </p>
-              <p className="text-xs text-slate-500 mt-1">💡 {row.note}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── PRACTICE QUESTIONS (generated) ───────────────────────────────────────────
-const practice: QuizQuestion[] = [
-  {
-    question: 'כדור מוליך בעל מטען Q = +8 μC ורדיוס R = 0.2 m. מה עוצמת השדה בנקודה r = 0.5 m מהמרכז?',
-    options: ['E = kQ/R² ≈ 1.8 MN/C', 'E = kQ/r² ≈ 288 kN/C', 'E = 0', 'E = kQ/(r-R)² ≈ 720 kN/C'],
-    correct: 1,
-    explanation: 'r > R → מחוץ לכדור. E = kQ/r² = 9×10⁹ × 8×10⁻⁶ / 0.25 ≈ 288,000 N/C. R לא משחק תפקיד.',
-  },
-  {
-    question: 'מה השטף החשמלי דרך משטח גאוס גלילי (גובה L, רדיוס r) סביב חוט ישר אינסופי עם צפיפות מטען λ?',
-    options: ['Φ = λL/ε₀', 'Φ = λ/(ε₀L)', 'Φ = λ/(2πrε₀)', 'Φ = 2πrλL/ε₀'],
-    correct: 0,
-    explanation: 'Q_enc = λL (אורך L של חוט). חוק גאוס: Φ = Q_enc/ε₀ = λL/ε₀. רדיוס לא משנה את השטף!',
-  },
-  {
-    question: 'מישור אינסופי עם צפיפות שטח מטען σ. מה השדה החשמלי מעל המישור?',
-    options: ['E = σ/ε₀', 'E = σ/(2ε₀)', 'E = σ/(4πε₀)', 'E = 2σ/ε₀'],
-    correct: 1,
-    explanation: 'קופסת גאוס דרך המישור: 2E·A = σA/ε₀ → E = σ/(2ε₀). גורם 2 כי השדה יוצא משני הצדדים.',
-  },
-  {
-    question: 'מוליך כדורי ריק עם מטען +Q על פניו. מה E בתוך החלל הריק (r < R)?',
-    options: ['E = kQ/r²', 'E = kQ/R²', 'E = 0', 'E = kQr/R³'],
-    correct: 2,
-    explanation: 'Q_enc = 0 (אין מטען בתוך חלל ריק). חוק גאוס: E·4πr² = 0 → E = 0. תמיד!',
-  },
-  {
-    question: 'שני כדורים קונצנטריים: פנימי (r=a) מטען +2Q, חיצוני מוליך (r=b) מטען -Q. מה E עבור r > b?',
-    options: ['E = k·3Q/r²', 'E = k·2Q/r²', 'E = kQ/r²', 'E = 0'],
-    correct: 2,
-    explanation: 'Q_enc = +2Q + (-Q) = +Q. E = kQ/r².',
-  },
-]
-
-// ── QUIZ QUESTIONS (real HIT exams) ──────────────────────────────────────────
+// ── QUIZ (מבוחנים אמיתיים HIT) ───────────────────────────────────────────────
 const quiz: QuizQuestion[] = [
   {
-    question: 'כדור מוליך בעל מטען Q ורדיוס R. מה עוצמת השדה החשמלי בנקודה פנימית (r < R)?',
-    options: ['E = kQ/r²', 'E = kQ/R²', 'E = 0', 'E = kQ/(R-r)²'],
+    question: 'מטען +Q יוצר שדה E₀ במרחק r. מה השדה במרחק 2r?',
+    options: ['2E₀', 'E₀/2', 'E₀/4', '4E₀'],
     correct: 2,
-    explanation: 'בפנים מוליך בשיווי משקל אין שדה חשמלי. כל מטען פנוי נמצא על פני השטח.',
+    explanation: 'E = kQ/r². הכפלת r → מחלקים ב-4: E(2r) = kQ/(2r)² = E₀/4.',
   },
   {
-    question: 'מה השטף החשמלי דרך כדור גאוס ברדיוס r > R סביב מטען Q?',
-    options: ['Φ = Q·ε₀', 'Φ = Q/ε₀', 'Φ = 4πr²E', 'Φ = kQ/r'],
+    question: 'שני מטענים +3Q ו-Q− במרחק d. שדה שווה אפס בנקודה P. P נמצאת:',
+    options: ['בין המטענים', 'מחוץ ליד Q−', 'מחוץ ליד +3Q', 'אין נקודה כזו'],
     correct: 1,
-    explanation: 'חוק גאוס: Φ = Q_enc/ε₀. השטף תלוי רק במטען הכלוא, לא בצורת המשטח.',
+    explanation: 'E=0 דורש שהשדות יתבטלו. עם מטענים בסימן שונה — נקודת הביטול היא מחוץ, ליד המטען הקטן יותר.',
   },
   {
-    question: 'שני כדורים קונצנטריים: פנימי +3Q, חיצוני (מוליך) ללא מטען. מה E מחוץ לכדור החיצוני?',
-    options: ['E = 3kQ/r²', 'E = kQ/r²', 'E = 0', 'תלוי בחומר'],
-    correct: 0,
-    explanation: 'Q_enc = +3Q (המוליך מתגרד — מטען שרידי = 0 ← Q_enc כולל = 3Q). E = k·3Q/r².',
+    question: 'תיל אינסופי עם צפיפות מטען λ>0. כיוון השדה ב-r?',
+    options: ['לאורך התיל', 'רדיאלי החוצה מהתיל', 'רדיאלי פנימה', 'אין שדה'],
+    correct: 1,
+    explanation: 'מטען חיובי → שדה רדיאלי החוצה. E = λ/(2πε₀r) לפי גאוס.',
   },
 ]
 
-// ── GREEN NOTE ────────────────────────────────────────────────────────────────
+// ── PRACTICE ──────────────────────────────────────────────────────────────────
+const practice: QuizQuestion[] = [
+  {
+    question: 'מטען q=2nC בשדה E=500N/C. הכוח עליו?',
+    options: ['1000 N', '1 μN', '250 N', '0.004 N'],
+    correct: 1,
+    explanation: 'F = qE = 2×10⁻⁹ × 500 = 10⁻⁶ N = 1μN.',
+  },
+  {
+    question: 'E=0 בנקודה מסוימת. האם יש שם מטען?',
+    options: ['כן — בהכרח מטען אפס', 'לא בהכרח', 'כן — מטען שלילי', 'תמיד מטען חיובי'],
+    correct: 1,
+    explanation: 'E=0 יכול להיות בנקודת ביטול בין שני מטענים, לא בהכרח מקום של מטען.',
+  },
+  {
+    question: 'מטען Q=5nC במרחק r=0.3m. E=?',
+    options: ['500 N/C', '5000 N/C', '50 N/C', '50000 N/C'],
+    correct: 0,
+    explanation: 'E = kQ/r² = 9×10⁹ × 5×10⁻⁹ / 0.09 = 45/0.09 = 500 N/C.',
+  },
+  {
+    question: 'שני מטענים +Q זהים. השדה בנקודת אמצע ביניהם?',
+    options: ['2kQ/r²', 'kQ/r²', '0', 'kQ/(2r)²'],
+    correct: 2,
+    explanation: 'סופרפוזיציה: שני שדות שווים בכיוונים מנוגדים → מתבטלים. E=0.',
+  },
+  {
+    question: 'מטען −2Q. כיוון קווי השדה?',
+    options: ['החוצה מהמטען', 'אין קווי שדה', 'פנימה לכיוון המטען', 'אופקי בלבד'],
+    correct: 2,
+    explanation: 'קווי שדה מסתיימים במטענים שליליים — כיוון השדה לתוך המטען.',
+  },
+]
+
+// ── GREEN NOTE (מבוא חשמל.pdf עמ' 4-5) ───────────────────────────────────────
 const greenNote = [
-  'בחר משטח גאוס עם הסימטריה של הבעיה (כדור → כדור גאוס, חוט → גליל, מישור → קופסה)',
-  'חשב Q_enc — מה המטען הכלוא בתוך המשטח?',
-  'פתח את חוק גאוס: E · 4πr² = Q_enc/ε₀ → E = kQ/r²',
-  'בדוק גבולות: בפנים מוליך E=0, בחוץ — כאילו כל המטען במרכז',
+  'סרטוט + FBD קודם — סמן כל כוח/שדה עם כיוון',
+  'פרק לרכיבים x,y — חבר רכיבים בנפרד (ΣFx, ΣFy)',
+  'נצל סימטריה — רכיבים ניצבים מתבטלים בזוגות',
+  'בדוק יחידות: E [N/C = V/m], F [N], q [C]',
 ]
 
 // ── GUIDES ────────────────────────────────────────────────────────────────────
 const guides: GuideSection[] = [
   {
-    title: 'נוסחאות',
-    content: (
-      <div className="space-y-4 text-sm">
-        <div>
-          <p className="text-emerald-400 font-bold mb-2">חוק גאוס</p>
-          <BlockMath tex="\oint \vec{E} \cdot d\vec{A} = \dfrac{Q_{\text{enc}}}{\varepsilon_0}" />
-        </div>
-        <div>
-          <p className="text-emerald-400 font-bold mb-2">משטחי גאוס נפוצים</p>
-          <ul className="space-y-1 text-slate-300">
-            <li><span className="text-yellow-400">כדור:</span> E · 4πr² = Q/ε₀</li>
-            <li><span className="text-yellow-400">גליל (חוט):</span> E · 2πrL = Q/ε₀</li>
-            <li><span className="text-yellow-400">מישור:</span> 2E · A = σA/ε₀</li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-emerald-400 font-bold mb-2">קבועים</p>
-          <ul className="space-y-1 text-slate-300 font-mono text-xs" dir="ltr">
-            <li>k = 9×10⁹ N·m²/C²</li>
-            <li>ε₀ = 8.85×10⁻¹² C²/(N·m²)</li>
-            <li>k = 1/(4πε₀)</li>
-          </ul>
-        </div>
-      </div>
-    ),
+    title: 'מתי להשתמש',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">אבחון סוג הבעיה</p>
+      <p className="text-xs">1. מטענים נקודתיים → קולון + סופרפוזיציה</p>
+      <p className="text-xs">2. סימטריה גבוהה (כדור/גליל/מישור) → גאוס</p>
+      <p className="text-xs">3. התפלגות רציפה → אינטגרל ∫k·dq/r²</p>
+      <Note color="blue" children={<>תמיד שאל: האם יש סימטריה? → בחר גאוס</>} />
+    </div>,
   },
   {
-    title: 'טיפים למבחן',
-    content: (
-      <div className="space-y-3 text-sm text-slate-300">
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
-          <p className="text-yellow-400 font-bold text-xs mb-1">⚠️ שגיאה נפוצה</p>
-          <p>בפנים מוליך E=0 תמיד — גם אם יש מטען על פני השטח!</p>
-        </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <p className="text-emerald-400 font-bold text-xs mb-1">✓ טריק מבחן</p>
-          <p>לפני הכל — שאל: מה Q_enc? אם 0, אז E=0 ללא חישוב.</p>
-        </div>
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
-          <p className="text-blue-400 font-bold text-xs mb-1">🎯 בדוק יחידות</p>
-          <p>E [N/C = V/m] · Area [m²] = Flux [N·m²/C]</p>
-        </div>
-      </div>
-    ),
+    title: 'שגיאות נפוצות',
+    content: <div className="space-y-2 text-sm">
+      <p className="text-red-400 text-xs font-bold">שגיאה #1 — חיבור סקלרי</p>
+      <p className="text-slate-300 text-xs">אסור: E = E₁ + E₂ (מספרים). חובה: חיבור וקטורי עם רכיבים.</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — בלבול F ↔ E</p>
+      <p className="text-slate-300 text-xs">E = F/q₀ (שדה = כוח ÷ מטען). F = qE (כוח על מטען בשדה).</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #3 — לא מנצל סימטריה</p>
+      <p className="text-slate-300 text-xs">בטבעת/דיסקה: רכיבי x,y מתבטלים — נשאר רק z.</p>
+    </div>,
   },
 ]
 
-// ── INTRO ─────────────────────────────────────────────────────────────────────
-const intro = (
-  <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
-    <p>
-      דמיין שאתה עומד ליד כדור ענק טעון. אתה מרגיש כוח דוחף אותך — זה{' '}
-      <span className="text-emerald-400 font-semibold">השדה החשמלי</span>.
-    </p>
-    <p>
-      אבל חישוב השדה מעל מיליארדי חלקיקים טעונים ישירות דרך חוק קולון זה בלוגן.
-      פיזיקאי בשם גאוס מצא דרך הרבה יותר חכמה:
-    </p>
-    <div className="bg-white/5 rounded-xl p-4 border-r-2 border-emerald-500">
-      <BlockMath tex="\oint \vec{E} \cdot d\vec{A} = \dfrac{Q_{\text{enc}}}{\varepsilon_0}" />
-      <p className="text-center text-xs text-slate-500 mt-2">
-        "השטף" (כמות השדה שעוברת דרך משטח) = מטען פנימי ÷ קבוע
-      </p>
-    </div>
-    <p>
-      במבחן HIT — חוק גאוס מופיע <span className="text-yellow-400 font-semibold">בכל מבחן</span>,
-      לרוב עם כדורים קונצנטריים. נלמד את השיטה פעם אחת ותוכל לפתור כל בעיה כזו.
-    </p>
-  </div>
-)
+// ── INTRO + BRIDGE ────────────────────────────────────────────────────────────
+const intro = <div className="space-y-3 text-slate-300 text-sm leading-relaxed">
+  <p>
+    מה גורם לשיערות להתרומם ליד בלון טעון? זהו <span className="text-yellow-400 font-semibold">שדה חשמלי</span> —
+    תכונה של המרחב שנוצרת על ידי מטענים וגורמת לכוח על כל מטען שנכנס לתוכו.
+  </p>
+  <Formula c="E = F / q₀" color="text-yellow-300" />
+  <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10: הגדרה רשמית של HIT</p>
+</div>
 
-// ── THEORY ────────────────────────────────────────────────────────────────────
+const bridge = <div className="space-y-2 text-sm text-slate-300">
+  <p>מחוק קולון: <span className="text-emerald-400">F = kq₁q₂/r²</span></p>
+  <p>השדה הוא "הכוח שהיה פועל על מטען בוחן יחידה":</p>
+  <Formula c="E = kQ/r²" color="text-emerald-300" />
+  <p className="text-slate-400 text-xs">אותה נוסחה — רק מחלקים ב-q₀</p>
+</div>
+
 const theory: TheoryCard = {
-  summary: 'חוק גאוס מקשר בין השטף החשמלי דרך משטח סגור לבין המטען הכלוא בתוכו. הוא שקול לחוק קולון אך עוצמתי הרבה יותר לבעיות עם סימטריה.',
+  summary: 'השדה החשמלי E הוא וקטור המוגדר כ-F/q₀. שדה מטען נקודתי: E=kQ/r². מספר מטענים: סופרפוזיציה וקטורית. התפלגות רציפה: אינטגרל.',
   formulas: [
-    { label: 'חוק גאוס', tex: '\\oint \\vec{E} \\cdot d\\vec{A} = \\dfrac{Q_{\\text{enc}}}{\\varepsilon_0}' },
-    { label: 'שדה של מטען נקודתי (או כדור מחוץ)', tex: 'E = \\dfrac{kQ}{r^2} = \\dfrac{Q}{4\\pi\\varepsilon_0 r^2}' },
+    { label: 'הגדרה', tex: '\\vec{E} = \\dfrac{\\vec{F}}{q_0}' },
+    { label: 'מטען נקודתי', tex: 'E = \\dfrac{kQ}{r^2} = \\dfrac{Q}{4\\pi\\varepsilon_0 r^2}' },
+    { label: 'סופרפוזיציה', tex: '\\vec{E}_{total} = \\sum_i \\vec{E}_i' },
+    { label: 'התפלגות רציפה', tex: '\\vec{E} = \\int \\dfrac{k\\,dq}{r^2}\\hat{r}' },
   ],
-  when: 'השתמש בחוק גאוס כשיש סימטריה: כדורית (כדורים), גלילית (חוטים ישרים), מישורית (לוחות אינסופיים).',
+  when: 'מטענים בדידים → קולון + סופרפוזיציה. סימטריה → גאוס. התפלגות רציפה → אינטגרל dq.',
 }
 
-// ── EXPORT ────────────────────────────────────────────────────────────────────
 export default function ElectricField({ onBack }: { onBack: () => void }) {
-  return (
-    <GenericLearningModule
-      moduleId="physics2-efield"
-      title="שדה חשמלי וחוק גאוס"
-      subtitle="כדורים, גלילים, ומישורים — שיטה אחת לכולם"
-      intro={intro}
-      step1={<Step1 />}
-      step2={<Step2 />}
-      step3={<Step3 />}
-      SimulatorComponent={ElectricFieldSim}
-      theory={theory}
-      practiceQuestions={practice}
-      quizQuestions={quiz}
-      greenNote={greenNote}
-      guides={guides}
-      onBack={onBack}
-    />
-  )
+  return <GenericLearningModule
+    moduleId="physics2-efield"
+    title="שדה חשמלי"
+    subtitle="הגדרה, מטען נקודתי, סופרפוזיציה, התפלגות רציפה"
+    intro={intro}
+    bridge={bridge}
+    theory={theory}
+    step1={step1}
+    step2={step2}
+    step3={step3}
+    SimulatorComponent={Sim}
+    quizQuestions={quiz}
+    practiceQuestions={practice}
+    greenNote={greenNote}
+    guides={guides}
+    onBack={onBack}
+  />
 }
