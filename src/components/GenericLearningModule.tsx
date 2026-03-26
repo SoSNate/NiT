@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { ArrowRight, BookOpen, X, CheckCircle, XCircle, Copy, Check, ChevronLeft, ChevronRight, Mic, MicOff } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ArrowRight, BookOpen, X, CheckCircle, XCircle, Copy, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { BlockMath } from './Math'
 import { useNotes, useProgress } from '../hooks/useNotes'
 import { useLearningData } from '../hooks/useLearningData'
-import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 import { useJournal } from './LearningJournal'
 
 export interface QuizQuestion {
@@ -20,7 +19,7 @@ export interface GuideSection {
 
 export interface TheoryCard {
   summary: string
-  formulas: { label: string; tex: string }[]
+  formulas: { label: string; tex: string; verbal?: string }[]
   when: string
 }
 
@@ -43,6 +42,31 @@ export interface GenericLearningModuleProps {
 }
 
 const STEP_LABELS = ['זיהוי', 'עיקרון', 'דוגמה', 'סימולטור', 'מבחן']
+
+function TheoryFormula({ label, tex, verbal }: { label: string; tex: string; verbal?: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="bg-white/5 rounded-lg overflow-hidden">
+      <div className="flex items-center justify-between px-2 pt-1.5 pb-0.5">
+        <p className="text-slate-500 text-[10px]">{label}</p>
+        {verbal && (
+          <button
+            onClick={() => setOpen(v => !v)}
+            className="text-[10px] text-indigo-400 hover:text-indigo-300 px-1.5 py-0.5 rounded bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors"
+          >
+            {open ? 'הסתר ▲' : 'הסבר ▼'}
+          </button>
+        )}
+      </div>
+      <BlockMath tex={tex} />
+      {open && verbal && (
+        <p className="text-slate-300 text-xs leading-relaxed px-3 pb-3 border-t border-white/5 pt-2">
+          {verbal}
+        </p>
+      )}
+    </div>
+  )
+}
 
 export default function GenericLearningModule({
   moduleId,
@@ -83,12 +107,8 @@ export default function GenericLearningModule({
   const [copied, setCopied] = useState(false)
   const { note, setNote } = useNotes(moduleId)
   const { saveQuizResult } = useLearningData()
-  const { isListening, isSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
   const { setActiveModuleId } = useJournal()
   const [quizSaved, setQuizSaved] = useState(false)
-  // Ref to always have latest note value inside speech callback
-  const noteRef = useRef(note)
-  useEffect(() => { noteRef.current = note }, [note])
 
   // Tell the journal which module is currently open
   useEffect(() => { setActiveModuleId(moduleId) }, [moduleId, setActiveModuleId])
@@ -177,10 +197,7 @@ export default function GenericLearningModule({
                 {theory.formulas.length > 0 && (
                   <div className="space-y-2">
                     {theory.formulas.map((f, i) => (
-                      <div key={i} className="bg-white/5 rounded-lg p-2">
-                        <p className="text-slate-500 text-[10px] mb-1">{f.label}</p>
-                        <BlockMath tex={f.tex} />
-                      </div>
+                      <TheoryFormula key={i} label={f.label} tex={f.tex} verbal={f.verbal} />
                     ))}
                   </div>
                 )}
@@ -561,50 +578,15 @@ export default function GenericLearningModule({
             )}
           </div>
 
-          {/* Notes + Quick Journal */}
-          <div className="bg-teal-950/40 border border-teal-800/30 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-teal-400 text-xs font-semibold">📝 הערות שלי</p>
-              <div className="flex items-center gap-1">
-                {note && (
-                  <button
-                    onClick={() => setNote('')}
-                    title="מחק טקסט"
-                    className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                  >
-                    <X size={11} />
-                  </button>
-                )}
-                {isSupported && (
-                  <button
-                    onClick={() => {
-                      if (isListening) {
-                        stopSpeech()
-                      } else {
-                        startSpeech(t => { const c = noteRef.current; setNote(c + (c && !c.endsWith(' ') ? ' ' : '') + t) })
-                      }
-                    }}
-                    title={isListening ? 'הפסק הקלטה' : 'דבר — יכתב אוטומטית'}
-                    className={`p-1.5 rounded-lg transition-all ${
-                      isListening
-                        ? 'bg-red-500/30 text-red-400 animate-pulse'
-                        : 'bg-teal-800/30 text-teal-600 hover:text-teal-400'
-                    }`}
-                  >
-                    {isListening ? <MicOff size={13} /> : <Mic size={13} />}
-                  </button>
-                )}
-              </div>
+          {/* Journal hint */}
+          <div className="bg-teal-950/30 border border-teal-800/20 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <span className="text-xl select-none">📓</span>
+            <div>
+              <p className="text-teal-400 text-xs font-semibold">הערות ותמלול קולי</p>
+              <p className="text-teal-700 text-[11px] mt-0.5">
+                לחץ על הבועה בפינה השמאלית-תחתונה — תמלול חי, עריכה, שיתוף
+              </p>
             </div>
-            <textarea
-              value={note}
-              onChange={e => setNote(e.target.value)}
-              placeholder="רשום לעצמך דגשים, שאלות, תובנות... או לחץ על המיקרופון ודבר"
-              className="w-full bg-transparent text-teal-200 placeholder-teal-800 text-sm resize-none outline-none min-h-[70px]"
-              dir="rtl"
-            />
-
-            <p className="text-teal-800 text-[10px] mt-2 text-center">לחץ 📓 לשמור ביומן</p>
           </div>
         </div>
       </div>

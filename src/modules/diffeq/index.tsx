@@ -28,6 +28,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-emerald-500/15 to-green-500/5',
       border: 'border-emerald-500/25',
+      level: 'foundation',
       Component: Separable,
     },
     {
@@ -38,6 +39,7 @@ const course: CourseMeta = {
       examFreq: 'נפוץ',
       color: 'from-purple-500/15 to-violet-500/5',
       border: 'border-purple-500/25',
+      level: 'core',
       Component: Homogeneous,
     },
     {
@@ -48,6 +50,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-blue-500/15 to-cyan-500/5',
       border: 'border-blue-500/25',
+      level: 'foundation',
       Component: Linear,
     },
     {
@@ -58,6 +61,7 @@ const course: CourseMeta = {
       examFreq: 'כמעט כל מבחן',
       color: 'from-yellow-500/15 to-amber-500/5',
       border: 'border-yellow-500/25',
+      level: 'core',
       Component: Bernoulli,
     },
     {
@@ -68,6 +72,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-teal-500/15 to-cyan-500/5',
       border: 'border-teal-500/25',
+      level: 'advanced',
       Component: Exact,
     },
     {
@@ -78,6 +83,7 @@ const course: CourseMeta = {
       examFreq: 'נפוץ',
       color: 'from-orange-500/15 to-red-500/5',
       border: 'border-orange-500/25',
+      level: 'core',
       Component: Applications,
     },
   ],

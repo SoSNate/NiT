@@ -163,7 +163,7 @@ function JournalCard({ entry, onDelete }: { entry: JournalEntry; onDelete: () =>
 
 export default function LearningDashboard({ onBack }: Props) {
   const { getAllQuizResults, addJournalEntry, getJournalEntries, exportToClipboard, calcCourseReadiness } = useLearningData()
-  const { isListening, isSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
+  const { isListening, isSupported, interim, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
 
   const [quizResults, setQuizResults] = useState<QuizResultMap>({})
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([])
@@ -365,11 +365,16 @@ export default function LearningDashboard({ onBack }: Props) {
             <textarea
               value={journalText}
               onChange={e => setJournalText(e.target.value)}
-              placeholder="שאלה שנתקעת בה, תובנה, משהו שקשה... או לחץ על המיקרופון ודבר"
+              placeholder={isListening ? '' : 'שאלה שנתקעת בה, תובנה, משהו שקשה... או לחץ על המיקרופון ודבר'}
               className="w-full bg-transparent text-teal-200 placeholder-teal-800 text-sm resize-none outline-none min-h-[80px] pl-16"
               dir="rtl"
               onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleAddJournal() }}
             />
+            {interim && (
+              <p className="text-teal-700 text-sm italic absolute top-0 right-0 left-16 pointer-events-none px-0 pt-0 leading-relaxed" dir="rtl">
+                {journalText && !journalText.endsWith(' ') ? ' ' : ''}{interim}
+              </p>
+            )}
             {/* כפתורי מיקרופון + מחיקה */}
             <div className="absolute left-1 top-1 flex items-center gap-0.5">
               {journalText && (

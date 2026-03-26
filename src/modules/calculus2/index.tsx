@@ -29,6 +29,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-red-500/15 to-rose-500/5',
       border: 'border-red-500/25',
+      level: 'foundation',
       Component: Limits,
     },
     {
@@ -39,6 +40,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-purple-500/15 to-violet-500/5',
       border: 'border-purple-500/25',
+      level: 'foundation',
       Component: PartialDerivatives,
     },
     {
@@ -49,6 +51,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-yellow-500/15 to-amber-500/5',
       border: 'border-yellow-500/25',
+      level: 'core',
       Component: Optimization,
     },
     {
@@ -59,6 +62,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-blue-500/15 to-cyan-500/5',
       border: 'border-blue-500/25',
+      level: 'core',
       Component: DoubleIntegrals,
     },
     {
@@ -69,6 +73,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-teal-500/15 to-cyan-500/5',
       border: 'border-teal-500/25',
+      level: 'core',
       Component: LineIntegrals,
     },
     {
@@ -79,6 +84,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-indigo-500/15 to-blue-500/5',
       border: 'border-indigo-500/25',
+      level: 'advanced',
       Component: SurfaceIntegrals,
     },
     {
@@ -89,6 +95,7 @@ const course: CourseMeta = {
       examFreq: 'כמעט כל מבחן',
       color: 'from-orange-500/15 to-amber-500/5',
       border: 'border-orange-500/25',
+      level: 'advanced',
       Component: TaylorSeries,
     },
     {
@@ -99,6 +106,7 @@ const course: CourseMeta = {
       examFreq: 'כמעט כל מבחן',
       color: 'from-fuchsia-500/15 to-purple-500/5',
       border: 'border-fuchsia-500/25',
+      level: 'advanced',
       Component: ParametricCurves,
     },
   ],

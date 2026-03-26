@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, FormulaBlock, Note } from '../../components/StepHelpers'
 import type { QuizQuestion, GuideSection } from '../../types'
 
 function Sim({ currentStep }: { currentStep: number }) {
@@ -116,7 +116,11 @@ const step2 = (
       {
         title: 'טיילור סביב x=a',
         content: <>
-          <Formula c="f(x) = Σ f⁽ⁿ⁾(a)/n! · (x-a)ⁿ" color="text-emerald-300" />
+          <FormulaBlock
+            formula="f(x) = Σ f⁽ⁿ⁾(a)/n! · (x-a)ⁿ"
+            verbal="הרעיון: לקרב פונקציה מסובכת ע״י פולינום שמסכים איתה בכל הנגזרות בנקודה a. f⁽ⁿ⁾(a)/n! הוא ה'משקל' של (x-a)ⁿ — כמה כל חזקה תורמת. ה-n! במכנה מגיע מהנגזרות החוזרות: (xⁿ)⁽ⁿ⁾=n!. מקלורן = a=0."
+            color="text-emerald-300"
+          />
           <span className="text-slate-400 text-xs">מקלורן = טיילור סביב a=0</span>
         </>,
         accent: 'text-emerald-400',
@@ -188,7 +192,59 @@ const guides: GuideSection[] = [
       ))}
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: 'רדיוס התכנסות',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-emerald-400 font-bold">נוסחת הרדיוס</p>
+        <p className="font-mono text-slate-200" dir="ltr">R = lim|aₙ/aₙ₊₁| = 1/limsup ⁿ√|aₙ|</p>
+        <p className="text-slate-400">R=∞: מתכנס לכל x. R=0: רק x=a. 0{'<'}R{'<'}∞: בדוק קצוות.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-2 text-xs space-y-1">
+        <p className="text-yellow-400 font-bold">קצוות ±R — בדוק בנפרד!</p>
+        <p className="text-slate-300">הצב x=a+R ו-x=a-R. בדוק התכנסות עם לייבניץ/p-טור.</p>
+      </div>
+      <Note color="blue" children={<>המבחן שואל: "מצא את תחום ההתכנסות" — כולל הכרעה על הקצוות.</>} />
+    </div>,
+  },
+  {
+    title: 'שיטות',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">מניפולציות שימושיות:</p>
+      <div className="bg-white/5 rounded-xl p-2 space-y-1 font-mono text-slate-300 text-[11px]" dir="ltr">
+        <p>eˣ → e^(x²): הצב x→x²</p>
+        <p>1/(1-x) → 1/(1+x²): הצב x→-x²</p>
+        <p>גזירה: (1/(1-x))' = 1/(1-x)² → Σ n·xⁿ⁻¹</p>
+        <p>אינטגרל: ∫1/(1-x)dx = -ln(1-x) → Σxⁿ/n</p>
+      </div>
+      <Note color="yellow" children={<>טיילור ב-x=a: f(x) = Σ f⁽ⁿ⁾(a)/n! · (x-a)ⁿ. מקלורן = a=0.</>} />
+    </div>,
+  },
+  {
+    title: 'שגיאת לגראנג',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-purple-400 font-bold">שאריות לגראנג</p>
+        <p className="font-mono text-slate-200" dir="ltr">|Rₙ| ≤ M·|x-a|^(n+1) / (n+1)!</p>
+        <p className="text-slate-400">M = מקסימום |f⁽ⁿ⁺¹⁾| בקטע [a,x]. שואלים: כמה איברים צריך ל-|error| {'<'} 0.001?</p>
+      </div>
+      <p className="text-emerald-400 font-bold">דוגמה:</p>
+      <p className="text-slate-300">eˣ ≈ 1+x+x²/2 סביב x=0. R₂ ≤ e·|x|³/6. לx=0.1: R₂ ≤ e·0.001/6 {'<'} 0.0005.</p>
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">שאלה טיפוסית:</p>
+      <p className="font-mono text-slate-200">קרב sin(x) ב-3 איברים. מה שגיאה ב-x=π/6?</p>
+      <div className="bg-white/5 rounded-xl p-2 space-y-1">
+        <p>sin(x) ≈ x - x³/6 + x⁵/120 (3 איברים)</p>
+        <p>|R₃| ≤ |x|⁷/5040 ב-x=π/6 ≈ 0.524</p>
+        <p>|R₃| ≤ 0.524⁷/5040 ≈ 1.6×10⁻⁶ — דיוק מצוין</p>
+      </div>
+      <Note color="emerald" children={<>בלי לחשב sin(π/6) — פשוט מעריכים את השארית עם לגראנג.</>} />
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -206,8 +262,8 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'טור חזקות Σcₙ(x-a)ⁿ הוא פולינום אינסופי סביב נקודה a. יש לו רדיוס התכנסות R — בתוך |x-a|<R הטור מתכנס, מחוצה לו מתבדר. 5 טורי מקלורן חובה: eˣ, sin(x), cos(x), 1/(1-x), ln(1+x). כדי למצוא R — מבחן יחס על המקדמים.',
   formulas: [
-    { label: 'eˣ', tex: 'e^x = \\sum_{n=0}^\\infty \\frac{x^n}{n!},\\quad R=\\infty' },
-    { label: 'רדיוס', tex: 'R = \\lim_{n\\to\\infty}\\left|\\frac{c_n}{c_{n+1}}\\right|' },
+    { label: 'eˣ', tex: 'e^x = \\sum_{n=0}^\\infty \\frac{x^n}{n!},\\quad R=\\infty', verbal: 'הטור הכי חשוב — מתכנס לכל x. הn! גדל מהר מאוד, לכן האיברים הולכים לאפס מהר. הצבה: e^(x²) = Σx²ⁿ/n!, e^(-x) = Σ(-1)ⁿxⁿ/n!' },
+    { label: 'רדיוס התכנסות', tex: 'R = \\lim_{n\\to\\infty}\\left|\\frac{c_n}{c_{n+1}}\\right|', verbal: '|x-a|<R → הטור מתכנס. |x-a|>R → מתבדר. בקצוות ±R — בדוק בנפרד (לפעמים מתכנס, לפעמים לא). R=∞ = מתכנס לכל x.' },
   ],
   when: 'מקלורן = טיילור סביב 0. לפתח פונקציה = זהה את הטור הבסיסי + החלפת משתנה',
 }

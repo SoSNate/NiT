@@ -29,6 +29,7 @@ export interface ModuleMeta {
   color: string        // tailwind gradient class
   border: string       // tailwind border class
   Component: React.FC<ModuleProps>
+  level?: 'foundation' | 'core' | 'advanced'  // difficulty level
 }
 
 export interface CourseMeta {

@@ -195,29 +195,42 @@ const step2 = <PrincipleStep
 
 // ── STEP 3 — דוגמה ────────────────────────────────────────────────────────────
 const step3 = <WorkedExample
-  examLabel="מבחן HIT 2023 — קבלים בטור ומקביל"
-  problem={<p>שלושה קבלים: C₁ = 6μF, C₂ = 3μF מחוברים בטור, והתוצאה מחוברת במקביל לC₃ = 4μF. המעגל מחובר למתח V = 12V. מצא: Ceq, Q_כולל, U_כולל.</p>}
-  hint="שלב שלב: טורי קודם, ואז מקביל."
+  examLabel="שיעור 2, עמ' 18 — פרופ' פרוכטמן HIT — קבל מישורי"
+  problem={
+    <div className="space-y-1 text-sm">
+      <p>קבל מישורי: שני לוחות נושאים צפיפות מטען משטחית <span className="font-mono text-blue-300">±σ</span>.</p>
+      <p><strong>(א)</strong> מהו השדה החשמלי בין הלוחות ומחוצה להם?</p>
+      <p><strong>(ב)</strong> קבל: A = 0.01 m², d = 1 mm, V = 100V. מצא C, Q, E, U.</p>
+      <p className="text-slate-400 text-xs mt-1">מקור: שיעור 2.pdf עמ' 18 — "השדה החשמלי מחוץ ללוחות הוא אפס"</p>
+    </div>
+  }
+  hint="השתמש בסופרפוזיציה של שני מישורים אינסופיים: בין הלוחות מתחברים, מחוץ מתבטלים."
   solution={[
     {
-      label: 'שלב 1: C₁ וC₂ בטור',
-      content: <div className="space-y-1">
-        <Formula c="1/C₁₂ = 1/6 + 1/3 = 1/6 + 2/6 = 3/6" color="text-blue-300" />
-        <Formula c="C₁₂ = 2 μF" color="text-blue-300" />
+      label: 'שלב א — שדה בין הלוחות ומחוץ',
+      thought: 'כל לוח יוצר E = σ/2ε₀ בשני הכיוונים. סופרפוזיציה: בין הלוחות מתחברים.',
+      content: <div className="space-y-1 text-sm">
+        <p className="font-mono text-xs" dir="ltr">E_between = σ/ε₀ (פנימה, אחיד)</p>
+        <p className="font-mono text-xs text-emerald-400" dir="ltr">E_outside = 0 (מתבטל)</p>
+        <Note color="blue" children={<>"השדה החשמלי מחוץ ללוחות הוא אפס" — שיעור 2.pdf עמ' 18</>} />
       </div>,
     },
     {
-      label: 'שלב 2: C₁₂ וC₃ במקביל',
-      content: <div className="space-y-1">
-        <Formula c="C_eq = 2 + 4 = 6 μF" color="text-emerald-300" />
+      label: 'שלב ב — חישוב C, Q, E, U',
+      thought: 'C = ε₀A/d, Q = CV, E = V/d, U = ½CV²',
+      content: <div className="space-y-1 text-xs font-mono" dir="ltr">
+        <p>C = ε₀A/d = 8.85×10⁻¹² × 0.01 / 0.001 = <span className="text-emerald-400">88.5 pF</span></p>
+        <p>Q = CV = 88.5×10⁻¹² × 100 = <span className="text-emerald-400">8.85 nC</span></p>
+        <p>E = V/d = 100 / 0.001 = <span className="text-emerald-400">10⁵ V/m</span></p>
+        <p>U = ½CV² = ½ × 88.5×10⁻¹² × 10⁴ = <span className="text-emerald-400">442.5 pJ</span></p>
       </div>,
     },
     {
-      label: 'שלב 3: מטען ואנרגיה',
-      content: <div className="space-y-1">
-        <Formula c="Q = C_eq · V = 6μF · 12V = 72 μC" color="text-yellow-300" />
-        <Formula c="U = ½C_eq V² = ½ · 6×10⁻⁶ · 144 = 432 μJ" color="text-yellow-300" />
-        <Note color="blue" children={<>בדוק: U = ½QV = ½ · 72×10⁻⁶ · 12 = 432 μJ ✓</>} />
+      label: 'בדיקה — E = σ/ε₀',
+      thought: 'אפשר לבדוק: σ = Q/A → E = σ/ε₀',
+      content: <div className="space-y-1 text-xs font-mono" dir="ltr">
+        <p>σ = Q/A = 8.85×10⁻⁹ / 0.01 = 885 nC/m²</p>
+        <p>E = σ/ε₀ = 885×10⁻⁹ / 8.85×10⁻¹² = <span className="text-emerald-400">10⁵ V/m ✓</span></p>
       </div>,
     },
   ]}
@@ -323,8 +336,9 @@ const intro = <div className="space-y-3 text-slate-300 text-sm leading-relaxed">
 </div>
 
 const bridge = <div className="space-y-2 text-sm text-slate-300">
-  <p>מחוק גאוס: השדה בין לוחות = <span className="text-emerald-400">E = σ/ε₀</span></p>
-  <p>המתח: V = E·d → ומכאן C = ε₀A/d</p>
+  <p>מחוק גאוס + סופרפוזיציה: השדה בין לוחות = <span className="text-emerald-400">E = σ/ε₀</span></p>
+  <p>מחוץ ללוחות: <span className="text-red-400">E = 0</span> (שיעור 2.pdf עמ' 18)</p>
+  <p>מתח: V = E·d → קיבול: C = Q/V = ε₀A/d</p>
   <Formula c="C = ε₀A/d" color="text-emerald-300" />
 </div>
 

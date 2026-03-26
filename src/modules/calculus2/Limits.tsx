@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, FormulaBlock, Note } from '../../components/StepHelpers'
 import type { QuizQuestion, GuideSection } from '../../types'
 
 function Sim({ currentStep }: { currentStep: number }) {
@@ -89,14 +89,25 @@ const step2 = (
     items={[
       {
         title: 'מסלולים — להפריך קיום',
-        content: <><span className="text-slate-300 text-sm">אם לאורך y=mx מקבלים ערך תלוי b → גבול לא קיים.</span>
-          <Formula c="y = mx: f(x,mx) = g(m) — אם תלוי ב-m → ∄ גבול" color="text-red-300" /></>,
+        content: <>
+          <FormulaBlock
+            formula="y = mx: f(x,mx) = g(m)"
+            verbal="בוחרים מסלולים שונים ל-(0,0) ובודקים אם הגבול שווה. אם y=0 נותן ערך אחד וy=x נותן ערך שונה — הגבול לא קיים. זה הכלי להפרכה: מספיק מסלול אחד שסותר. אבל אם כל הישרים נותנים 0 — לא הוכחנו כלום! צריך גם y=x²."
+            color="text-red-300"
+          />
+        </>,
         accent: 'text-red-400',
       },
       {
         title: 'קואורדינטות קוטביות — להוכיח קיום',
-        content: <><Formula c="x = r·cosθ, y = r·sinθ  →  f → ? כ-r→0" color="text-blue-300" />
-          <span className="text-slate-400 text-xs">אם התוצאה לא תלויה ב-θ → גבול קיים!</span></>,
+        content: <>
+          <FormulaBlock
+            formula="x = r·cosθ, y = r·sinθ → f כ-r→0"
+            verbal="x=r cosθ, y=r sinθ — r הוא המרחק מ-(0,0), θ הוא הכיוון. כשr→0 מתקרבים לראשית מכל הכיוון. אם אחרי ההצבה נשאר רק r^k·(פונקציה חסומה של θ) — הגבול 0. אם נשאר θ בלי r — הגבול לא קיים."
+            color="text-blue-300"
+          />
+          <span className="text-slate-400 text-xs">אם התוצאה לא תלויה ב-θ → גבול קיים!</span>
+        </>,
         accent: 'text-blue-400',
       },
       {
@@ -183,6 +194,56 @@ const guides: GuideSection[] = [
       <p className="font-mono text-xs" dir="ltr">x=r·cosθ, y=r·sinθ, r→0</p>
     </div>,
   },
+  {
+    title: 'נוסחאות',
+    content: <div className="space-y-3 text-xs">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-emerald-400 font-bold">מבחן המסלול</p>
+        <p className="font-mono text-slate-200" dir="ltr">{'lim f along y=mx vs y=x²'}</p>
+        <p className="text-slate-400">אם שני מסלולים נותנים תוצאות שונות — הגבול לא קיים.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-blue-400 font-bold">קואורדינטות קוטביות</p>
+        <p className="font-mono text-slate-200" dir="ltr">x=r cosθ, y=r sinθ, r=√(x²+y²)</p>
+        <p className="text-slate-400">אם התוצאה תלויה רק ב-r (לא ב-θ) — הגבול קיים כש-r→0.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-yellow-400 font-bold">משפט הסנדוויץ</p>
+        <p className="font-mono text-slate-200" dir="ltr">|f(x,y)| ≤ C·r^k, k{'>'} 0 → lim=0</p>
+        <p className="text-slate-400">אם ניתן לכבול מעל ב-rᵏ שהולך ל-0 — הגבול הוא 0.</p>
+      </div>
+    </div>,
+  },
+  {
+    title: 'מלכודות',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-yellow-400 font-bold">לא מספיק לבדוק y=mx בלבד!</p>
+      <div className="bg-white/5 rounded-xl p-2 space-y-1">
+        <p className="font-mono text-slate-200" dir="ltr">f = x²y/(x⁴+y²)</p>
+        <p>מסלול y=mx → 0 לכל m. אבל y=x²: → 1/2. גבול לא קיים!</p>
+      </div>
+      <Note color="red" children={<>תמיד נסה גם y=x² ו-y=x³ — לא רק y=mx.</>} />
+      <p className="text-emerald-400 font-bold mt-2">גבולות נפוצים:</p>
+      <ul className="space-y-0.5 font-mono text-slate-300 text-[11px]" dir="ltr">
+        <li>xy/(x²+y²) → לא קיים</li>
+        <li>x²y/(x²+y²) → 0</li>
+        <li>xy/√(x²+y²) → 0</li>
+      </ul>
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">דוגמה מהמבחן:</p>
+      <p className="font-mono text-slate-200" dir="ltr">{'lim_{(x,y)→(0,0)} (x³+y³)/(x²+y²)'}</p>
+      <div className="bg-white/5 rounded-xl p-2 text-xs space-y-1">
+        <p>1. קוטביות: (r³(cos³θ+sin³θ))/r² = r·(cos³θ+sin³θ)</p>
+        <p>2. |cos³θ+sin³θ| ≤ 2</p>
+        <p>3. |·| ≤ 2r → 0 כש-r→0. גבול = 0.</p>
+      </div>
+      <Note color="emerald" children={<>נסה קוטביות קודם. אם r^k מבטל — 0. אם נשאר θ בלי r — לא קיים.</>} />
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -206,8 +267,8 @@ const bridge = <div className="space-y-2">
 const theory: TheoryCard = {
   summary: 'בפונקציה f(x,y), גבול ב-(0,0) קיים רק אם מקבלים אותו ערך מכל כיוון. אם בדרך אחת (למשל y=0) מקבלים תשובה אחרת מאשר בדרך שנייה (y=x) — הגבול לא קיים. לרציפות: הגבול חייב לשוות לערך הפונקציה בנקודה.',
   formulas: [
-    { label: 'בדיקה קוטבית', tex: 'x = r\\cos\\theta,\\; y = r\\sin\\theta \\;\\Rightarrow\\; r\\to 0' },
-    { label: 'Squeeze', tex: '|f(x,y)| \\le g(r) \\to 0 \\;\\Rightarrow\\; f\\to 0' },
+    { label: 'קואורדינטות קוטביות', tex: 'x = r\\cos\\theta,\\; y = r\\sin\\theta \\;\\Rightarrow\\; r\\to 0', verbal: 'r = מרחק מהראשית, θ = זווית. כשr→0 מתקרבים מכל כיוון. אם אחרי ההצבה נשאר r^k·(חסום) → גבול 0. אם נשאר θ בלבד (ללא r) → גבול לא קיים.' },
+    { label: 'Squeeze', tex: '|f(x,y)| \\le g(r) \\to 0 \\;\\Rightarrow\\; f\\to 0', verbal: 'אם ניתן לכבול את |f| מעל ע"י פונקציה שהולכת ל-0 — גם f→0. בקוטביות: |f| ≤ C·r^k, k>0 → 0. שגיאה נפוצה: לשכוח שצריך C·r^k ולא רק C.' },
   ],
   when: 'כשמציבים (0,0) ומקבלים 0/0 — בדוק מסלולים שונים. אם שונים → ∄ גבול. אם כולם 0 → הוכח עם קוטביות/Squeeze',
 }

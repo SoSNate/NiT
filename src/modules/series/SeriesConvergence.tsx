@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, FormulaBlock, Note } from '../../components/StepHelpers'
 import type { QuizQuestion, GuideSection } from '../../types'
 
 function Sim({ currentStep }: { currentStep: number }) {
@@ -97,7 +97,11 @@ const step2 = (
       {
         title: 'מבחן יחס (ד\'אלמבר)',
         content: <>
-          <Formula c="L = lim |a_{n+1}/aₙ|:  L<1→מתכנס, L>1→מתבדר, L=1→לא יודעים" color="text-emerald-300" />
+          <FormulaBlock
+            formula="L = lim |a_{n+1}/aₙ|"
+            verbal="שואלים: כמה גדול האיבר הבא ביחס לקודם? L<1 → כל איבר קטן מהקודם בגורם קבוע, הסכום מתכנס. L>1 → האיברים גדלים, מתבדר. L=1 → המבחן עיוור — נסה p-טור או השוואה. הכי שימושי כשיש n! או rⁿ."
+            color="text-emerald-300"
+          />
           <span className="text-slate-400 text-xs">מצוין כשיש עצרת (!), חזקות, מיסוף</span>
         </>,
         accent: 'text-emerald-400',
@@ -105,7 +109,11 @@ const step2 = (
       {
         title: 'מבחן שורש (קושי)',
         content: <>
-          <Formula c="L = lim ⁿ√|aₙ|:  L<1→מתכנס, L>1→מתבדר" color="text-blue-300" />
+          <FormulaBlock
+            formula="L = lim ⁿ√|aₙ|"
+            verbal="לוקחים שורש n-י של האיבר — הגבול הוא 'מהירות' הדעיכה. L<1 → מתכנס. הכי יעיל כשהאיבר הוא (משהו)ⁿ כי אז ⁿ√(xⁿ)=x ומקבלים תשובה ישירות."
+            color="text-blue-300"
+          />
           <span className="text-slate-400 text-xs">מצוין כשיש aₙ = f(n)ⁿ</span>
         </>,
         accent: 'text-blue-400',
@@ -113,7 +121,11 @@ const step2 = (
       {
         title: 'לייבניץ (טורים מתחלפים)',
         content: <>
-          <Formula c="Σ(-1)ⁿbₙ מתכנס אם: bₙ↓0 מונוטוני יורד לאפס" color="text-purple-300" />
+          <FormulaBlock
+            formula="Σ(-1)ⁿbₙ מתכנס אם bₙ↓0"
+            verbal="בטור מתחלף (+ - + - ...) אם האיברים (בלי סימן) יורדים מונוטונית לאפס — הטור מתכנס. הסכומים החלקיים מתנדנדים סביב הגבול כמו מטוטלת שמאטה. תנאי ההכרחי: bₙ→0."
+            color="text-purple-300"
+          />
           <Note color="yellow" children={<>אחרי לייבניץ: בדוק התכנסות מוחלטת/תנאית</>} />
         </>,
         accent: 'text-purple-400',
@@ -184,7 +196,52 @@ const guides: GuideSection[] = [
       ))}
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: 'מוחלטת vs תנאית',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-emerald-400 font-bold">התכנסות מוחלטת</p>
+        <p className="font-mono text-slate-200" dir="ltr">Σ|aₙ| מתכנס → Σaₙ מתכנס מוחלטת</p>
+        <p className="text-slate-400">החזקה / יחס על הערך המוחלט. מוחלטת ⟹ תנאית (לא להפך!).</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-yellow-400 font-bold">התכנסות תנאית</p>
+        <p className="font-mono text-slate-200" dir="ltr">Σaₙ מתכנס, אבל Σ|aₙ| מתבדר</p>
+        <p className="text-slate-400">הדוגמה הקלאסית: Σ(-1)ⁿ/n — לייבניץ ✓, הרמוני מתבדר.</p>
+      </div>
+      <Note color="blue" children={<>בדיקה: קודם מוחלטת (יחס/חזקה). אם מתכנסת — סיימנו. אם לא — נסה לייבניץ.</>} />
+    </div>,
+  },
+  {
+    title: 'השוואה & גבול',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-blue-400 font-bold">השוואה ישירה</p>
+        <p className="font-mono text-slate-200" dir="ltr">{'0 ≤ aₙ ≤ bₙ'}</p>
+        <p className="text-slate-400">Σbₙ מתכנס → Σaₙ מתכנס. Σaₙ מתבדר → Σbₙ מתבדר.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-purple-400 font-bold">השוואה בגבול (הכי שימושית!)</p>
+        <p className="font-mono text-slate-200" dir="ltr">L = lim(aₙ/bₙ), 0 {'<'} L {'<'} ∞</p>
+        <p className="text-slate-400">Σaₙ ו-Σbₙ מתנהגות אותו דבר. בחר bₙ = p-טור מוכר.</p>
+      </div>
+      <Note color="emerald" children={<>טיפ: אם aₙ ≈ 1/n^p לn גדול — בחר bₙ = 1/n^p ועשה השוואת גבול.</>} />
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-yellow-400 font-bold">אלגוריתם להכרעה:</p>
+      <ol className="space-y-1">
+        <li><span className="text-emerald-400 font-bold">1.</span> בדוק תנאי הכרחי: aₙ→0? אם לא — מתבדר.</li>
+        <li><span className="text-emerald-400 font-bold">2.</span> יש (-1)ⁿ? → נסה לייבניץ (bₙ↓0).</li>
+        <li><span className="text-emerald-400 font-bold">3.</span> יש n! או rⁿ? → יחס (d'Alembert).</li>
+        <li><span className="text-emerald-400 font-bold">4.</span> יש aₙ^n? → שורש (קושי).</li>
+        <li><span className="text-emerald-400 font-bold">5.</span> נראה כמו 1/nᵖ? → השוואת גבול.</li>
+      </ol>
+      <Note color="yellow" children={<>טלסקופי: Σ(1/n - 1/(n+1)) = 1. הסכום = a₁ כשהיתר מבטלים.</>} />
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -201,8 +258,8 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'טור Σaₙ מתכנס אם הסכום האינסופי מגיע לערך סופי. יש מספר מבחנים לבדיקה: מבחן יחס (הכי שימושי), מבחן שורש, מבחן לייבניץ (לטורים מתחלפים), ו-p-טור (Σ1/nᵖ מתכנס רק אם p>1). חשוב: אם L=1 במבחן יחס — המבחן לא חד-משמעי, נסה אחר.',
   formulas: [
-    { label: 'מבחן יחס', tex: 'L = \\lim_{n\\to\\infty}\\left|\\frac{a_{n+1}}{a_n}\\right|\\;:\\; L<1\\Rightarrow\\text{מתכנס},\\; L>1\\Rightarrow\\text{מתבדר}' },
-    { label: 'p-טור', tex: '\\sum_{n=1}^\\infty \\frac{1}{n^p}\\;:\\; \\text{מתכנס אמ"מ } p>1' },
+    { label: 'מבחן יחס', tex: 'L = \\lim_{n\\to\\infty}\\left|\\frac{a_{n+1}}{a_n}\\right|\\;:\\; L<1\\Rightarrow\\text{מתכנס},\\; L>1\\Rightarrow\\text{מתבדר}', verbal: 'שואלים: כמה גדול האיבר הבא ביחס לקודם? L<1 → כל איבר קטן מהקודם בגורם קבוע → הסכום מתכנס. L=1 → המבחן עיוור, נסה אחר. הכי שימושי כשיש n! או rⁿ.' },
+    { label: 'p-טור', tex: '\\sum_{n=1}^\\infty \\frac{1}{n^p}\\;:\\; \\text{מתכנס אמ"מ } p>1', verbal: 'הטור הארכימדי הכי חשוב. p=1 = סדרה הרמונית (מתבדרת!). p=2 → מתכנס ל-π²/6. שימוש: כשrigh-hand=1/nᵖ — ידוע ישירות. גם בהשוואה: "מתנהג כמו 1/nᵖ".' },
   ],
   when: 'התחל תמיד עם מבחן יחס. L=1? → נסה Raabe, השוואה, או p-טור. טור מתחלף? → לייבניץ',
 }

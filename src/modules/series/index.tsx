@@ -27,6 +27,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-emerald-500/15 to-green-500/5',
       border: 'border-emerald-500/25',
+      level: 'foundation',
       Component: SeriesConvergence,
     },
     {
@@ -37,6 +38,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-yellow-500/15 to-amber-500/5',
       border: 'border-yellow-500/25',
+      level: 'core',
       Component: PowerSeries,
     },
     {
@@ -47,6 +49,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-pink-500/15 to-rose-500/5',
       border: 'border-pink-500/25',
+      level: 'core',
       Component: FourierSeries,
     },
     {
@@ -57,6 +60,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-cyan-500/15 to-sky-500/5',
       border: 'border-cyan-500/25',
+      level: 'advanced',
       Component: FourierTransform,
     },
     {
@@ -67,6 +71,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-violet-500/15 to-purple-500/5',
       border: 'border-violet-500/25',
+      level: 'advanced',
       Component: LaplaceTransform,
     },
     {
@@ -77,6 +82,7 @@ const course: CourseMeta = {
       examFreq: 'כל מבחן',
       color: 'from-orange-500/15 to-amber-500/5',
       border: 'border-orange-500/25',
+      level: 'advanced',
       Component: ZTransform,
     },
   ],

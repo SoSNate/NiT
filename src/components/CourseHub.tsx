@@ -71,9 +71,20 @@ export default function CourseHub({ course, quickFormulas, onBack }: CourseHubPr
             >
               <div className="flex items-start justify-between mb-3">
                 <span className="text-2xl">{mod.icon}</span>
-                <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">
-                  {mod.examFreq}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  {mod.level && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      mod.level === 'foundation' ? 'bg-emerald-500/20 text-emerald-400' :
+                      mod.level === 'core'       ? 'bg-yellow-500/20 text-yellow-400' :
+                                                   'bg-red-500/20 text-red-400'
+                    }`}>
+                      {mod.level === 'foundation' ? '🟢 בסיס' : mod.level === 'core' ? '🟡 עיקרי' : '🔴 מתקדם'}
+                    </span>
+                  )}
+                  <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">
+                    {mod.examFreq}
+                  </span>
+                </div>
               </div>
               <h3 className="text-lg font-black text-white mb-1">{mod.title}</h3>
               <p className="text-slate-400 text-xs leading-relaxed">{mod.subtitle}</p>

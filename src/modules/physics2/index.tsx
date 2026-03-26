@@ -11,8 +11,9 @@ import Optics from './Optics'
 import PhysicsLab from './PhysicsLab'
 import Capacitors from './Capacitors'
 import DCCircuits from './DCCircuits'
+import ElectricPotential from './ElectricPotential'
 
-type ModuleId = 'coulomb' | 'gauss' | 'efield' | 'bfield' | 'induction' | 'rlc' | 'emwaves' | 'optics' | 'lab' | 'capacitors' | 'dc' | null
+type ModuleId = 'coulomb' | 'gauss' | 'efield' | 'potential' | 'bfield' | 'induction' | 'rlc' | 'emwaves' | 'optics' | 'lab' | 'capacitors' | 'dc' | null
 
 interface ModuleCard {
   id: ModuleId
@@ -22,6 +23,7 @@ interface ModuleCard {
   color: string
   border: string
   examFreq: string
+  level?: 'foundation' | 'core' | 'advanced'
 }
 
 const MODULES: ModuleCard[] = [
@@ -33,6 +35,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-orange-500/15 to-red-500/5',
     border: 'border-orange-500/25',
     examFreq: 'בסיס הכל',
+    level: 'foundation',
   },
   {
     id: 'gauss',
@@ -42,6 +45,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-yellow-500/15 to-amber-500/5',
     border: 'border-yellow-500/25',
     examFreq: 'כל מבחן',
+    level: 'foundation',
   },
   {
     id: 'efield',
@@ -51,6 +55,17 @@ const MODULES: ModuleCard[] = [
     color: 'from-amber-500/15 to-orange-500/5',
     border: 'border-amber-500/25',
     examFreq: 'כמעט כל מבחן',
+    level: 'foundation',
+  },
+  {
+    id: 'potential',
+    title: 'פוטנציאל חשמלי',
+    subtitle: 'V=kQ/r, סופרפוזיציה סקלרית, אנרגיה',
+    icon: <Zap size={22} />,
+    color: 'from-cyan-500/15 to-teal-500/5',
+    border: 'border-cyan-500/25',
+    examFreq: 'כל מבחן',
+    level: 'core',
   },
   {
     id: 'bfield',
@@ -60,6 +75,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-purple-500/15 to-violet-500/5',
     border: 'border-purple-500/25',
     examFreq: 'כל מבחן',
+    level: 'core',
   },
   {
     id: 'induction',
@@ -69,6 +85,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-red-500/15 to-rose-500/5',
     border: 'border-red-500/25',
     examFreq: 'כל מבחן',
+    level: 'core',
   },
   {
     id: 'rlc',
@@ -78,6 +95,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-green-500/15 to-emerald-500/5',
     border: 'border-green-500/25',
     examFreq: 'כמעט כל מבחן',
+    level: 'advanced',
   },
   {
     id: 'emwaves',
@@ -87,6 +105,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-blue-500/15 to-cyan-500/5',
     border: 'border-blue-500/25',
     examFreq: 'כל מבחן',
+    level: 'advanced',
   },
   {
     id: 'optics',
@@ -96,6 +115,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-pink-500/15 to-fuchsia-500/5',
     border: 'border-pink-500/25',
     examFreq: 'כמעט כל מבחן',
+    level: 'advanced',
   },
   {
     id: 'lab',
@@ -105,6 +125,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-teal-500/15 to-cyan-500/5',
     border: 'border-teal-500/25',
     examFreq: 'ניסוי מעבדה',
+    level: 'core',
   },
   {
     id: 'capacitors',
@@ -114,6 +135,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-sky-500/15 to-blue-500/5',
     border: 'border-sky-500/25',
     examFreq: 'כמעט כל מבחן',
+    level: 'core',
   },
   {
     id: 'dc',
@@ -123,6 +145,7 @@ const MODULES: ModuleCard[] = [
     color: 'from-lime-500/15 to-green-500/5',
     border: 'border-lime-500/25',
     examFreq: 'כמעט כל מבחן',
+    level: 'foundation',
   },
 ]
 
@@ -138,6 +161,7 @@ export default function Physics2Hub({ onBack }: Props) {
   if (activeModule === 'coulomb') return <CoulombsLaw onBack={backToHub} />
   if (activeModule === 'gauss') return <GaussLaw onBack={backToHub} />
   if (activeModule === 'efield') return <ElectricField onBack={backToHub} />
+  if (activeModule === 'potential') return <ElectricPotential onBack={backToHub} />
   if (activeModule === 'bfield') return <MagneticField onBack={backToHub} />
   if (activeModule === 'induction') return <Induction onBack={backToHub} />
   if (activeModule === 'rlc') return <RLCCircuits onBack={backToHub} />
@@ -175,7 +199,7 @@ export default function Physics2Hub({ onBack }: Props) {
           {/* Progress summary */}
           <div className="bg-white/5 rounded-2xl border border-white/10 p-4 mt-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-400">11 מודולים · מהבסיס עד המבחן</span>
+              <span className="text-slate-400">12 מודולים · מהבסיס עד המבחן</span>
               <span className="text-emerald-400 font-semibold">בחר מודול להתחיל</span>
             </div>
           </div>
@@ -196,9 +220,20 @@ export default function Physics2Hub({ onBack }: Props) {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="text-white/60">{mod.icon}</div>
-                <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">
-                  {mod.examFreq}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  {mod.level && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      mod.level === 'foundation' ? 'bg-emerald-500/20 text-emerald-400' :
+                      mod.level === 'core'       ? 'bg-yellow-500/20 text-yellow-400' :
+                                                   'bg-red-500/20 text-red-400'
+                    }`}>
+                      {mod.level === 'foundation' ? '🟢 בסיס' : mod.level === 'core' ? '🟡 עיקרי' : '🔴 מתקדם'}
+                    </span>
+                  )}
+                  <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">
+                    {mod.examFreq}
+                  </span>
+                </div>
               </div>
               <h3 className="text-lg font-black text-white mb-1">{mod.title}</h3>
               <p className="text-slate-400 text-xs leading-relaxed">{mod.subtitle}</p>

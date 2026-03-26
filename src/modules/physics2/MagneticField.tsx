@@ -6,7 +6,7 @@
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, Note, FormulaBlock } from '../../components/StepHelpers'
 import { GlassCard, StyledSlider, SimReadout, ToggleGroup } from '../../components/SimulatorShell'
 import type { QuizQuestion, GuideSection } from '../../types'
 
@@ -215,8 +215,12 @@ function Step2() {
           accent: 'text-purple-400',
           content: (
             <div className="space-y-2">
-              <p className="font-mono text-sm" dir="ltr">∮ B·dl = μ₀ · I_enc</p>
-              <p>האינטגרל הקווי של B סביב מסלול סגור = μ₀ × הזרם הכלוא. יעיל כשיש סימטריה ש-B קבוע על המסלול.</p>
+              <FormulaBlock
+                formula="∮ B·dl = μ₀ · I_enc"
+                verbal="האינטגרל הקווי של B סביב לולאה סגורה שווה ל-μ₀ כפול הזרם שעובר דרך הלולאה. שימושי כשיש סימטריה שגורמת ל-B להיות קבוע על המסלול — אז B·(היקף) = μ₀·I_enc."
+                units="T·m = μ₀·A"
+                color="text-purple-300"
+              />
             </div>
           ),
         },
@@ -225,8 +229,12 @@ function Step2() {
           accent: 'text-yellow-400',
           content: (
             <div className="space-y-2">
-              <p className="font-mono text-sm" dir="ltr">B = μ₀I / (2πr)</p>
-              <p>שדה יורד כ-1/r. כיוון: כלל יד ימין — אגודל = זרם → אצבעות = B מעגלי.</p>
+              <FormulaBlock
+                formula="B = μ₀I / (2πr)"
+                verbal="השדה יורד כ-1/r (לא 1/r² כמו שדה חשמלי). כיוון: כלל יד ימין — כיוון אגודל = זרם, כיפוף אצבעות = כיוון B המעגלי. μ₀ = 4π×10⁻⁷ T·m/A."
+                units="T"
+                color="text-yellow-300"
+              />
             </div>
           ),
         },
@@ -235,8 +243,12 @@ function Step2() {
           accent: 'text-blue-400',
           content: (
             <div className="space-y-2">
-              <p className="font-mono text-sm" dir="ltr">B = μ₀ · n · I</p>
-              <p>שדה אחיד בתוך הסולנואיד. n = לולאות ליחידת אורך. מחוץ: B ≈ 0.</p>
+              <FormulaBlock
+                formula="B = μ₀ · n · I"
+                verbal="בתוך סולנואיד השדה אחיד לחלוטין. n = N/L (לולאות לאורך). מחוץ לסולנואיד B≈0. ככל שיש יותר לולאות לאורך — שדה חזק יותר."
+                units="T"
+                color="text-blue-300"
+              />
             </div>
           ),
         },
@@ -245,8 +257,13 @@ function Step2() {
           accent: 'text-teal-400',
           content: (
             <div className="space-y-2">
-              <p className="font-mono text-sm" dir="ltr">F/L = μ₀I₁I₂ / (2πd)</p>
-              <p>זרמים זהה כיוון → <span className="text-emerald-400">משיכה</span>. הפוך כיוון → <span className="text-red-400">דחייה</span>.</p>
+              <FormulaBlock
+                formula="F/L = μ₀I₁I₂ / (2πd)"
+                verbal="כוח ליחידת אורך בין שני חוטים. זרמים באותו כיוון — משיכה (השדה של כל חוט פועל על השני). זרמים הפוכים — דחייה. הגדרת האמפר מבוססת על נוסחה זו!"
+                units="N/m"
+                color="text-teal-300"
+              />
+              <p className="text-xs text-slate-400">זרמים זהה כיוון → <span className="text-emerald-400">משיכה</span>. הפוך כיוון → <span className="text-red-400">דחייה</span>.</p>
             </div>
           ),
         },
@@ -447,10 +464,10 @@ const theory: TheoryCard = {
     'זרם יוצר שדה מגנטי בצורת עיגולים (כלל יד ימין). חוק אמפר: ∮B·dl = μ₀I_enc — לחוט ישר: B = μ₀I/(2πr). ' +
     'לסולנואיד: B = μ₀nI בתוכו, 0 מחוץ. זרמים זהה כיוון — נמשכים; הפוך — דוחים.',
   formulas: [
-    { label: 'חוק אמפר',        tex: '\\oint \\vec{B}\\cdot d\\vec{l} = \\mu_0 I_{\\text{enc}}' },
-    { label: 'חוט ישר',          tex: 'B = \\dfrac{\\mu_0 I}{2\\pi r}' },
-    { label: 'סולנואיד',         tex: 'B = \\mu_0 n I' },
-    { label: 'כוח בין חוטים',    tex: '\\dfrac{F}{L} = \\dfrac{\\mu_0 I_1 I_2}{2\\pi d}' },
+    { label: 'חוק אמפר', tex: '\\oint \\vec{B}\\cdot d\\vec{l} = \\mu_0 I_{\\text{enc}}', verbal: 'האינטגרל של B לאורך לולאה סגורה = μ₀ × זרם כלוא. יעיל עם סימטריה: B·(היקף) = μ₀·I → B מיד. ללא סימטריה — עדיף ביו-סאבר.' },
+    { label: 'חוט ישר', tex: 'B = \\dfrac{\\mu_0 I}{2\\pi r}', verbal: 'שדה יורד כ-1/r (לא 1/r² כמו חשמל). כיוון: כלל יד ימין — אגודל לכיוון הזרם, אצבעות כורכות = כיוון B. μ₀=4π×10⁻⁷ T·m/A.' },
+    { label: 'סולנואיד', tex: 'B = \\mu_0 n I', verbal: 'בתוך סולנואיד — שדה אחיד ומרוכז, בדיוק כמו מגנט שלם. n=N/L לולאות לאורך. מחוץ: B≈0. ניתן לחשב n מ-n=N/L.' },
+    { label: 'כוח בין חוטים', tex: '\\dfrac{F}{L} = \\dfrac{\\mu_0 I_1 I_2}{2\\pi d}', verbal: 'כל חוט יוצר שדה שפועל על השני. זרמים באותו כיוון — שדות מתחזקים ביניהם → משיכה. הגדרת האמפר (SI) מבוססת על נוסחה זו: 1A = זרם שגורם ל-2×10⁻⁷ N/m.' },
   ],
   when:
     'חוק אמפר מהיר לסימטריה גלילית/משטחית. ' +

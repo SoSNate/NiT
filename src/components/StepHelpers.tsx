@@ -198,3 +198,44 @@ export const Note = ({ children, color = 'amber' }: { children: React.ReactNode;
     {children}
   </div>
 )
+
+/**
+ * FormulaBlock — נוסחה + כפתור "הסבר" שפותח הסבר מילולי בעברית פשוטה.
+ * שימוש: בכל מקום שיש נוסחה שנתנאל צריך להבין, לא רק לזכור.
+ */
+interface FormulaBlockProps {
+  formula: string       // הנוסחה בטקסט רגיל
+  verbal: string        // הסבר מילולי בעברית
+  units?: string        // יחידות (למשל: N/C, V, J)
+  color?: string        // tailwind text color
+  source?: string       // מקור (למשל: שיעור 2.pdf)
+  defaultOpen?: boolean // האם לפתוח מיד
+}
+
+export function FormulaBlock({
+  formula, verbal, units, color = 'text-emerald-300', source, defaultOpen = false
+}: FormulaBlockProps) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden my-1.5">
+      <div className="flex items-center justify-between px-3 py-2 gap-2">
+        <span className={`font-mono text-sm flex-1 ${color}`} dir="ltr">{formula}</span>
+        <div className="flex items-center gap-2 shrink-0">
+          {units && <span className="text-xs text-slate-500">[{units}]</span>}
+          <button
+            onClick={() => setOpen(v => !v)}
+            className="text-xs text-slate-400 hover:text-white px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 transition-colors border border-white/10"
+          >
+            {open ? 'הסתר ▲' : 'הסבר ▼'}
+          </button>
+        </div>
+      </div>
+      {open && (
+        <div className="px-3 pb-3 pt-1 border-t border-white/8 bg-slate-900/40">
+          <p className="text-slate-200 text-sm leading-relaxed">{verbal}</p>
+          {source && <p className="text-slate-500 text-xs mt-1.5">📄 {source}</p>}
+        </div>
+      )}
+    </div>
+  )
+}

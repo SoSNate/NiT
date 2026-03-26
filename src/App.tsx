@@ -7,7 +7,6 @@ import SeriesHub from './modules/series/index'
 import LearningDashboard from './components/LearningDashboard'
 import Onboarding from './components/Onboarding'
 import LearningJournal, { JournalProvider } from './components/LearningJournal'
-import FloatingWhiteboard from './components/FloatingWhiteboard'
 
 type Course = 'home' | 'physics2' | 'diffeq' | 'calculus2' | 'series' | 'dashboard'
 
@@ -83,7 +82,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen p-6" dir="rtl">
-      <FloatingWhiteboard />
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}

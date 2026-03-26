@@ -210,37 +210,45 @@ const step2 = <PrincipleStep
   ]}
 />
 
-// ── STEP 3 — דוגמה (מ-spec EXEMPLARY_CASES, תרגיל 1א') ──────────────────────
+// ── STEP 3 — דוגמה (מ-Gemini EXAM — מבוא חשמל.pdf עמ' 40) ──────────────────
 const step3 = <WorkedExample
-  examLabel="תרגיל 1א' — פיזיקה 2 HIT"
-  problem={<p>קובייה עם צלע <span dir="ltr">a = 5 cm</span> נמצאת בשדה אחיד <span dir="ltr">E = C·î</span>. חשב את השטף הכולל ואת המטען הכלוא.</p>}
-  hint="סכם שטפים על כל 6 הפאות — שים לב לכיוון הנורמל."
+  examLabel="מבוא חשמל.pdf — כדור מבודד עם צפיפות מטען אחידה ρ"
+  problem={<p>כדור מבודד ברדיוס R טעון בצפיפות מטען נפחית אחידה ρ. חשב את השדה החשמלי E כפונקציה של r, עבור שני תחומים: <span dir="ltr">r {'<'} R</span> ו-<span dir="ltr">r {'>'} R</span>.</p>}
+  hint="בחר משטח גאוסי כדורי ברדיוס r. חשב Q_enc בנפרד לכל תחום."
   solution={[
     {
-      label: 'זיהוי: אילו פאות רלוונטיות?',
+      label: 'שלב א — סימטריה ומשטח גאוסי',
+      thought: 'צפיפות אחידה → סימטריה כדורית → E רדיאלי + קבוע על משטח כדורי',
       content: <div className="space-y-1">
-        <p className="text-slate-300 text-sm">השדה בכיוון î. רק הפאות <span className="text-yellow-400">ניצבות לציר X</span> תורמות שטף.</p>
-        <p className="text-slate-400 text-xs">4 פאות בצד (⊥ לשדה) → שטף = 0</p>
+        <p className="text-slate-300 text-sm">בוחרים כדור גאוסי ברדיוס r. השטף:</p>
+        <Formula c="Φ = E · 4πr²" color="text-blue-300" />
       </div>,
     },
     {
-      label: 'שטף דרך הפאה הימנית (נורמל +î)',
-      content: <div className="space-y-1">
-        <Formula c="Φ_right = E·A = Ca²" color="text-emerald-300" />
+      label: 'שלב ב — מקרה r < R (בתוך הכדור)',
+      thought: 'Q_enc = רק מה שבתוך r, לא כל הכדור!',
+      content: <div className="space-y-2">
+        <Formula c="Q_enc = ρ · (4/3)πr³" color="text-yellow-300" />
+        <p className="text-slate-400 text-xs">מחוק גאוס: E·4πr² = Q_enc/ε₀</p>
+        <Formula c="E = ρr / (3ε₀)   [r < R]" color="text-emerald-300" />
+        <Note color="yellow" children={<>E גדל לינארית עם r בתוך הכדור — שונה ממטען נקודתי!</>} />
       </div>,
     },
     {
-      label: 'שטף דרך הפאה השמאלית (נורמל -î)',
-      content: <div className="space-y-1">
-        <Formula c="Φ_left = E·(-A) = -Ca²" color="text-red-300" />
+      label: 'שלב ג — מקרה r > R (מחוץ לכדור)',
+      thought: 'כל המטען כלוא: Q_total = ρ·(4/3)πR³',
+      content: <div className="space-y-2">
+        <Formula c="Q_enc = ρ · (4/3)πR³ = Q_total" color="text-yellow-300" />
+        <Formula c="E = ρR³ / (3ε₀r²) = kQ/r²   [r > R]" color="text-emerald-300" />
+        <Note color="blue" children={<>מחוץ לכדור — נראה כמו מטען נקודתי במרכז. עקרון גאוס.</>} />
       </div>,
     },
     {
-      label: 'סכום ומסקנה',
+      label: 'בדיקה — רציפות ב-r = R',
+      thought: 'שני הביטויים חייבים לתת אותו E בגבול r=R',
       content: <div className="space-y-1">
-        <Formula c="Φ_total = Ca² - Ca² = 0" color="text-yellow-300" />
-        <Formula c="q_in = ε₀ · Φ = 0" color="text-yellow-300" />
-        <Note color="blue" children={<>שדה אחיד לא יכול ליצור מטען — הגיוני פיזיקלית.</>} />
+        <p className="text-slate-300 text-xs" dir="ltr">{'E_in(R) = ρR/(3ε₀) = E_out(R) = ρR³/(3ε₀R²) = ρR/(3ε₀) ✓'}</p>
+        <Note color="green" children={<>המעבר רציף — ללא קפיצה בשדה</>} />
       </div>,
     },
   ]}
@@ -326,14 +334,55 @@ const guides: GuideSection[] = [
     </div>,
   },
   {
+    title: 'נוסחאות',
+    content: <div className="space-y-3 text-xs">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-emerald-400 font-bold">חוק גאוס</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">{'∮E·dA = q_in / ε₀'}</p>
+        <p className="text-slate-400 leading-relaxed">השטף דרך משטח סגור = מטענים בפנים / ε₀. מטענים בחוץ — לא משנים את השטף.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-blue-400 font-bold">כדור / נקודת מטען</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">{'E = kQ/r²  (r > R)'}</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">{'E = kQr/R³ (r < R, מלא)'}</p>
+        <p className="text-slate-400">מחוץ — כאילו כל המטען בנקודה. בפנים — רק q_in (שגדל עם r).</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-purple-400 font-bold">גליל אינסופי</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">{'E = λ/(2πε₀r)'}</p>
+        <p className="text-slate-400">λ = מטען ליחידת אורך. השדה נחלש כ-1/r (לא 1/r² כמו כדור).</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-yellow-400 font-bold">מישור אינסופי</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">{'E = σ/(2ε₀)'}</p>
+        <p className="text-slate-400">σ = מטען ליחידת שטח. השדה קבוע — לא תלוי במרחק.</p>
+      </div>
+    </div>,
+  },
+  {
     title: 'שגיאות נפוצות',
     content: <div className="space-y-2 text-sm">
       <p className="text-red-400 text-xs font-bold">שגיאה #1 — Φ לעומת E</p>
       <p className="text-slate-300 text-xs">Φ = q_in/ε₀ תמיד. E = Φ/A רק כשהשדה אחיד על המשטח.</p>
       <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — מטענים מחוץ</p>
-      <p className="text-slate-300 text-xs">מטענים מחוץ למשטח לא משנים את הشطف — אבל משנים את E!</p>
+      <p className="text-slate-300 text-xs">מטענים מחוץ למשטח לא משנים את השטף — אבל משנים את E!</p>
       <p className="text-red-400 text-xs font-bold mt-2">שגיאה #3 — בתוך מוליך</p>
       <p className="text-slate-300 text-xs">E=0 בתוך מוליך בשיווי משקל — תמיד, ללא יוצא מן הכלל.</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #4 — יחידות</p>
+      <p className="text-slate-300 text-xs">E ב-N/C = V/m. Φ ב-N·m²/C = V·m. q ב-Coulomb, r במטר.</p>
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <Note color="yellow" children={<><span className="font-bold">כלל ראשון:</span> כתוב ביטוי פרמטרי לפני שמציב מספרים.</>} />
+      <p className="text-emerald-400 font-bold mt-2">תבניות שחוזרות:</p>
+      <ul className="space-y-1.5">
+        <li>🔵 כדור אחיד / קליפה — שני איזורים (r{'<'}R ו-r{'>'}R)</li>
+        <li>🟢 גליל עם ρ — q_in = ρ·πr²·L</li>
+        <li>🟡 שני מוליכים (קפסיטור) — E=0 בתוך, שטף = q/ε₀</li>
+      </ul>
+      <Note color="emerald" children={<>סדר: 1. ציור 2. משטח גאוס 3. q_in 4. E פרמטרי 5. יחידות SI</>} />
     </div>,
   },
 ]
@@ -357,9 +406,9 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'חוק גאוס קושר בין השטף החשמלי דרך משטח סגור לבין המטען הכלוא בתוכו. עם סימטריה נכונה — הכוח לחישוב שדות חשמליים מורכבים הופך לאלגברה פשוטה.',
   formulas: [
-    { label: 'חוק גאוס', tex: '\\varepsilon_0 \\oint \\vec{E} \\cdot d\\vec{A} = q_{\\text{in}}' },
-    { label: 'תיל אינסופי (λ)', tex: 'E(r) = \\dfrac{\\lambda}{2\\pi\\varepsilon_0 r}' },
-    { label: 'מישור אינסופי (σ)', tex: 'E = \\dfrac{\\sigma}{2\\varepsilon_0}' },
+    { label: 'חוק גאוס', tex: '\\varepsilon_0 \\oint \\vec{E} \\cdot d\\vec{A} = q_{\\text{in}}', verbal: 'השטף החשמלי דרך כל משטח סגור = סכום המטענים בפנים / ε₀. מטענים מחוץ — לא תורמים לשטף כלל. עם סימטריה: E·A = q_in/ε₀ → E ישירות.' },
+    { label: 'תיל אינסופי (λ)', tex: 'E(r) = \\dfrac{\\lambda}{2\\pi\\varepsilon_0 r}', verbal: 'שדה יורד כ-1/r (ולא 1/r² כמו כדור). λ = מטען לאורך [C/m]. ככל שמתרחקים — השדה נחלש אבל לאט יותר מנקודת מטען.' },
+    { label: 'מישור אינסופי (σ)', tex: 'E = \\dfrac{\\sigma}{2\\varepsilon_0}', verbal: 'שדה קבוע לחלוטין — לא תלוי במרחק מהמישור! σ = מטען לשטח [C/m²]. שני מישורים הפוכים → E=σ/ε₀ בין המישורים, 0 מחוץ (קפסיטור).' },
   ],
   when: 'יש סימטריה כדורית/גלילית/מישורית → בחר משטח גאוסי → חשב q_in → הוצא E',
 }

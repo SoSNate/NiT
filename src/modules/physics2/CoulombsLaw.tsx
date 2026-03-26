@@ -152,37 +152,40 @@ const step2 = <PrincipleStep
 />
 
 const step3 = <WorkedExample
-  examLabel="דוגמה מרכזית — שלושה מטענים בשורה"
-  problem={<p>שלושה מטענים על ציר: +Q, ואז -Q, ואז +Q. המרחק בין כל סמוכים הוא d. מצא את הכוח הכולל על המטען האמצעי (-Q).</p>}
-  hint="פרק לשני כוחות נפרדים — אחד מכל מטען קצה."
+  examLabel="שיעור 1 — פרופ' פרוכטמן (HIT) — שיווי משקל יציב ובלתי יציב"
+  problem={
+    <div className="space-y-1 text-sm">
+      <p>שני מטענים חיוביים <span className="font-mono text-blue-300">Q</span> קבועים במרחק <span className="font-mono text-blue-300">2a</span> זה מזה.</p>
+      <p>מטען בוחן חיובי קטן <span className="font-mono text-blue-300">q</span> נמצא בדיוק באמצע ביניהם (כוח שקול = 0).</p>
+      <p className="mt-2"><strong>(א)</strong> מסיטים את q במעט <em>לכיוון אחד המטענים</em> — מה קורה?</p>
+      <p><strong>(ב)</strong> מסיטים את q במעט <em>בניצב לציר</em> — מה קורה?</p>
+      <p className="text-slate-400 text-xs mt-1">מקור: שיעור 1.pdf עמ' 19 — פרופ' אמנון פרוכטמן, HIT</p>
+    </div>
+  }
+  hint="בכל הסטה — חשב מחדש את הכוחות. אם הכוח מחזיר → יציב. אם מרחיק → בלתי יציב."
   solution={[
     {
-      label: 'שרטט ותייג',
-      content: <div className="font-mono text-xs text-slate-300 leading-relaxed" dir="ltr">
-        <p>+Q ——d—— (−Q) ——d—— +Q</p>
-        <p className="text-slate-500 mt-1">A           B           C</p>
+      label: 'שלב א — הסטה לאורך הציר',
+      thought: 'q מתקרב ל-Q₁ ומתרחק מ-Q₂. כוח ה-Q₁ (דחייה) גדל, כוח ה-Q₂ (דחייה) קטן. כוח שקול = מרחיק מהאמצע.',
+      content: <div className="space-y-1 text-sm">
+        <p className="text-slate-300">q קרוב יותר ל-Q₁ → דחייה מ-Q₁ <span className="text-red-400">גדולה יותר</span> מדחייה מ-Q₂.</p>
+        <p className="text-red-400 font-semibold">כוח שקול: <em>מרחיק</em> מנקודת שיווי המשקל → <strong>שיווי משקל בלתי יציב</strong></p>
       </div>,
     },
     {
-      label: 'כוח מ-A על B',
-      content: <div className="space-y-1">
-        <p className="text-slate-300 text-sm">A חיובי, B שלילי → <span className="text-emerald-400">נמשכים</span> → כוח על B שמאלה</p>
-        <Formula c="F_AB = kQ²/d²  (←)" color="text-emerald-300" />
+      label: 'שלב ב — הסטה ניצבת לציר',
+      thought: 'q זז לצד. שני הכוחות מ-Q₁ ומ-Q₂ כעת בזוויות. הרכיב הניצב מתבטל; הרכיב לאורך הציר מחזיר לאמצע.',
+      content: <div className="space-y-1 text-sm">
+        <p className="text-slate-300">שני הכוחות סימטריים — הרכיב הניצב מתבטל.</p>
+        <p className="text-slate-300">הרכיב לאורך הציר מכוון <span className="text-emerald-400">חזרה לאמצע</span>.</p>
+        <p className="text-emerald-400 font-semibold">כוח שקול: <em>מחזיר</em> לנקודת שיווי המשקל → <strong>שיווי משקל יציב</strong></p>
       </div>,
     },
     {
-      label: 'כוח מ-C על B',
-      content: <div className="space-y-1">
-        <p className="text-slate-300 text-sm">C חיובי, B שלילי → <span className="text-emerald-400">נמשכים</span> → כוח על B ימינה</p>
-        <Formula c="F_CB = kQ²/d²  (→)" color="text-emerald-300" />
-      </div>,
-    },
-    {
-      label: 'כוח שקול',
-      content: <div className="space-y-1">
-        <p className="text-slate-300 text-sm">שני כוחות שווים, כיוונים הפוכים:</p>
-        <Formula c="F_net = F_AB − F_CB = 0" color="text-yellow-300" />
-        <Note color="blue" children={<>B נמצא בשיווי משקל בדיוק כי המרחקים שווים והמטענים שווים.</>} />
+      label: 'מסקנה — נקודת אוכף',
+      thought: 'זה המושג "נקודת אוכף": יציב בכיוון אחד, בלתי יציב בכיוון אחר.',
+      content: <div className="space-y-1 text-sm">
+        <Note color="blue" children={<>נקודת האמצע היא <strong>נקודת אוכף</strong>: יציב בניצב לציר, בלתי יציב לאורך הציר. כמו אוכף סוס — יציב לאחור-קדימה, לא יציב לצדדים.</>} />
       </div>,
     },
   ]}
@@ -191,27 +194,22 @@ const step3 = <WorkedExample
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
 const quiz: QuizQuestion[] = [
   {
-    question: 'שני כדורים טעונים במרחק r זה מזה. אם מכפילים את שני המטענים ומחלקים את המרחק בשלוש — פי כמה משתנה הכוח?',
-    options: ['פי 36', 'פי 18', 'פי 9', 'פי 4'],
+    question: 'שני מטענים חיוביים: q₁ = 2C, q₂ = 5C, מרחק r = 3m. מהו כוח הדחייה? (k = 9×10⁹)',
+    options: ['10¹⁰ N', '10⁹ N', '10⁸ N', '3×10⁹ N'],
     correct: 0,
-    explanation: 'F חדש = k(2q₁)(2q₂)/(r/3)² = 4q₁q₂·9/r² = 36F. מטענים ×4, מרחק ×9 ← 4×9=36.',
+    explanation: 'F = k·q₁·q₂/r² = 9×10⁹ × 2 × 5 / 9 = 10¹⁰ N. (מקור: שיעור 1, HIT)',
   },
   {
-    question: 'מטען +Q ומטען +4Q מרחק d. איפה על הציר המחבר ניתן להניח מטען שלישי ויישאר בשיווי משקל?',
-    options: [
-      'במרחק d/3 מ-+Q',
-      'במרחק d/2 מ-+Q',
-      'במרחק 2d/3 מ-+Q',
-      'לא ניתן',
-    ],
+    question: 'מטען +Q ומטען +4Q מרחק d. איפה ניתן להניח מטען שלישי בשיווי משקל?',
+    options: ['במרחק d/3 מ-+Q', 'במרחק d/2 מ-+Q', 'במרחק 2d/3 מ-+Q', 'לא ניתן'],
     correct: 0,
-    explanation: 'שיווי משקל: kQq/x² = k4Qq/(d-x)². פתרון: (d-x)² = 4x² → d-x = 2x → x = d/3.',
+    explanation: 'kQq/x² = k4Qq/(d−x)² → (d−x)² = 4x² → d−x = 2x → x = d/3.',
   },
   {
-    question: 'חלקיק עם מטען q ומסה m נמצא בשדה חשמלי אחיד E. מהי התאוצה שלו?',
+    question: 'חלקיק עם מטען q ומסה m נמצא בשדה חשמלי אחיד E. מהי התאוצה?',
     options: ['a = qE/m', 'a = mE/q', 'a = qm/E', 'a = E/q'],
     correct: 0,
-    explanation: 'F = qE, F = ma → a = qE/m. בדיוק כמו חוק ניוטון השני.',
+    explanation: 'F = qE, F = ma → a = qE/m.',
   },
 ]
 

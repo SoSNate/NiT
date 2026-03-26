@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
 
-// TypeScript doesn't include SpeechRecognition in its default lib — cast via any
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type SpeechRecognitionInstance = any
 type SpeechRecognitionResultEvent = any
@@ -8,19 +7,20 @@ type SpeechRecognitionResultEvent = any
 interface UseSpeechRecognitionResult {
   isListening: boolean
   isSupported: boolean
-  start: (onTranscript: (text: string) => void) => void
+  /** Interim (live) transcript — updates in real-time as the user speaks */
+  interim: string
+  /** Start listening. onFinal fires whenever a sentence is committed (final result). */
+  start: (onFinal: (text: string) => void) => void
   stop: () => void
 }
 
 export function useSpeechRecognition(): UseSpeechRecognitionResult {
-  const [isListening, setIsListening] = useState(false)
-  const recognitionRef = useRef<SpeechRecognitionInstance>(null)
-  // tracks whether the user intentionally stopped — prevents auto-restart after manual stop
-  const shouldListenRef = useRef(false)
-  // stable ref to current onTranscript callback so auto-restart uses latest version
-  const onTranscriptRef = useRef<((text: string) => void) | null>(null)
-  // ref to createAndStart so onend can call it without stale closure
-  const createAndStartRef = useRef<() => void>(() => {})
+  const [isListening, setIsListening]   = useState(false)
+  const [interim, setInterim]           = useState('')
+  const recognitionRef                  = useRef<SpeechRecognitionInstance>(null)
+  const shouldListenRef                 = useRef(false)
+  const onFinalRef                      = useRef<((text: string) => void) | null>(null)
+  const createAndStartRef               = useRef<() => void>(() => {})
 
   const getAPI = (): (new () => SpeechRecognitionInstance) | undefined => {
     if (typeof window === 'undefined') return undefined
@@ -33,35 +33,43 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     const API = getAPI()
     if (!API) return
 
-    // Always destroy previous instance before creating a new one
+    // Destroy previous instance cleanly
     if (recognitionRef.current) {
-      recognitionRef.current.onend = null
-      recognitionRef.current.onerror = null
+      recognitionRef.current.onend    = null
+      recognitionRef.current.onerror  = null
       recognitionRef.current.onresult = null
       try { recognitionRef.current.stop() } catch (_) { /* ignore */ }
       recognitionRef.current = null
     }
 
     const recognition: SpeechRecognitionInstance = new API()
-    recognition.lang = 'he-IL'
-    recognition.continuous = true
-    recognition.interimResults = true
+    recognition.lang            = 'he-IL'
+    recognition.continuous      = true
+    recognition.interimResults  = true   // ← ON: we need live updates
 
     recognition.onresult = (event: SpeechRecognitionResultEvent) => {
-      // Only use FINAL results — interim results are cumulative and cause tripling
-      // when appended repeatedly to the same textarea
+      let interimText = ''
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          onTranscriptRef.current?.(event.results[i][0].transcript as string)
+        const result = event.results[i]
+        if (result.isFinal) {
+          // Committed sentence → fire callback + clear interim
+          const committed = result[0].transcript as string
+          onFinalRef.current?.(committed)
+          setInterim('')
+        } else {
+          // Live in-progress text — accumulate for display only
+          interimText += result[0].transcript as string
         }
       }
+
+      if (interimText) setInterim(interimText)
     }
 
     recognition.onend = () => {
-      // Auto-restart if the browser stopped us (e.g. silence timeout) but user didn't press stop.
-      // IMPORTANT: create a FRESH instance via createAndStartRef — never call recognition.start()
-      // on the same instance, because Chrome keeps accumulated results and re-emits them → doubled text.
+      setInterim('')
       if (shouldListenRef.current) {
+        // Browser stopped due to silence — restart with fresh instance
         createAndStartRef.current()
       } else {
         setIsListening(false)
@@ -69,7 +77,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     }
 
     recognition.onerror = (event: any) => {
-      // 'no-speech' is a normal silence timeout — restart via fresh instance
+      setInterim('')
       if (shouldListenRef.current && event.error === 'no-speech') {
         createAndStartRef.current()
         return
@@ -83,20 +91,20 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     setIsListening(true)
   }, [])
 
-  // Keep ref in sync so onend always calls the latest version
   createAndStartRef.current = createAndStart
 
-  const start = useCallback((onTranscript: (text: string) => void) => {
-    onTranscriptRef.current = onTranscript
+  const start = useCallback((onFinal: (text: string) => void) => {
+    onFinalRef.current    = onFinal
     shouldListenRef.current = true
     createAndStart()
   }, [createAndStart])
 
   const stop = useCallback(() => {
     shouldListenRef.current = false
-    onTranscriptRef.current = null
+    onFinalRef.current      = null
+    setInterim('')
     if (recognitionRef.current) {
-      recognitionRef.current.onend = null
+      recognitionRef.current.onend   = null
       recognitionRef.current.onerror = null
       try { recognitionRef.current.stop() } catch (_) { /* ignore */ }
       recognitionRef.current = null
@@ -104,5 +112,5 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     setIsListening(false)
   }, [])
 
-  return { isListening, isSupported, start, stop }
+  return { isListening, isSupported, interim, start, stop }
 }

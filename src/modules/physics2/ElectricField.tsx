@@ -6,7 +6,7 @@
 import React, { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, Note, FormulaBlock } from '../../components/StepHelpers'
 import { GlassCard, StyledSlider, SimReadout, ToggleGroup } from '../../components/SimulatorShell'
 import type { QuizQuestion, GuideSection } from '../../types'
 
@@ -152,27 +152,38 @@ const step2 = <PrincipleStep
   items={[
     {
       title: 'הגדרת שדה חשמלי',
-      content: <div className="space-y-1">
-        <Formula c="E = F / q₀" color="text-yellow-300" />
-        <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10: השדה = כוח על מטען בוחן חיובי קטן</p>
-        <p className="text-slate-300 text-sm">כיוון: אותו כיוון הכוח על מטען חיובי, הפוך לשלילי</p>
+      content: <div className="space-y-2">
+        <FormulaBlock
+          formula="E = F / q₀"
+          verbal="השדה מוגדר כ'כמה כוח יחוש מטען בוחן קטן חיובי לכל קולון'. ה-q₀ חייב להיות קטן כדי שלא ישפיע על השדה המקורי. יחידות: N/C = V/m."
+          units="N/C"
+          color="text-yellow-300"
+        />
+        <p className="text-slate-300 text-xs">כיוון: אותו כיוון הכוח על מטען חיובי, הפוך לשלילי</p>
       </div>,
     },
     {
       title: 'שדה של מטען נקודתי',
-      content: <div className="space-y-1">
-        <Formula c="E = kQ / r²" color="text-blue-300" />
-        <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10 | k = 9×10⁹ N·m²/C²</p>
+      content: <div className="space-y-2">
+        <FormulaBlock
+          formula="E = kQ / r²"
+          verbal="כוח קולון מחולק ב-q₀. השדה גדל ככל שהמטען Q גדול יותר, ויורד ביחס לריבוע המרחק — כלומר להכפיל r פי 2 = לחלק E פי 4. k = 9×10⁹ N·m²/C²."
+          units="N/C"
+          color="text-blue-300"
+        />
         <p className="text-slate-300 text-xs">כיוון: רדיאלי מ-Q חיובי, לתוך Q שלילי</p>
       </div>,
       accent: 'text-blue-400',
     },
     {
       title: 'עיקרון הסופרפוזיציה',
-      content: <div className="space-y-1">
-        <Formula c="E_כולל = ΣEᵢ (חיבור וקטורי)" color="text-emerald-300" />
-        <p className="text-slate-400 text-xs">מבוא חשמל.pdf עמ' 10: חיבור וקטורי — לא סקלרי!</p>
-        <Note color="red" children={<>פרק לרכיבים x,y לפני שמחבר</>} />
+      content: <div className="space-y-2">
+        <FormulaBlock
+          formula="E_כולל = ΣEᵢ  (וקטורי!)"
+          verbal="כשיש כמה מטענים — מחשבים E מכל אחד בנפרד ומחברים וקטורית. לא מספיק לחבר גדלים — צריך לפרק לרכיבים x, y, z ולסכום בנפרד."
+          color="text-emerald-300"
+        />
+        <Note color="red" children={<>פרק לרכיבים x,y לפני שמחבר — שגיאה נפוצה בחיבור ישיר של גדלים</>} />
       </div>,
       accent: 'text-emerald-400',
     },
@@ -278,10 +289,16 @@ const practice: QuizQuestion[] = [
     explanation: 'סופרפוזיציה: שני שדות שווים בכיוונים מנוגדים → מתבטלים. E=0.',
   },
   {
-    question: 'מטען −2Q. כיוון קווי השדה?',
-    options: ['החוצה מהמטען', 'אין קווי שדה', 'פנימה לכיוון המטען', 'אופקי בלבד'],
-    correct: 2,
-    explanation: 'קווי שדה מסתיימים במטענים שליליים — כיוון השדה לתוך המטען.',
+    question: 'דיסקה טעונה (R גדול, σ). במרחק z≪R על הציר — מה E?',
+    options: ['σ/(2ε₀)', 'kQ/z²', 'σ/(ε₀)', '0'],
+    correct: 0,
+    explanation: "כשz≪R, הדיסקה נראית כמו מישור אינסופי: E = σ/(2ε₀). (שיעור 2.pdf עמ' 10)",
+  },
+  {
+    question: 'דיסקה טעונה — במרחק z≫R על הציר. מה E?',
+    options: ['σ/(2ε₀)', 'kQ/z² (כמו מטען נקודתי)', 'σR²/z²', '0'],
+    correct: 1,
+    explanation: "כשz≫R, הדיסקה נראית כמו מטען נקודתי Q=σπR²: E≈kQ/z². (שיעור 2.pdf עמ' 14)",
   },
 ]
 
@@ -312,8 +329,10 @@ const guides: GuideSection[] = [
       <p className="text-slate-300 text-xs">אסור: E = E₁ + E₂ (מספרים). חובה: חיבור וקטורי עם רכיבים.</p>
       <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — בלבול F ↔ E</p>
       <p className="text-slate-300 text-xs">E = F/q₀ (שדה = כוח ÷ מטען). F = qE (כוח על מטען בשדה).</p>
-      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #3 — לא מנצל סימטריה</p>
-      <p className="text-slate-300 text-xs">בטבעת/דיסקה: רכיבי x,y מתבטלים — נשאר רק z.</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #3 — קירוב במקום לא נכון</p>
+      <p className="text-slate-300 text-xs">דיסקה: קירוב "מרחק גדול" תקף רק כשz≫R. ליד הדיסקה — השתמש בנוסחה המלאה. (שיעור 2.pdf)</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #4 — לא מנצל סימטריה</p>
+      <p className="text-slate-300 text-xs">בטבעת/דיסקה על ציר: רכיבי x,y מתבטלים — נשאר רק z.</p>
     </div>,
   },
 ]
@@ -338,10 +357,10 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'השדה החשמלי E הוא וקטור המוגדר כ-F/q₀. שדה מטען נקודתי: E=kQ/r². מספר מטענים: סופרפוזיציה וקטורית. התפלגות רציפה: אינטגרל.',
   formulas: [
-    { label: 'הגדרה', tex: '\\vec{E} = \\dfrac{\\vec{F}}{q_0}' },
-    { label: 'מטען נקודתי', tex: 'E = \\dfrac{kQ}{r^2} = \\dfrac{Q}{4\\pi\\varepsilon_0 r^2}' },
-    { label: 'סופרפוזיציה', tex: '\\vec{E}_{total} = \\sum_i \\vec{E}_i' },
-    { label: 'התפלגות רציפה', tex: '\\vec{E} = \\int \\dfrac{k\\,dq}{r^2}\\hat{r}' },
+    { label: 'הגדרה', tex: '\\vec{E} = \\dfrac{\\vec{F}}{q_0}', verbal: 'השדה = כוח על מטען בוחן קטן q₀ חיובי, חלקי q₀. q₀ חייב להיות קטן כדי שלא ישפיע על השדה המקורי. יחידות: N/C = V/m.' },
+    { label: 'מטען נקודתי', tex: 'E = \\dfrac{kQ}{r^2} = \\dfrac{Q}{4\\pi\\varepsilon_0 r^2}', verbal: 'השדה גדל עם גודל המטען Q, יורד ביחס לריבוע המרחק. הכפלת r פי 2 → חלוקת E פי 4. k=9×10⁹ N·m²/C², כיוון: רדיאלי מ-Q חיובי.' },
+    { label: 'סופרפוזיציה', tex: '\\vec{E}_{total} = \\sum_i \\vec{E}_i', verbal: 'חיבור וקטורי — לא סקלרי! פרק כל E_i לרכיבים x,y,z. סכם רכיבים בנפרד. שגיאה נפוצה: חיבור ישיר של גדלים בלי להתחשב בכיוון.' },
+    { label: 'התפלגות רציפה', tex: '\\vec{E} = \\int \\dfrac{k\\,dq}{r^2}\\hat{r}', verbal: 'כשהמטען מפוזר ברציפות — מחלקים לאלמנטים dq קטנים, מחשבים את השדה מכל אלמנט, ומאנגדלים. dq = λdl (קווי) = σdA (משטח) = ρdV (נפח).' },
   ],
   when: 'מטענים בדידים → קולון + סופרפוזיציה. סימטריה → גאוס. התפלגות רציפה → אינטגרל dq.',
 }

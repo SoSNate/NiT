@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, M, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, FormulaBlock, M, Note } from '../../components/StepHelpers'
 import type { QuizQuestion, GuideSection } from '../../types'
 
 // ── SIMULATOR ────────────────────────────────────────────────────────────────
@@ -110,14 +110,26 @@ const step2 = (
     items={[
       {
         title: 'הפרד — כל y לצד אחד, כל x לצד שני',
-        content: <><Formula c="dy/g(y) = f(x)dx" />
-          <span className="text-slate-400 text-xs">לדוגמה: dy/y² = x·dx</span></>,
+        content: <>
+          <FormulaBlock
+            formula="dy/g(y) = f(x)dx"
+            verbal="מחלקים את שני האגפים כך שכל y עם dy הולך לצד אחד וכל x עם dx הולך לשני. לפי הכלל: dy/dx = f(x)·g(y) → dy/g(y) = f(x)dx. מניחים g(y)≠0 — פתרונות שבהם g(y)=0 הם פתרונות סינגולריים."
+            color="text-yellow-300"
+          />
+          <span className="text-slate-400 text-xs">לדוגמה: dy/y² = x·dx</span>
+        </>,
         accent: 'text-yellow-400',
       },
       {
         title: 'אינטגרל משני הצדדים',
-        content: <><Formula c="∫ dy/g(y) = ∫ f(x)dx + C" />
-          <span className="text-slate-400 text-xs">C — קבוע אינטגרציה (שים אחד בלבד!)</span></>,
+        content: <>
+          <FormulaBlock
+            formula="∫ dy/g(y) = ∫ f(x)dx + C"
+            verbal="מאנטגרלים כל צד בנפרד — אגף שמאל ל-y, אגף ימין ל-x. מקבלים F(y) = G(x) + C. C אחד בלבד (שני קבועות היו מתמזגים לאחד). C נמצא מתנאי ראשוני y(x₀)=y₀."
+            color="text-yellow-300"
+          />
+          <span className="text-slate-400 text-xs">C — קבוע אינטגרציה (שים אחד בלבד!)</span>
+        </>,
         accent: 'text-yellow-400',
       },
       {
@@ -220,6 +232,32 @@ const guides: GuideSection[] = [
       <Note color="blue" children={<>🎯 בדוק: גזור את התשובה ובדוק שמקיים את המשוואה המקורית.</>} />
     </div>,
   },
+  {
+    title: 'פתרונות מיוחדים',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-yellow-400 font-bold">פתרון סינגולרי — y = קבוע</p>
+      <p>כשמחלקים ב-g(y), מניחים g(y)≠0. בדוק מה קורה כש-g(y)=0:</p>
+      <div className="bg-white/5 rounded-xl p-2 font-mono text-slate-200" dir="ltr">
+        dy/dx = y·(1-y) → y=0 ו-y=1 פתרונות קבועים
+      </div>
+      <p className="text-slate-400">אלה פתרונות שלא מופיעים בנוסחה הכללית — ציין אותם בנפרד!</p>
+      <Note color="yellow" children={<>במבחן: תמיד בדוק y=0 (או מה שמאפס את g(y)) — זה פתרון סינגולרי.</>} />
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">תבנית קלאסית:</p>
+      <p className="font-mono text-slate-200" dir="ltr">dy/dx = xy², y(0) = 1</p>
+      <div className="bg-white/5 rounded-xl p-2 text-xs space-y-1">
+        <p>1. הפרד: dy/y² = x dx → ∫y⁻² dy = ∫x dx</p>
+        <p>2. -1/y = x²/2 + C</p>
+        <p>3. y(0)=1 → C = -1</p>
+        <p>4. y = 1/(1 - x²/2) = 2/(2-x²)</p>
+      </div>
+      <Note color="blue" children={<>שים לב לתחום ההגדרה: y מתפוצץ ב-x=±√2 — לא תמיד מוגדר לכל x.</>} />
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -244,8 +282,8 @@ const bridge = <div className="space-y-2">
 const theory: TheoryCard = {
   summary: 'כשאפשר לכתוב dy/dx = f(x)·g(y), מעבירים את כל ה-y לצד שמאל ואת כל ה-x לצד ימין — ואז מאנגדלים כל צד בנפרד. זה נקרא "הפרדת משתנים" כי כל משתנה נמצא בצד שלו.',
   formulas: [
-    { label: 'הפרדה', tex: '\\frac{dy}{g(y)} = f(x)\\,dx' },
-    { label: 'אינטגרציה', tex: '\\int \\frac{dy}{g(y)} = \\int f(x)\\,dx + C' },
+    { label: 'הפרדה', tex: '\\frac{dy}{g(y)} = f(x)\\,dx', verbal: 'מחלקים כך שכל y עם dy עובר לצד אחד, כל x עם dx לצד שני. מניחים g(y)≠0 — אם g(y₀)=0 אז y=y₀ הוא פתרון קבוע נפרד (סינגולרי).' },
+    { label: 'אינטגרציה', tex: '\\int \\frac{dy}{g(y)} = \\int f(x)\\,dx + C', verbal: 'מאנגדלים כל צד בנפרד. C אחד בלבד (C_שמאל - C_ימין = קבוע). מוצאים C מתנאי ראשוני y(x₀)=y₀.' },
   ],
   when: 'כשניתן לבודד y מצד אחד ו-x מצד שני — לרוב כשיש מכפלה f(x)·g(y)',
 }

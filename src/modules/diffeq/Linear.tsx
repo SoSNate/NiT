@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, FormulaBlock, Note } from '../../components/StepHelpers'
 import type { QuizQuestion, GuideSection } from '../../types'
 
 function Sim({ currentStep }: { currentStep: number }) {
@@ -85,14 +85,26 @@ const step2 = (
     items={[
       {
         title: 'חשב גורם אינטגרציה μ(x)',
-        content: <><Formula c="μ(x) = e^(∫P(x)dx)" />
-          <span className="text-slate-400 text-xs">אל תוסיף C בשלב זה!</span></>,
+        content: <>
+          <FormulaBlock
+            formula="μ(x) = e^(∫P(x)dx)"
+            verbal="μ הוא מספר שנבחר בדיוק כדי ש-μ·y'+μ·P·y = (μy)'. כיצד? (μy)' = μy'+μ'y, ולכן צריך μ'=μP, כלומר μ=e^(∫P dx). לא מוסיפים C — כל μ שמקיים את זה עובד."
+            color="text-blue-300"
+          />
+          <span className="text-slate-400 text-xs">אל תוסיף C בשלב זה!</span>
+        </>,
         accent: 'text-blue-400',
       },
       {
         title: 'הכפל את שני האגפים ב-μ',
-        content: <><Formula c="(μy)' = μ·Q(x)" />
-          <span className="text-slate-400 text-xs">האגף השמאלי מתכווץ תמיד לנגזרת מכפלה.</span></>,
+        content: <>
+          <FormulaBlock
+            formula="(μy)' = μ·Q(x)"
+            verbal="אחרי כפל ב-μ, האגף השמאלי הוא תמיד (μy)'. זה הקסם — הצד שמאל 'מתקפל' לנגזרת אחת. האגף הימני = μQ(x). עכשיו מאנטגרלים שני הצדדים: μy = ∫μQ dx + C."
+            color="text-blue-300"
+          />
+          <span className="text-slate-400 text-xs">האגף השמאלי מתכווץ תמיד לנגזרת מכפלה.</span>
+        </>,
         accent: 'text-blue-400',
       },
       {
@@ -160,6 +172,52 @@ const guides: GuideSection[] = [
       </ul>
     </div>,
   },
+  {
+    title: 'נוסחאות',
+    content: <div className="space-y-3 text-xs">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-blue-400 font-bold">גורם האינטגרציה</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">μ(x) = e^(∫P(x)dx)</p>
+        <p className="text-slate-400 leading-relaxed">מספר שכפלנו בו כדי שהצד שמאל יהפוך לנגזרת מוכנה: (μy)'. לא מוסיפים C בשלב זה.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-emerald-400 font-bold">הנגזרת של המכפלה</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">{'(μy)\' = μ·Q(x)'}</p>
+        <p className="text-slate-400">אחרי כפל ב-μ, אגף שמאל הוא תמיד (μy)'. אנגדל: μy = ∫μQ dx + C.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-yellow-400 font-bold">הפתרון הכללי</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">y = (∫μQ dx + C) / μ</p>
+        <p className="text-slate-400">C נמצא מתנאי ראשוני y(x₀) = y₀. הצב והוצא C.</p>
+      </div>
+    </div>,
+  },
+  {
+    title: 'בנרנולי',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-purple-400 font-bold text-sm">מד"ר ברנולי: y' + P·y = Q·yⁿ</p>
+      <p>לא לינארי אבל הופך לינארי בהצבה:</p>
+      <div className="bg-white/5 rounded-xl p-2 font-mono text-slate-200" dir="ltr">
+        u = y^(1-n)  →  u' + (1-n)P·u = (1-n)Q
+      </div>
+      <p className="text-slate-400">עכשיו u מקיים מד"ר לינארית — פתור עם גורם אינטגרציה.</p>
+      <Note color="yellow" children={<>n=0: פולינום. n=1: לינארית הומוגנית. n=2 הכי נפוץ במבחן.</>} />
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">שאלה טיפוסית:</p>
+      <p className="text-slate-300">y' + (2/x)y = x³ עם y(1)=2. פתור.</p>
+      <div className="bg-white/5 rounded-xl p-2 text-xs space-y-1">
+        <p>1. P=2/x → μ = x² (כי ∫2/x dx = 2ln|x| → e^(2ln x) = x²)</p>
+        <p>2. (x²y)' = x⁵</p>
+        <p>3. x²y = x⁶/6 + C</p>
+        <p>4. y(1)=2 → C = 2 - 1/6 = 11/6</p>
+      </div>
+      <Note color="emerald" children={<>תמיד: כתוב y' + Py = Q לפני שמחשב μ. ל-P לא צריך קבוע C.</>} />
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -175,8 +233,8 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'מד"ר לינארית ממעלה ראשונה היא מהצורה y\' + P(x)·y = Q(x). הטריק: מוצאים "גורם אינטגרציה" μ — פונקציה שכשכופלים בה את שני האגפים, האגף השמאלי הופך לנגזרת של מכפלה: (μy)\'. אחרי זה — אינטגרציה פשוטה.',
   formulas: [
-    { label: 'גורם אינטגרציה', tex: '\\mu(x) = e^{\\int P(x)\\,dx}' },
-    { label: 'פתרון', tex: 'y = \\frac{1}{\\mu}\\int \\mu Q\\,dx + \\frac{C}{\\mu}' },
+    { label: 'גורם אינטגרציה', tex: '\\mu(x) = e^{\\int P(x)\\,dx}', verbal: 'μ נבחר כך ש-μ\'=μP, כלומר d/dx(μy) = μ(y\'+Py). לא מוסיפים C — כל μ שמקיים μ\'=μP טוב. דוגמה: P=2/x → μ=x².' },
+    { label: 'פתרון', tex: 'y = \\frac{1}{\\mu}\\int \\mu Q\\,dx + \\frac{C}{\\mu}', verbal: 'אחרי הכפל ב-μ: (μy)\'=μQ. מאנגדלים: μy=∫μQ dx+C. מחלקים ב-μ: y=(∫μQ dx+C)/μ. C נמצא מתנאי ראשוני.' },
   ],
   when: 'כשy מופיעה בחזקה ראשונה בלבד — אין y², אין 1/y, אין y·y\'',
 }

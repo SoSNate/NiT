@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
-import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, Note, FormulaBlock } from '../../components/StepHelpers'
 import type { QuizQuestion, GuideSection } from '../../types'
 
 function Sim({ currentStep }: { currentStep: number }) {
@@ -97,13 +97,23 @@ const step2 = (
     items={[
       {
         title: 'מקדמי פורייה (תקופה 2π)',
-        content: <>
-          <div dir="ltr" className="font-mono text-xs text-pink-300 space-y-0.5">
-            <p>{'a₀ = (1/π)∫_{-π}^π f(x) dx'}</p>
-            <p>{'aₙ = (1/π)∫_{-π}^π f(x)cos(nx) dx'}</p>
-            <p>{'bₙ = (1/π)∫_{-π}^π f(x)sin(nx) dx'}</p>
-          </div>
-        </>,
+        content: <div className="space-y-2">
+          <FormulaBlock
+            formula="a₀ = (1/π)∫_{-π}^π f(x) dx"
+            verbal="המקדם הקבוע — ממוצע הפונקציה על תקופה מלאה. אם f סימטרית סביב ציר x (כמו sin) — a₀=0."
+            color="text-pink-300"
+          />
+          <FormulaBlock
+            formula="aₙ = (1/π)∫_{-π}^π f(x)·cos(nx) dx"
+            verbal="כמה 'דומה' f לגל cos בתדר n. אם f אי-זוגית — aₙ=0 לכל n (מכפלת זוגית×אי-זוגית אינטגרלה אפס)."
+            color="text-pink-300"
+          />
+          <FormulaBlock
+            formula="bₙ = (1/π)∫_{-π}^π f(x)·sin(nx) dx"
+            verbal="כמה 'דומה' f לגל sin בתדר n. אם f זוגית — bₙ=0 לכל n."
+            color="text-pink-300"
+          />
+        </div>,
         accent: 'text-pink-400',
       },
       {
@@ -119,10 +129,13 @@ const step2 = (
       },
       {
         title: 'משפט פרסוול',
-        content: <>
-          <Formula c="(1/π)∫f² dx = a₀²/2 + Σ(aₙ²+bₙ²)" color="text-orange-300" />
-          <span className="text-slate-400 text-xs">שימושי לסכימת Σ1/n² = π²/6 ועוד</span>
-        </>,
+        content: <div className="space-y-2">
+          <FormulaBlock
+            formula="(1/π)∫f² dx = a₀²/2 + Σ(aₙ²+bₙ²)"
+            verbal="'אנרגיית' הפונקציה שווה לסכום אנרגיות כל הרמוניות. משמש להוכיח Σ1/n²=π²/6: חשב טור ל-f=x, הצב x=π, קבל סכום."
+            color="text-orange-300"
+          />
+        </div>,
         accent: 'text-orange-400',
       },
     ]}
@@ -188,7 +201,55 @@ const guides: GuideSection[] = [
       <p className="font-mono text-xs text-slate-300">Σ1/(2n-1)² = π²/8</p>
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: 'סימטריה',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-pink-400 font-bold">פונקציה זוגית f(-x)=f(x)</p>
+        <p className="font-mono text-slate-200" dir="ltr">bₙ = 0  (אין sin)</p>
+        <p className="font-mono text-slate-200" dir="ltr">aₙ = (2/π)∫₀^π f·cos(nx)dx</p>
+        <p className="text-slate-400">חוסכים חישוב — רק cos נשאר.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-orange-400 font-bold">פונקציה אי-זוגית f(-x)=-f(x)</p>
+        <p className="font-mono text-slate-200" dir="ltr">aₙ = 0  (אין cos, גם a₀=0)</p>
+        <p className="font-mono text-slate-200" dir="ltr">bₙ = (2/π)∫₀^π f·sin(nx)dx</p>
+        <p className="text-slate-400">רק sin נשאר.</p>
+      </div>
+      <Note color="emerald" children={<>בדוק סימטריה לפני שמחשב — חוסך חצי מהחישוב.</>} />
+    </div>,
+  },
+  {
+    title: 'פרסוול',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-orange-400 font-bold">משפט פרסוול</p>
+        <p className="font-mono text-slate-200" dir="ltr">{'(1/π)∫_{-π}^π f² dx = a₀²/2 + Σ(aₙ²+bₙ²)'}</p>
+        <p className="text-slate-400">משמש להוכיח Σ1/n² = π²/6 מטור פורייה של f(x)=x.</p>
+      </div>
+      <p className="text-emerald-400 font-bold">תוצאות קלאסיות:</p>
+      <ul className="font-mono text-slate-300 space-y-0.5 text-[11px]" dir="ltr">
+        <li>Σ 1/n² = π²/6</li>
+        <li>Σ 1/(2n-1)² = π²/8</li>
+        <li>Σ (-1)^(n+1)/n = ln(2)</li>
+      </ul>
+      <Note color="blue" children={<>בדרך כלל: חשב טור → הצב x מיוחד → קבל ערך של Σ1/nᵖ.</>} />
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">שאלה טיפוסית:</p>
+      <p>מצא טור פורייה של f(x) = |x| ב-[-π,π]. הוכח Σ1/(2n-1)²=π²/8.</p>
+      <div className="bg-white/5 rounded-xl p-2 text-xs space-y-1">
+        <p>1. זוגית → bₙ=0, aₙ=(2/π)∫₀^π x cos(nx)dx</p>
+        <p>2. אינטגרציה בחלקים → aₙ = 2((-1)ⁿ-1)/(πn²)</p>
+        <p>3. n אי-זוגי: aₙ=-4/(πn²), n זוגי: aₙ=0</p>
+        <p>4. הצב x=0: 0 = π/2 - (4/π)Σ1/(2k-1)² → Σ=π²/8</p>
+      </div>
+      <Note color="yellow" children={<>תמיד: 1. בדוק סימטריה 2. חשב aₙ/bₙ 3. הצב x מיוחד לקבל Σ.</>} />
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -206,8 +267,8 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'כל פונקציה תקופתית f(x) ניתן לפרק לסכום אינסופי של גלי סינוס וקוסינוס. המקדמים aₙ ו-bₙ מחושבים עם אינטגרלים. טריק חשוב: פונקציה זוגית f(-x)=f(x) → רק cos (bₙ=0). פונקציה אי-זוגית f(-x)=-f(x) → רק sin (aₙ=0). פרסוול: סכום |מקדמים|² = אנרגיה.',
   formulas: [
-    { label: 'מקדם', tex: 'a_n = \\frac{1}{\\pi}\\int_{-\\pi}^{\\pi} f(x)\\cos(nx)\\,dx' },
-    { label: 'פרסוול', tex: '\\frac{1}{\\pi}\\int_{-\\pi}^{\\pi}|f|^2\\,dx = \\frac{a_0^2}{2}+\\sum_{n=1}^\\infty(a_n^2+b_n^2)' },
+    { label: 'מקדם cos', tex: 'a_n = \\frac{1}{\\pi}\\int_{-\\pi}^{\\pi} f(x)\\cos(nx)\\,dx', verbal: 'כמה הפונקציה "דומה" לגל cos בתדר n. אם f זוגית — רק cos נשאר (bₙ=0). אם f אי-זוגית — rq cos נאפס (aₙ=0). שורה תחתונה: בדוק זוגיות לפני שמחשב!' },
+    { label: 'פרסוול', tex: '\\frac{1}{\\pi}\\int_{-\\pi}^{\\pi}|f|^2\\,dx = \\frac{a_0^2}{2}+\\sum_{n=1}^\\infty(a_n^2+b_n^2)', verbal: '"אנרגיית" הפונקציה = סכום "אנרגיות" כל ההרמוניות. שימוש: חשב טור ל-f=x → אנגדל ← Σ1/n²=π²/6. חשב ל-f=|x| → Σ1/(2n-1)²=π²/8.' },
   ],
   when: 'בדוק זוגיות לפני שמחשב! חצי מהמקדמים נאפסים → זמן עבודה חצי. פרסוול → סכומי טורים מיוחדים',
 }

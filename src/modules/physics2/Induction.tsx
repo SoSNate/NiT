@@ -1,20 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react'
-import GenericLearningModule, { QuizQuestion, GuideSection, TheoryCard } from '../../components/GenericLearningModule'
-import { BlockMath } from '../../components/Math'
+/**
+ * Induction.tsx — upgraded to PatternStep/PrincipleStep/WorkedExample
+ * Source: physics2_lesson 3 2026.pdf (Faraday, Lenz, EMF)
+ * Built: 2026-03-26
+ */
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import GenericLearningModule, { TheoryCard } from '../../components/GenericLearningModule'
+import { PatternStep, PrincipleStep, WorkedExample, Formula, Note } from '../../components/StepHelpers'
+import { GlassCard, StyledSlider, SimReadout, ToggleGroup } from '../../components/SimulatorShell'
+import type { QuizQuestion, GuideSection } from '../../types'
 
-function InductionSim({ currentStep }: { currentStep: number }) {
-  const [B0, setB0] = useState(1)      // Tesla amplitude
-  const [freq, setFreq] = useState(1)  // Hz
-  const [area, setArea] = useState(0.5) // m²
+// ── SIMULATOR ────────────────────────────────────────────────────────────────
+function Sim({ currentStep: _cs }: { currentStep: number }) {
+  const [B0, setB0]   = useState(1)
+  const [freq, setFreq] = useState(1)
+  const [area, setArea] = useState(0.5)
+  const [mode, setMode] = useState<'rotate' | 'change'>('change')
   const [t, setT] = useState(0)
-  const rafRef = useRef<number>()
+  const rafRef  = useRef<number>()
   const lastRef = useRef<number>(0)
 
   useEffect(() => {
     const tick = (now: number) => {
       const dt = (now - lastRef.current) / 1000
       lastRef.current = now
-      setT(prev => prev + dt)
+      setT(prev => prev + dt * 0.7)
       rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
@@ -22,338 +32,317 @@ function InductionSim({ currentStep }: { currentStep: number }) {
   }, [])
 
   const omega = 2 * Math.PI * freq
-  const B = B0 * Math.cos(omega * t)
-  const Phi = B * area
-  const EMF = B0 * omega * area * Math.sin(omega * t)
+  const B     = B0 * Math.cos(omega * t)
+  const Phi   = mode === 'change' ? B * area : B0 * area * Math.cos(omega * t)
+  const EMF   = mode === 'change'
+    ? B0 * omega * area * Math.sin(omega * t)
+    : B0 * omega * area * Math.sin(omega * t)
 
-  // Graph points for EMF wave
-  const W = 220, H = 80
-  const points = Array.from({ length: 60 }, (_, i) => {
-    const x = (i / 59) * W
+  const W = 300, H = 70
+  const bPoints = useMemo(() => Array.from({ length: 60 }, (_, i) => {
     const tb = (i / 59) * 2 / freq
-    const y = H / 2 - (B0 * Math.cos(omega * (t - 2 / freq + tb)) * (H / 2 - 4))
-    return `${x},${y}`
-  }).join(' ')
+    const y  = H / 2 - B0 * Math.cos(omega * (t - 2 / freq + tb)) * (H / 2 - 6)
+    return `${(i / 59) * W},${y}`
+  }).join(' '), [t, B0, freq, omega])
 
-  const emfPoints = Array.from({ length: 60 }, (_, i) => {
-    const x = (i / 59) * W
-    const tb = (i / 59) * 2 / freq
-    const y = H / 2 - (B0 * omega * area * Math.sin(omega * (t - 2 / freq + tb)) * ((H / 2 - 4) / (B0 * omega * area + 0.001)))
-    return `${x},${y}`
-  }).join(' ')
+  const emfPoints = useMemo(() => Array.from({ length: 60 }, (_, i) => {
+    const tb   = (i / 59) * 2 / freq
+    const peak = B0 * omega * area + 0.001
+    const y    = H / 2 - B0 * omega * area * Math.sin(omega * (t - 2 / freq + tb)) * ((H / 2 - 6) / peak)
+    return `${(i / 59) * W},${y}`
+  }).join(' '), [t, B0, freq, area, omega])
+
+  const lenzDir = EMF > 0 ? 'נגד השעון' : 'עם השעון'
 
   return (
-    <div className="w-full flex flex-col items-center gap-3">
-      {/* Coil diagram */}
-      <svg viewBox="-120 -80 240 160" width="240" height="160">
-        <defs>
-          <marker id="arr-ind" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="#f87171" />
-          </marker>
-        </defs>
-        {/* B field arrows */}
-        {[-60, -20, 20, 60].map(x => (
-          <line key={x} x1={x} y1={-60} x2={x} y2={60}
-            stroke={B > 0 ? '#60a5fa' : '#f87171'} strokeWidth="1.5"
-            opacity={Math.abs(B) / B0}
-            markerEnd="url(#arr-ind)" />
-        ))}
-        {/* Coil rectangle */}
-        <rect x="-50" y="-40" width="100" height="80"
-          fill="none" stroke="#34d399" strokeWidth="2.5" rx="4" />
-        <text x="0" y="0" textAnchor="middle" fill="#34d399" fontSize="10">סליל A = {area} m²</text>
-        {/* EMF indicator */}
-        <text x="0" y="65" textAnchor="middle" fill="#fbbf24" fontSize="9">
-          ε = {EMF.toFixed(2)} V
-        </text>
-      </svg>
-
-      {/* Wave graph */}
-      <div className="w-full px-2">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="70">
-          <line x1="0" y1={H/2} x2={W} y2={H/2} stroke="#334155" strokeWidth="1" />
-          <polyline points={points} fill="none" stroke="#60a5fa" strokeWidth="1.5" opacity="0.7" />
-          <polyline points={emfPoints} fill="none" stroke="#fbbf24" strokeWidth="1.5" />
-          <text x="3" y="12" fill="#60a5fa" fontSize="7">B(t)</text>
-          <text x="3" y="22" fill="#fbbf24" fontSize="7">ε(t)</text>
+    <div className="w-full space-y-4" dir="ltr">
+      <GlassCard className="overflow-hidden bg-slate-950">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 90 }}>
+          <line x1="0" y1={H / 2} x2={W} y2={H / 2} stroke="#334155" strokeWidth="1" />
+          <polyline points={bPoints}   fill="none" stroke="#60a5fa" strokeWidth="2" opacity="0.8" />
+          <polyline points={emfPoints} fill="none" stroke="#fbbf24" strokeWidth="2" />
+          <text x="6" y="14" fill="#60a5fa" fontSize="9" fontFamily="monospace">B(t)</text>
+          <text x="6" y="26" fill="#fbbf24" fontSize="9" fontFamily="monospace">{"ε(t)"}</text>
+          <text x={W - 4} y="14" textAnchor="end" fill="#94a3b8" fontSize="8">
+            {`ε = ${EMF.toFixed(2)} V`}
+          </text>
         </svg>
+      </GlassCard>
+
+      <div className="grid grid-cols-2 gap-2">
+        <SimReadout label="שטף Φ"  value={Phi.toFixed(3)}  unit="Wb" />
+        <SimReadout label="EMF ε"  value={EMF.toFixed(2)}  unit="V"  />
       </div>
 
-      {/* Controls */}
-      <div className="w-full space-y-2 px-3">
-        {[
-          { label: 'B₀', value: B0, setter: setB0, min: 0.1, max: 3, step: 0.1, color: 'blue' },
-          { label: 'תדר f', value: freq, setter: setFreq, min: 0.2, max: 3, step: 0.1, color: 'yellow' },
-          { label: 'שטח A', value: area, setter: setArea, min: 0.1, max: 2, step: 0.1, color: 'green' },
-        ].map(ctrl => (
-          <div key={ctrl.label}>
-            <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-              <span>{ctrl.label}</span>
-              <span className={`text-${ctrl.color}-400 font-bold`}>{ctrl.value.toFixed(1)}</span>
-            </div>
-            <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.value}
-              onChange={e => ctrl.setter(+e.target.value)}
-              className={`w-full accent-${ctrl.color}-500 h-1.5 rounded-full`} />
-          </div>
-        ))}
-        <div className="bg-white/10 rounded-xl p-2 text-center">
-          <p className="text-xs font-mono text-slate-400" dir="ltr">|ε_max| = B₀·ω·A = {(B0 * omega * area).toFixed(2)} V</p>
-        </div>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div key={lenzDir} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+          className="text-center text-xs text-purple-300 font-semibold">
+          חוק לנץ: זרם זורם {lenzDir}
+        </motion.div>
+      </AnimatePresence>
+
+      <ToggleGroup
+        value={mode}
+        onChange={v => setMode(v as typeof mode)}
+        options={[
+          { value: 'change', label: 'B משתנה' },
+          { value: 'rotate', label: 'סליל מסתובב' },
+        ]}
+      />
+      <StyledSlider label="B₀"  value={B0}   min={0.1} max={3}   step={0.1} unit="T"   onChange={setB0} />
+      <StyledSlider label="תדר" value={freq} min={0.2} max={3}   step={0.1} unit="Hz"  onChange={setFreq} />
+      <StyledSlider label="שטח A" value={area} min={0.1} max={2} step={0.1} unit="m²" onChange={setArea} />
     </div>
   )
 }
 
-function Step1() {
-  const [selected, setSelected] = useState<number | null>(null)
-  return (
-    <div className="space-y-4">
-      <div className="bg-white/5 rounded-xl p-4 text-slate-300 text-sm">
-        סליל עם <span className="font-mono text-red-300">N = 200</span> לולאות ושטח{' '}
-        <span className="font-mono text-red-300">A = 0.01 m²</span> נמצא בשדה מגנטי{' '}
-        <span className="font-mono text-red-300" dir="ltr">B(t) = 0.5·cos(100t) T</span>.
-        מצא את הכוח האלקטרומוטיבי המושרה.
-      </div>
-      <p className="text-slate-400 text-sm">איזה חוק ייתן לנו את ה-EMF?</p>
-      {[
-        { l: 'חוק פאראדיי-לנץ', c: true },
-        { l: 'חוק אמפר', c: false },
-        { l: 'חוק גאוס', c: false },
-        { l: 'חוק ביו-סאבר', c: false },
-      ].map((opt, i) => (
-        <button key={i} disabled={selected !== null} onClick={() => setSelected(i)}
-          className={`w-full text-right p-3 rounded-xl text-sm transition-all border ${
-            selected === null ? 'bg-white/10 hover:bg-white/20 text-white border-white/10'
-            : opt.c ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-            : selected === i ? 'bg-red-500/20 text-red-300 border-red-500/40'
-            : 'bg-white/5 text-slate-600 border-transparent'}`}>
-          {opt.l}
-        </button>
-      ))}
-      {selected !== null && (
-        <div className={`rounded-xl p-3 text-sm ${[0].includes(selected) ? 'bg-emerald-900/30 text-emerald-300' : 'bg-amber-900/30 text-amber-300'}`}>
-          {selected === 0
-            ? '✓ חוק פאראדיי! EMF = -dΦ/dt. השינוי בשטף מגנטי יוצר כוח אלקטרומוטיבי. סימן המינוס = חוק לנץ (ה-EMF מתנגד לשינוי).'
-            : 'לא. חוקים אלו קשורים לחישוב B עצמו, לא ל-EMF שנוצר משינוי ב-B.'}
-        </div>
-      )}
-    </div>
-  )
-}
+// ── STEP 1 — זיהוי ──────────────────────────────────────────────────────────
+const step1 = <PatternStep
+  scenario="סליל N=200 לולאות, A=0.01 m², בשדה B(t)=0.5·cos(100t) T. רוצים את EMF(t)."
+  prompt="מה הצעד הראשון?"
+  options={[
+    { label: 'חשב שטף: Φ = N·B·A, גזור לפי t', desc: 'נכון. Φ_total = N·B·A·cos(θ) → גזירה נותנת EMF', correct: true },
+    { label: 'שתי: ε = B·L·v (חוט נע)', desc: 'זה עבור חוט נע, לא סליל בשדה משתנה', correct: false },
+    { label: 'השתמש בחוק אמפר', desc: 'אמפר נותן B מזרם, לא EMF משינוי שטף', correct: false },
+    { label: 'ε = V = IR', desc: 'אוהם נותן מתח על נגד, לא EMF משרה', correct: false },
+  ]}
+  correctFeedback="נכון! Φ_total = N·B·A·cos(θ). אחרי גזירה: ε = -N·A·dB/dt = N·B₀·A·ω·sin(ωt)."
+/>
 
-function Step2() {
-  const [revealed, setRevealed] = useState(0)
-  const steps = [
-    { title: 'שטף מגנטי', content: <span>שטף = B כפול שטח כפול cos(θ):
-      <BlockMath tex="\Phi = B \cdot A \cdot \cos\theta" />
-      לסליל N לולאות: <BlockMath tex="\Phi_{\text{total}} = N \cdot B \cdot A \cdot \cos\theta" />
-    </span> },
-    { title: 'חוק פאראדיי', content: <span>ה-EMF המושרה = שיעור השינוי של השטף:
-      <BlockMath tex="\varepsilon = -\dfrac{d\Phi}{dt}" />
-      לסליל מסתובב: <BlockMath tex="\varepsilon = N \cdot B \cdot A \cdot \omega \cdot \sin(\omega t)" />
-    </span> },
-    { title: 'חוק לנץ', content: <span>
-      הסימן מינוס = <span className="text-yellow-300 font-semibold">חוק לנץ</span>: הזרם המושרה יוצר שדה שמתנגד לשינוי השטף.
-      <span className="block mt-2 text-slate-400 text-xs">מעשית: אם B גדל, הזרם זורם כך שה-B שלו מנוגד לב החיצוני.</span>
-    </span> },
-  ]
-  return (
-    <div className="space-y-4">
-      <p className="text-white font-bold">חוק פאראדיי-לנץ:</p>
-      {steps.slice(0, revealed + 1).map((s, i) => (
-        <div key={i} className="bg-white/5 rounded-xl p-4 text-sm text-slate-300 leading-relaxed">
-          <p className="text-red-400 font-bold text-xs mb-2">שלב {i + 1}: {s.title}</p>
-          {s.content}
-        </div>
-      ))}
-      {revealed < steps.length - 1 && (
-        <button onClick={() => setRevealed(r => r + 1)}
-          className="w-full border border-red-500/30 text-red-400 hover:bg-red-500/10 py-2.5 rounded-xl text-sm font-medium transition-all">
-          גלה שלב {revealed + 2} ▾
-        </button>
-      )}
-    </div>
-  )
-}
+// ── STEP 2 — עיקרון ──────────────────────────────────────────────────────────
+const step2 = <PrincipleStep
+  heading="חוק פאראדיי-לנץ — 4 מצבים:"
+  items={[
+    {
+      title: 'המשוואה הבסיסית',
+      content: <div className="space-y-2">
+        <Formula c="ε = -dΦ/dt = -N·d(B·A·cosθ)/dt" color="text-red-300" />
+        <p className="text-slate-400 text-xs">המינוס = חוק לנץ: ה-EMF מתנגד לשינוי השטף</p>
+      </div>,
+    },
+    {
+      title: 'B משתנה, A קבוע',
+      content: <div className="space-y-1">
+        <Formula c="ε = -N·A·dB/dt" color="text-yellow-300" />
+        <p className="text-slate-400 text-xs" dir="ltr">{"B(t) = B₀cos(ωt) → ε = N·B₀·A·ω·sin(ωt)"}</p>
+        <Formula c="ε_max = N·B₀·A·ω" color="text-emerald-300" />
+      </div>,
+      accent: 'text-yellow-400',
+    },
+    {
+      title: 'חוט נע בשדה קבוע',
+      content: <div className="space-y-1">
+        <Formula c="ε = B·L·v" color="text-blue-300" />
+        <Note color="blue" children={<>חוט אורך L נע במהירות v ⊥ ל-B</>} />
+      </div>,
+      accent: 'text-blue-400',
+    },
+    {
+      title: 'חוק לנץ — הכיוון',
+      content: <div className="space-y-1">
+        <p className="text-slate-300 text-sm">B עולה → זרם מנגד. B יורד → זרם תומך.</p>
+        <Note color="yellow" children={<>שימוש: קבע כיוון זרם בלי לחשב סימן</>} />
+      </div>,
+    },
+  ]}
+/>
 
-function Step3() {
-  const [showSol, setShowSol] = useState(false)
-  return (
-    <div className="space-y-4">
-      <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4">
-        <p className="text-blue-300 text-xs font-bold mb-2">📄 מבחן HIT — 2023</p>
-        <p className="text-white text-sm leading-relaxed">
-          שדה מגנטי אחיד <span className="font-mono text-blue-300" dir="ltr">B(t) = B₀·sin(ωt)</span>{' '}
-          (כאשר <span className="font-mono">B₀ = 0.2 T</span>, <span className="font-mono">ω = 100 rad/s</span>)
-          חודר דרך לולאה עם שטח <span className="font-mono">A = 0.05 m²</span>.
-          <br /><br />
-          <strong>(א)</strong> מצא ε(t).<br />
-          <strong>(ב)</strong> מה ε_max?<br />
-          <strong>(ג)</strong> אם התנגדות הלולאה R = 2 Ω, מה הזרם המרבי?
-        </p>
-      </div>
-      <button onClick={() => setShowSol(v => !v)}
-        className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 py-2.5 rounded-xl text-sm font-medium transition-all">
-        {showSol ? '▲ הסתר פתרון' : '▼ הצג פתרון'}
-      </button>
-      {showSol && (
-        <div className="space-y-2 text-sm">
-          <div className="bg-white/5 rounded-xl p-3 text-slate-300">
-            <p className="text-yellow-400 font-bold text-xs mb-1">א — ε(t):</p>
-            <p className="font-mono text-xs" dir="ltr">Φ = B·A = B₀·sin(ωt)·A</p>
-            <p className="font-mono text-xs" dir="ltr">ε = -dΦ/dt = -B₀·A·ω·cos(ωt)</p>
-            <p className="font-mono text-xs text-emerald-400" dir="ltr">ε(t) = -1·cos(100t) V</p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-3 text-slate-300">
-            <p className="text-yellow-400 font-bold text-xs mb-1">ב — ε_max:</p>
-            <p className="font-mono text-xs text-emerald-400" dir="ltr">|ε_max| = B₀·A·ω = 0.2×0.05×100 = 1 V</p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-3 text-slate-300">
-            <p className="text-yellow-400 font-bold text-xs mb-1">ג — I_max:</p>
-            <p className="font-mono text-xs text-emerald-400" dir="ltr">I_max = ε_max/R = 1/2 = 0.5 A</p>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+// ── STEP 3 — דוגמה ───────────────────────────────────────────────────────────
+const step3 = <WorkedExample
+  examLabel="מבחן HIT — אינדוקציה (N, B(t), R)"
+  problem={<p>
+    שדה <span dir="ltr">B(t) = 0.2·sin(100t) T</span> חודר דרך סליל N=1,{' '}
+    A=0.05 m², R=2 Ω.
+    חשב: (א) ε(t), (ב) ε_max, (ג) I_max.
+  </p>}
+  hint="Φ = B·A, גזור, ε_max = B₀·A·ω, I = ε/R."
+  solution={[
+    {
+      label: 'שלב א — שטף וגזירה',
+      thought: 'Φ = B·A = B₀·sin(ωt)·A',
+      content: <div className="space-y-1">
+        <Formula c="ε = -dΦ/dt = -B₀·A·ω·cos(ωt)" color="text-yellow-300" />
+        <p className="text-slate-400 text-xs" dir="ltr">{"ε(t) = -0.2 × 0.05 × 100 · cos(100t) = -cos(100t) V"}</p>
+      </div>,
+    },
+    {
+      label: 'שלב ב — ε_max',
+      thought: 'הערך המקסימלי של |cos| = 1',
+      content: <div className="space-y-1">
+        <Formula c="ε_max = B₀·A·ω = 0.2 × 0.05 × 100 = 1 V" color="text-emerald-300" />
+      </div>,
+    },
+    {
+      label: 'שלב ג — I_max',
+      content: <div className="space-y-1">
+        <Formula c="I_max = ε_max / R = 1 / 2 = 0.5 A" color="text-emerald-300" />
+        <Note color="green" children={<>בדיקה: יחידות V/Ω = A ✓</>} />
+      </div>,
+    },
+  ]}
+/>
 
-const practice: QuizQuestion[] = [
-  {
-    question: 'לולאה מלבנית (0.3×0.4 m) בשדה B = 0.8 T. B יורד לאפס ב-0.2 שניות. מה |ε|?',
-    options: ['ε = 0.48 V', 'ε = 0.096 V', 'ε = 0.24 V', 'ε = 2.4 V'],
-    correct: 0,
-    explanation: 'Φ₀ = B·A = 0.8×0.12 = 0.096 Wb. ε = ΔΦ/Δt = 0.096/0.2 = 0.48 V.',
-  },
-  {
-    question: 'סליל N=500, A=0.02 m². B(t)=0.4sin(60t) T. מה ε_max?',
-    options: ['ε_max = 240 V', 'ε_max = 4 V', 'ε_max = 24 V', 'ε_max = 120 V'],
-    correct: 0,
-    explanation: 'ε_max = N·B₀·A·ω = 500 × 0.4 × 0.02 × 60 = 240 V.',
-  },
-  {
-    question: 'חוט באורך L = 0.5 m נע במהירות v = 4 m/s בניצב לשדה B = 0.3 T. מה ε?',
-    options: ['ε = 0.6 V', 'ε = 1.2 V', 'ε = 0.075 V', 'ε = 6 V'],
-    correct: 0,
-    explanation: 'ε = BLv = 0.3 × 0.5 × 4 = 0.6 V.',
-  },
-  {
-    question: 'לפי חוק לנץ: מגנט מתקרב לסליל עם קוטב צפון כלפי פניו. מה כיוון הזרם המושרה בסליל?',
-    options: ['נגד השעון (מנגד לקוטב הצפון)', 'עם השעון (מושך את המגנט)', 'אין זרם — המגנט לא זזה מספיק מהר', 'תלוי בחומר הסליל'],
-    correct: 0,
-    explanation: 'הזרם יוצר שדה שמתנגד לכניסת המגנט — כלומר קוטב צפון כנגדו → זרם נגד השעון.',
-  },
-]
-
+// ── QUIZ ─────────────────────────────────────────────────────────────────────
 const quiz: QuizQuestion[] = [
   {
-    question: 'שטף מגנטי דרך לולאה עולה מ-0 ל-0.5 Wb ב-0.1 שניות. מה ה-EMF?',
+    question: 'שטף מגנטי עולה מ-0 ל-0.5 Wb ב-0.1 שניות. מה |ε|?',
     options: ['0.5 V', '5 V', '50 V', '0.05 V'],
     correct: 1,
-    explanation: 'ε = -ΔΦ/Δt = -0.5/0.1 = -5 V. הגודל: 5 V.',
+    explanation: 'ε = ΔΦ/Δt = 0.5/0.1 = 5 V.',
   },
   {
-    question: 'לפי חוק לנץ, מה כיוון הזרם המושרה כאשר השדה החיצוני B גדל?',
-    options: ['בכיוון שמגביר את B', 'בכיוון שמנגד את עליית B', 'כיוון שרירותי', 'אין זרם מושרה'],
-    correct: 1,
-    explanation: 'חוק לנץ: הזרם המושרה מנסה לשמור על השטף הקיים — מתנגד לשינוי.',
-  },
-  {
-    question: 'סליל N=100 לולאות, A=0.01 m², ב-B(t)=2cos(50t). מה ε_max?',
+    question: 'סליל N=100, A=0.01 m², B(t)=2cos(50t). מה ε_max?',
     options: ['100 V', '200 V', '10 V', '1000 V'],
     correct: 0,
-    explanation: 'ε_max = N·B₀·A·ω = 100×2×0.01×50 = 100 V',
+    explanation: 'ε_max = N·B₀·A·ω = 100×2×0.01×50 = 100 V.',
+  },
+  {
+    question: 'לפי חוק לנץ, B גדל לכיוון +z. כיוון הזרם המושרה?',
+    options: ['יוצר שדה ב-+z', 'יוצר שדה ב--z (מנגד)', 'לא קיים זרם', 'תלוי בחומר'],
+    correct: 1,
+    explanation: 'חוק לנץ: הזרם מנסה לבטל את השינוי — יוצר שדה נגדי ב--z.',
   },
 ]
 
-const greenNote = [
-  'חשב שטף: Φ = N·B·A·cos(θ) — שים לב לזווית בין B לנורמל לסליל',
-  'גזור: ε = -dΦ/dt (מינוס = חוק לנץ)',
-  'ε_max = N·B₀·A·ω — כשB = B₀cos(ωt), ε_max = N·B₀·A·ω',
-  'זרם: I = ε/R. כוח: F = BIL על חוט בשדה',
+// ── PRACTICE ─────────────────────────────────────────────────────────────────
+const practice: QuizQuestion[] = [
+  {
+    question: 'לולאה 0.3×0.4 m, B=0.8 T יורד לאפס ב-0.2 s. מה |ε|?',
+    options: ['0.48 V', '0.096 V', '0.24 V', '2.4 V'],
+    correct: 0,
+    explanation: 'Φ₀ = 0.8×0.12 = 0.096 Wb. ε = 0.096/0.2 = 0.48 V.',
+  },
+  {
+    question: 'סליל N=500, A=0.02 m², B(t)=0.4sin(60t). מה ε_max?',
+    options: ['240 V', '4 V', '24 V', '120 V'],
+    correct: 0,
+    explanation: 'ε_max = 500×0.4×0.02×60 = 240 V.',
+  },
+  {
+    question: 'חוט L=0.5 m נע v=4 m/s ⊥ B=0.3 T. מה ε?',
+    options: ['0.6 V', '1.2 V', '0.075 V', '6 V'],
+    correct: 0,
+    explanation: 'ε = BLv = 0.3×0.5×4 = 0.6 V.',
+  },
+  {
+    question: 'מגנט מתקרב לסליל קוטב צפון לפנים. כיוון זרם?',
+    options: ['נגד השעון (דוחה)', 'עם השעון (מושך)', 'אין זרם', 'תלוי במהירות'],
+    correct: 0,
+    explanation: 'חוק לנץ: הסליל יוצר קוטב צפון לנגד → זרם נגד השעון.',
+  },
 ]
 
+// ── GREEN NOTE ────────────────────────────────────────────────────────────────
+const greenNote = [
+  'חשב שטף: Φ = N·B·A·cos(θ) — שים לב לזווית',
+  'גזור: ε = -dΦ/dt (מינוס = חוק לנץ)',
+  'ε_max = N·B₀·A·ω כש-B = B₀cos(ωt)',
+  'חוט נע: ε = BLv. זרם: I = ε/R',
+]
+
+// ── GUIDES ────────────────────────────────────────────────────────────────────
 const guides: GuideSection[] = [
   {
-    title: 'נוסחאות',
-    content: (
-      <div className="space-y-3 text-sm">
-        <div>
-          <p className="text-red-400 font-bold mb-1">חוק פאראדיי</p>
-          <BlockMath tex="\varepsilon = -\dfrac{d\Phi}{dt} = -N \dfrac{d(B \cdot A \cdot \cos\theta)}{dt}" />
-        </div>
-        <div>
-          <p className="text-red-400 font-bold mb-1">מצבים נפוצים</p>
-          <ul className="space-y-1 text-slate-300 text-xs">
-            <li><span className="text-yellow-400">B משתנה, A קבוע:</span> <span dir="ltr" className="font-mono">ε = -N·A·dB/dt</span></li>
-            <li><span className="text-yellow-400">סליל מסתובב:</span> <span dir="ltr" className="font-mono">ε = N·B·A·ω·sin(ωt)</span></li>
-            <li><span className="text-yellow-400">חוט נע:</span> <span dir="ltr" className="font-mono">ε = B·L·v</span></li>
-          </ul>
-        </div>
-      </div>
-    ),
+    title: 'מתי להשתמש',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">3 מצבים — 3 נוסחאות</p>
+      <p className="text-xs">1. B משתנה + סליל → ε = -N·A·dB/dt</p>
+      <p className="text-xs">2. סליל מסתובב → ε_max = N·B·A·ω</p>
+      <p className="text-xs">3. חוט נע → ε = BLv</p>
+      <Note color="blue" children={<>תמיד בדוק: מה משתנה — B? A? θ?</>} />
+    </div>,
   },
   {
-    title: 'טיפים',
-    content: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
-          <p className="text-yellow-400 font-bold text-xs mb-1">⚠️ שגיאה נפוצה</p>
-          <p>שכחת את N! לסליל עם N לולאות: Φ_total = N·Φ_one</p>
-        </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <p className="text-emerald-400 font-bold text-xs mb-1">✓ חוק לנץ בקצרה</p>
-          <p>B עולה → זרם מנגד. B יורד → זרם תומך. כמו ברכים גמישות.</p>
-        </div>
+    title: 'נוסחאות',
+    content: <div className="space-y-3 text-xs">
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-emerald-400 font-bold">חוק פאראדיי</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">ε = -N · dΦ/dt</p>
+        <p className="text-slate-400">השינוי בשטף יוצר כ"א. מינוס = חוק לנץ: הכ"א מתנגד לשינוי.</p>
       </div>
-    ),
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-blue-400 font-bold">שטף מגנטי</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">Φ = B · A · cos(θ)</p>
+        <p className="text-slate-400">θ בין B לנורמל לסליל. B∥סליל → θ=0° → Φ_max. B⊥ → Φ=0 → ε_max.</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-yellow-400 font-bold">גנרטור (B=B₀cosωt)</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">ε(t) = N·B₀·A·ω·sin(ωt)</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">ε_max = N·B₀·A·ω</p>
+      </div>
+      <div className="bg-white/5 rounded-xl p-3 space-y-1">
+        <p className="text-purple-400 font-bold">חוט נע במגנט</p>
+        <p className="font-mono text-slate-200 text-sm" dir="ltr">ε = B·L·v</p>
+        <p className="text-slate-400">L = אורך החוט, v = מהירות אנכית לB ולL. זרם: I = ε/R.</p>
+      </div>
+    </div>,
+  },
+  {
+    title: 'שגיאות נפוצות',
+    content: <div className="space-y-2 text-sm">
+      <p className="text-red-400 text-xs font-bold">שגיאה #1 — שכחת N</p>
+      <p className="text-slate-300 text-xs">לסליל N לולאות: Φ_total = N·Φ_one. ε_max גדל פי N!</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — בלבול בסימן</p>
+      <p className="text-slate-300 text-xs">המינוס בפאראדיי = כיוון לנץ. לגודל: |ε| = |dΦ/dt|.</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #3 — זווית θ</p>
+      <p className="text-slate-300 text-xs">Φ = B·A·cos(θ). כשB ⊥ לסליל — θ=90° → Φ=0 → ε_max!</p>
+    </div>,
+  },
+  {
+    title: 'במבחן HIT',
+    content: <div className="space-y-2 text-xs text-slate-300">
+      <p className="text-emerald-400 font-bold">תבנית שאלה מהמבחן 2023:</p>
+      <p>מסגרת מלבנית בשדה B(t)=B₀sin(ωt). מצא ε(t) וI_max.</p>
+      <div className="bg-white/5 rounded-xl p-2 text-xs space-y-1">
+        <p>1. Φ = N·B₀sin(ωt)·A</p>
+        <p>2. ε = -dΦ/dt = -N·B₀·A·ω·cos(ωt)</p>
+        <p>3. ε_max = N·B₀·A·ω</p>
+        <p>4. I_max = ε_max/R</p>
+      </div>
+      <Note color="yellow" children={<>כתוב ביטוי פרמטרי (N,B₀,A,ω) לפני שמציב מספרים.</>} />
+    </div>,
   },
 ]
 
-const intro = (
-  <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
-    <p>
-      מה קורה כשמקרבים מגנט לסליל? זרם זורם — גם בלי סוללה!
-      פאראדיי גילה ב-1831: <span className="text-red-400 font-semibold">שינוי בשטף מגנטי יוצר EMF</span>.
-    </p>
-    <div className="bg-white/5 rounded-xl p-4 border-r-2 border-red-500">
-      <BlockMath tex="\varepsilon = -\dfrac{d\Phi}{dt}" />
-      <p className="text-center text-xs text-slate-500 mt-1">שינוי בשטף = כוח אלקטרומוטיבי</p>
-    </div>
-    <p>
-      הסימן מינוס = <span className="text-yellow-400 font-semibold">חוק לנץ</span>: הטבע "מתנגד" לשינויים.
-      זה למה מנועים ומחוללים עובדים — ולמה במבחן תמיד שואלים על זה.
-    </p>
-  </div>
-)
+// ── INTRO + BRIDGE ────────────────────────────────────────────────────────────
+const intro = <div className="space-y-3 text-slate-300 text-sm leading-relaxed">
+  <p>פאראדיי גילה ב-1831: <span className="text-red-400 font-semibold">שינוי בשטף מגנטי יוצר מתח חשמלי</span> — גם בלי סוללה. זה העיקרון מאחורי כל מחולל חשמל.</p>
+  <Formula c="ε = -dΦ/dt" color="text-red-300" />
+  <p className="text-slate-400 text-xs">הסימן מינוס = חוק לנץ: הטבע "מתנגד" לשינויים.</p>
+</div>
+
+const bridge = <div className="space-y-2 text-sm text-slate-300">
+  <p>זוכר <span className="text-purple-400 font-semibold">שטף מגנטי</span>?</p>
+  <Formula c="Φ = B·A·cos(θ)" color="text-purple-300" />
+  <p>פאראדיי אמר: שנה את Φ בזמן — תקבל מתח. פשוט כמו לגזור.</p>
+</div>
 
 const theory: TheoryCard = {
-  summary: 'כשהשטף המגנטי דרך סליל משתנה — נוצר מתח חשמלי (EMF). זה העיקרון מאחורי מחוללי חשמל ומנועים. חוק לנץ אומר שה-EMF תמיד מתנגד לשינוי שיצר אותו.',
+  summary: 'שינוי שטף מגנטי דרך סליל יוצר EMF (מתח מושרה). חוק לנץ קובע שה-EMF מתנגד לשינוי שיצר אותו.',
   formulas: [
-    { label: 'חוק פאראדיי', tex: '\\varepsilon = -\\dfrac{d\\Phi}{dt} = -N\\dfrac{d(BA\\cos\\theta)}{dt}' },
-    { label: 'EMF מקסימלי לסליל מסתובב', tex: '\\varepsilon_{\\max} = N \\cdot B \\cdot A \\cdot \\omega' },
-    { label: 'EMF של חוט נע', tex: '\\varepsilon = B \\cdot L \\cdot v' },
+    { label: 'חוק פאראדיי', tex: '\\varepsilon = -\\dfrac{d\\Phi}{dt} = -N\\dfrac{d(BA\\cos\\theta)}{dt}', verbal: 'שינוי בשטף המגנטי דרך סליל יוצר מתח מושרה. המינוס = חוק לנץ: הזרם המושרה תמיד מתנגד לשינוי שגרם לו. N = מספר לולאות. גוזרים את Φ=BA cosθ לפי t.' },
+    { label: 'EMF מקסימלי', tex: '\\varepsilon_{\\max} = N \\cdot B_0 \\cdot A \\cdot \\omega', verbal: 'לסליל המסתובב בשדה B₀ בתדירות ω. ε_max גדל פי N עם כל לולאה נוספת. ε(t) = ε_max·sin(ωt) — גל סינוסואידלי בדיוק כמו בגנרטור.' },
+    { label: 'חוט נע', tex: '\\varepsilon = B \\cdot L \\cdot v', verbal: 'חוט באורך L הנע במהירות v בניצב לשדה B יוצר מתח. ניתן להבין מקולון: המטענים בחוט חווים כוח F=qvB שמפריד אותם → מתח. זרם: I = ε/R.' },
   ],
-  when: 'בכל שאלה שב-B או A משתנים בזמן — גזור את השטף. הסימן מינוס = חוק לנץ: הזרם המושרה מתנגד לשינוי.',
+  when: 'B או A משתנים בזמן → גזור את Φ. הסימן מינוס = לנץ. ε_max = N·B₀·A·ω לסליל מסתובב.',
 }
 
 export default function Induction({ onBack }: { onBack: () => void }) {
-  return (
-    <GenericLearningModule
-      moduleId="physics2-induction"
-      title="אינדוקציה אלקטרומגנטית"
-      subtitle="חוק פאראדיי-לנץ — EMF משינוי שטף"
-      intro={intro}
-      step1={<Step1 />}
-      step2={<Step2 />}
-      step3={<Step3 />}
-      SimulatorComponent={InductionSim}
-      theory={theory}
-      practiceQuestions={practice}
-      quizQuestions={quiz}
-      greenNote={greenNote}
-      guides={guides}
-      onBack={onBack}
-    />
-  )
+  return <GenericLearningModule
+    moduleId="physics2-induction"
+    title="אינדוקציה אלקטרומגנטית"
+    subtitle="חוק פאראדיי-לנץ — EMF משינוי שטף"
+    intro={intro}
+    bridge={bridge}
+    theory={theory}
+    step1={step1}
+    step2={step2}
+    step3={step3}
+    SimulatorComponent={Sim}
+    quizQuestions={quiz}
+    practiceQuestions={practice}
+    greenNote={greenNote}
+    guides={guides}
+    onBack={onBack}
+  />
 }
