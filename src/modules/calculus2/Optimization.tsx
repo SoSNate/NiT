@@ -142,7 +142,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'f(x,y) = x² + y² - 2x - 4y. מהי הנקודה הקריטית?',
     options: ['(1,2)', '(2,4)', '(-1,-2)', '(0,0)'],
@@ -172,26 +172,29 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'D טבלה',
-    content: <div className="space-y-2 text-sm" dir="ltr">
-      <p className="text-yellow-400 font-bold text-xs">Second Derivative Test</p>
-      <p className="font-mono text-xs text-slate-300">D = f_xx·f_yy - (f_xy)²</p>
-      <div className="space-y-1 text-xs mt-2">
-        {[
-          ['D > 0, f_xx > 0', 'Local Min', 'emerald'],
-          ['D > 0, f_xx < 0', 'Local Max', 'red'],
-          ['D < 0', 'Saddle Point', 'yellow'],
-          ['D = 0', 'Inconclusive', 'slate'],
-        ].map(([cond, res, color]) => (
-          <div key={cond} className={`flex justify-between bg-white/5 rounded p-1.5`}>
-            <span className="font-mono text-slate-400">{cond}</span>
-            <span className={`text-${color}-400 font-bold`}>{res}</span>
-          </div>
-        ))}
-      </div>
+    title: '📋 שלבי הפתרון',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">אקסטרמום חופשי (ללא אילוץ):</p>
+      <p className="text-xs">1. חשב f_x ו-f_y</p>
+      <p className="text-xs">2. שווה לאפס: f_x=0, f_y=0 — פתור את המערכת</p>
+      <p className="text-xs">3. חשב D = f_xx·f_yy - (f_xy)² בכל נקודה קריטית</p>
+      <p className="text-xs">4. פרש: D{'>'} 0 ו-f_xx {'>'} 0 → מינימום; D{'>'} 0 ו-f_xx {'<'} 0 → מקסימום; D {'<'} 0 → אוכף</p>
+      <p className="text-orange-400 font-bold text-xs mt-2">לגרנז' (עם אילוץ g=0):</p>
+      <p className="text-xs">1. הצב ∇f = λ∇g: f_x=λg_x, f_y=λg_y</p>
+      <p className="text-xs">2. הוסף משוואה שלישית: g(x,y)=0</p>
+      <p className="text-xs">3. פתור מערכת 3 משוואות ב-x, y, λ</p>
+      <p className="text-xs">4. הצב בחזרה ב-f לבדיקת מינימום/מקסימום</p>
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>תמיד בדוק שסיימת: אחרי מציאת נקודות קריטיות — חשב D לכל נקודה ופרש</p>
+      <p className="text-yellow-400 text-xs font-bold">נקודה קריטית — גרדיאנט אפס אומר שהמשיק אופקי. שם יכולים להיות מינימום, מקסימום או אוכף</p>
+      <p className="text-xs">D = f_xx·f_yy - (f_xy)² — חשב את כל שלוש הנגזרות השניות</p>
+      <p className="text-xs">לגרנז': λ הוא "מחיר" האילוץ — לא חייב לפרש אותו, רק לפתור</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -209,13 +212,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'למצוא מינימום/מקסימום של f(x,y): קודם מציאים נקודות קריטיות (∂f/∂x=0 וגם ∂f/∂y=0), אחר כך בודקים את D לסיווג. תחת אילוץ g(x,y)=0 — משתמשים בלגרנג\': ∇f = λ∇g.',
   formulas: [
-    { label: 'מבחן D', tex: 'D = f_{xx}f_{yy} - f_{xy}^2\\;:\\; D>0,f_{xx}>0\\Rightarrow\\min' },
-    { label: 'לגרנג\'', tex: '\\nabla f = \\lambda\\nabla g \\;\\Rightarrow\\; (f_x,f_y) = \\lambda(g_x,g_y)' },
+    { label: 'מבחן D', tex: 'D = f_{xx}f_{yy} - f_{xy}^2\\;:\\; D>0,f_{xx}>0\\Rightarrow\\min', verbal: 'D>0 ו-f_xx>0 → מינימום. D>0 ו-f_xx<0 → מקסימום. D<0 → אוכף. D=0 → לא מוחלט' },
+    { label: 'לגרנג\'', tex: '\\nabla f = \\lambda\\nabla g \\;\\Rightarrow\\; (f_x,f_y) = \\lambda(g_x,g_y)', verbal: 'אקסטרמום עם אילוץ g=0. בנקודת הקיצון, הגרדיאנטים של f ו-g מקבילים — λ הוא "מחיר" האילוץ' },
   ],
   when: 'בלי אילוץ → נקודות קריטיות + מבחן D. עם אילוץ g=0 → לגרנג\'',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'f_xx=4, f_yy=3, f_xy=1. מה D?',
     options: ["11", "12", "13", "7"],

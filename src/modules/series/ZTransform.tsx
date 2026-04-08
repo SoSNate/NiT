@@ -139,7 +139,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'Z{(1/3)ⁿu[n]} = ?',
     options: ['z/(z-1/3)', '1/(z-1/3)', 'z/(z+1/3)', '3z/(3z-1)'],
@@ -169,15 +169,15 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'טבלת Z',
-    content: <div className="space-y-1 text-sm" dir="ltr">
+    title: '📋 טבלת Z',
+    content: <div className="space-y-1 text-sm text-slate-300" dir="ltr">
       {[
         ['δ[n]', '1'],
         ['u[n]', 'z/(z-1)'],
-        ['aⁿu[n]', 'z/(z-a)'],
+        ['aⁿu[n]', 'z/(z-a), |z|>|a|'],
         ['n·aⁿu[n]', 'az/(z-a)²'],
         ['x[n-k]', 'z^{-k}X(z)'],
-        ['a·x[n]', 'a·X(z)'],
+        ['-aⁿu[-n-1]', 'z/(z-a), |z|<|a|'],
       ].map(([f, F]) => (
         <div key={f} className="bg-white/5 rounded p-1 flex justify-between">
           <span className="text-orange-300 font-mono text-xs">{f}</span>
@@ -186,7 +186,13 @@ const guides: GuideSection[] = [
       ))}
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>שלבים: (1) הפעל Z על משוואת ההפרש (2) פתור Y(z) (3) חלק Y(z)/z לשברים חלקיים (4) הכפל ב-z (5) Z⁻¹ עם טבלה</p>
+      <p>תמיד ציין ROC — קובע אם הרצף יאגי (causal) או לא-יאגי</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -203,13 +209,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'התמרת Z היא הגרסה הדיסקרטית של לפלס. X(z) = Σx[n]z^(-n). Z{x[n-k]} = z^(-k)X(z) — היסט בזמן = כפל ב-z^(-k). פותרים משוואת הפרש כמו מד"ר: Z את הכל → שברים חלקיים → Z⁻¹. ROC = אזור התכנסות, חשוב לקאוזאליות.',
   formulas: [
-    { label: 'Z{aⁿu[n]}', tex: 'Z\\{a^n u[n]\\} = \\frac{z}{z-a},\\quad |z|>|a|' },
-    { label: 'היסט', tex: 'Z\\{x[n-k]\\} = z^{-k}X(z)' },
+    { label: 'Z{aⁿu[n]}', tex: 'Z\\{a^n u[n]\\} = \\frac{z}{z-a},\\quad |z|>|a|', verbal: 'Z-Transform הופכת סדרה בדידה לפונקציה של z. מקבילה ללפלס אבל לאותות בדידים (דיגיטליים). אזור ההתכנסות (ROC): הערכים של |z| שבהם הסכום מתכנס — חשוב לציין עם כל התמרה' },
+    { label: 'היסט', tex: 'Z\\{x[n-k]\\} = z^{-k}X(z)', verbal: 'הזזה בזמן = כפל ב-z^(-k). כמו e^(-as) בלפלס — זה הכלי המרכזי לפתרון משוואות הפרש' },
   ],
   when: 'מערכת דיסקרטית (סמפלינג) → Z. פתרון: כתוב H(z) → שברים חלקיים → Z⁻¹ עם טבלה',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'Z{u[n]} = ? (u[n] = סיגנל מדרגה דיסקרטי)',
     options: ["1/(z-1)", "z/(z-1)", "1", "z/(z+1)"],

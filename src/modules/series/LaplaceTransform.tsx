@@ -136,7 +136,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'L{e²ᵗsin(3t)} = ?',
     options: ['3/((s-2)²+9)', '3/(s²+9)', '(s-2)/((s-2)²+9)', '3/(s²-4s+13)'],
@@ -166,17 +166,17 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'טבלת לפלס',
+    title: '📋 טבלת התמרות',
     content: <div className="space-y-1 text-sm" dir="ltr">
       {[
         ['1', '1/s'],
+        ['t', '1/s²'],
         ['eᵃᵗ', '1/(s-a)'],
+        ['sin(ωt)', 'ω/(s²+ω²)'],
+        ['cos(ωt)', 's/(s²+ω²)'],
         ['tⁿ', 'n!/s^{n+1}'],
-        ['sin(at)', 'a/(s²+a²)'],
-        ['cos(at)', 's/(s²+a²)'],
         ['u(t-a)f(t-a)', 'e^{-as}F(s)'],
         ['δ(t-a)', 'e^{-as}'],
-        ['eᵃᵗf(t)', 'F(s-a)'],
         ["y'", 'sY-y(0)'],
         ["y''", 's²Y-sy(0)-y\'(0)'],
       ].map(([f, F]) => (
@@ -187,7 +187,13 @@ const guides: GuideSection[] = [
       ))}
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>שלבים: (1) קח לפלס משני צדדים (2) בודד F(s) (3) פרק לשברים חלקיים (4) לפלס הפוך</p>
+      <p>תנאי התחלה נכנסים אוטומטית בשלב (1) — לא לשכוח להציב y(0) ו-y′(0)</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -205,13 +211,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'לפלס הופך מד"ר לאלגברה: L{y\'} = sY-y(0), L{y\'\'} = s²Y-sy(0)-y\'(0). פותרים ל-Y(s) עם שברים חלקיים, ואחר כך L⁻¹ חזרה. u(t-a) = פונקציית היסט, δ(t) = אימפולס. L{u(t-a)·f(t-a)} = e^(-as)·F(s).',
   formulas: [
-    { label: 'L{y\'}', tex: '\\mathcal{L}\\{y\'\\} = sY(s) - y(0)' },
-    { label: 'היסט', tex: '\\mathcal{L}\\{u(t-a)f(t-a)\\} = e^{-as}F(s)' },
+    { label: 'L{y\'}', tex: '\\mathcal{L}\\{y\'\\} = sY(s) - y(0)', verbal: 'הנגזרת הופכת לכפל ב-s — זה הכוח של לפלס לפתור מד"ר עם תנאי התחלה. לפלס הופכת פונקציה של זמן t לפונקציה של מרוכב s' },
+    { label: 'היסט', tex: '\\mathcal{L}\\{u(t-a)f(t-a)\\} = e^{-as}F(s)', verbal: 'u(t-a) היא פונקציית ספ בזמן a. הזזה בזמן = כפל ב-e^(-as) בתחום s' },
   ],
   when: 'קבל מד"ר עם תנאי התחלה → לפלס את הכל → פתור ל-Y → שברים חלקיים → L⁻¹',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'L{e^(at)} = ?',
     options: ["1/(s-a)", "1/(s+a)", "a/(s²+a²)", "s/(s²+a²)"],

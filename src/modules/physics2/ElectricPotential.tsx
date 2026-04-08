@@ -229,7 +229,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ─────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'פוטנציאל של מטען Q=-2μC ב-r=0.5m?',
     options: ['-36 kV', '+36 kV', '-72 kV', '0'],
@@ -251,7 +251,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ─────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'מהו הפוטנציאל באמצע הדרך בין Q=+4μC ל-Q=-4μC (מרחק 0.6m)?',
     options: ['0 V', '240 kV', '-240 kV', '120 kV'],

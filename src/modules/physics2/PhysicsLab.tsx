@@ -235,7 +235,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ─────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'גוף שצפיפותו פחות מצפיפות הנוזל — מה קורה כשמשחררים אותו?',
     options: ['שוקע לתחתית', 'צף', 'נשאר תלוי באמצע', 'תלוי בלחץ החיצוני'],
@@ -257,7 +257,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ─────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'גוף נמצא בשיווי משקל בנוזל (לא שוקע, לא צף). מה יחס ρ_גוף לρ_נוזל?',
     options: ['ρ_גוף = ρ_נוזל', 'ρ_גוף < ρ_נוזל', 'ρ_גוף > ρ_נוזל', 'לא ניתן לדעת'],
@@ -301,21 +301,26 @@ const greenNote = [
 // ── GUIDES ────────────────────────────────────────────────────────────────────
 const guides: GuideSection[] = [
   {
-    title: 'ניסויי מעבדה',
+    title: '📋 נוסחאות',
     content: <div className="space-y-2 text-sm text-slate-300">
-      <p className="text-xs font-bold text-yellow-400">ניסוי 1: צפיפות מים מגרף</p>
-      <p className="text-xs">משקיע כדורים → מודד Δh → מחשב שיפוע a → ρ = 1/(A·a)</p>
-      <p className="text-xs font-bold text-cyan-400 mt-2">ניסוי 2: כלים שלובים</p>
-      <p className="text-xs">שני נוזלים → מודד גבהים → ρ₁h₁ = ρ₂h₂</p>
+      <p className="text-xs font-bold text-yellow-400">לחץ הידרוסטטי</p>
+      <p className="text-xs font-mono" dir="ltr">P = F/A — לחץ = כוח חלקי שטח. אותו כוח על שטח קטן → לחץ גדול יותר</p>
+      <p className="text-xs font-mono mt-1" dir="ltr">P = P₀ + ρgh — לחץ גדל עם העומק h</p>
+      <p className="text-xs font-bold text-cyan-400 mt-2">ארכימדס</p>
+      <p className="text-xs font-mono" dir="ltr">F_arch = ρ·V·g — שווה למשקל הנוזל שהגוף דוחה</p>
+      <p className="text-xs font-bold text-emerald-400 mt-2">כלים שלובים</p>
+      <p className="text-xs font-mono" dir="ltr">ρ₁h₁ = ρ₂h₂ — לחץ שווה באותו גובה</p>
     </div>,
   },
   {
-    title: 'שגיאות נפוצות',
-    content: <div className="space-y-2 text-sm">
-      <p className="text-red-400 text-xs font-bold">שגיאה #1 — בלבול ρ ו-P</p>
-      <p className="text-slate-300 text-xs">ρ = צפיפות (g/cm³). P = לחץ (Pa). שונים לגמרי!</p>
-      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — שכחת P_atm</p>
-      <p className="text-slate-300 text-xs">לחץ מוחלט = P_atm + ρgh. לחץ יחסי = ρgh.</p>
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-xs font-bold text-yellow-400">שאלות נפוצות:</p>
+      <p className="text-xs">גוף שקוע — חשב F_arch = ρ_נוזל·V·g. אם F_arch &gt; mg הגוף צף.</p>
+      <p className="text-xs mt-1">לחץ בעומק — P = P_atm + ρgh. אל תשכח P_atm!</p>
+      <p className="text-xs mt-1">כלים שלובים — ρ₁h₁ = ρ₂h₂. הנוזל הכבד עומד נמוך יותר.</p>
+      <p className="text-xs font-bold text-red-400 mt-2">טעות נפוצה:</p>
+      <p className="text-xs">לא לבלבל ρ (צפיפות, g/cm³) עם P (לחץ, Pa). יחידות שונות לגמרי!</p>
     </div>,
   },
 ]
@@ -337,9 +342,10 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'לחץ הידרוסטטי P = P₀ + ρgh תלוי בעומק בלבד, לא בצורת הכלי. כוח ארכימדס F_b = ρ_נוזל·V·g הוא הכוח שמפעיל הנוזל כלפי מעלה על גוף שקוע. יחס הצפיפויות בכלים שלובים: ρ₁h₁ = ρ₂h₂.',
   formulas: [
-    { label: 'לחץ הידרוסטטי', tex: 'P = P_0 + \\rho g h' },
-    { label: 'כוח עילוי (ארכימדס)', tex: 'F_b = \\rho_{\\text{נוזל}} V_{\\text{גוף}} g' },
-    { label: 'כלים שלובים', tex: '\\dfrac{\\rho_1}{\\rho_2} = \\dfrac{h_2}{h_1}' },
+    { label: 'הגדרת לחץ', tex: 'P = \\dfrac{F}{A}', verbal: 'לחץ = כוח חלקי שטח. אותו כוח על שטח קטן → לחץ גדול יותר' },
+    { label: 'לחץ הידרוסטטי', tex: 'P = P_0 + \\rho g h', verbal: 'לחץ בנוזל גדל עם העומק. h = עומק, ρ = צפיפות, g = תאוצת הכבידה' },
+    { label: 'כוח עילוי (ארכימדס)', tex: 'F_b = \\rho_{\\text{נוזל}} V_{\\text{גוף}} g', verbal: 'כוח ארכימדס — שווה למשקל הנוזל שהגוף דוחה. אם F_arch > mg — הגוף צף' },
+    { label: 'כלים שלובים', tex: '\\dfrac{\\rho_1}{\\rho_2} = \\dfrac{h_2}{h_1}', verbal: 'בכלים שלובים: לחץ באותו גובה זהה לאורך כל הנוזל המחובר' },
   ],
   when: 'גוף בנוזל → כוח ארכימדס | מנומטר → P = ρgh | כלים שלובים → ρ₁h₁ = ρ₂h₂',
 }

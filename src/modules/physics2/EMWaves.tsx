@@ -244,7 +244,7 @@ function Step3() {
   )
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'גל EM בוואקום: E_max = 300 V/m. מה B_max?',
     options: ['B_max = 1 μT', 'B_max = 1 mT', 'B_max = 100 nT', 'B_max = 300 T'],
@@ -271,7 +271,7 @@ const practice: QuizQuestion[] = [
   },
 ]
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'גל EM עם E₀=300 V/m. מה B₀?',
     options: ['10⁻⁶ T', '10⁻⁵ T', '10⁻⁴ T', '10⁻³ T'],
@@ -301,25 +301,33 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'נוסחאות',
+    title: '📋 נוסחאות',
     content: (
-      <div className="space-y-3 text-sm">
-        <div>
-          <p className="text-blue-400 font-bold mb-1">יחסים בסיסיים</p>
-          <ul className="space-y-0.5 text-slate-300 font-mono text-xs" dir="ltr">
-            <li>c = E₀/B₀ = 3×10⁸ m/s</li>
-            <li>c = λf = ω/k</li>
-            <li>c = 1/√(μ₀ε₀)</li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-blue-400 font-bold mb-1">פוינטינג</p>
-          <ul className="space-y-0.5 text-slate-300 font-mono text-xs" dir="ltr">
-            <li>S⃗ = (E⃗×B⃗)/μ₀ [W/m²]</li>
-            <li>⟨S⟩ = E₀²/(2μ₀c)</li>
-            <li>P = ⟨S⟩·A</li>
-          </ul>
-        </div>
+      <div className="space-y-2 text-sm text-slate-300">
+        <p className="text-xs font-bold text-blue-400">משוואות מקסוול — מסקנות מרכזיות</p>
+        <p className="text-xs font-mono" dir="ltr">c = E₀/B₀ = 3×10⁸ m/s</p>
+        <p className="text-xs font-mono" dir="ltr">c = λf = ω/k</p>
+        <p className="text-xs font-mono" dir="ltr">c = 1/√(μ₀ε₀)</p>
+        <p className="text-xs font-bold text-blue-400 mt-2">גל EM — צורה כללית</p>
+        <p className="text-xs font-mono" dir="ltr">E⃗ = E₀cos(kz-ωt)ŷ</p>
+        <p className="text-xs font-mono" dir="ltr">B⃗ = B₀cos(kz-ωt)x̂</p>
+        <p className="text-xs font-bold text-blue-400 mt-2">וקטור פוינטינג</p>
+        <p className="text-xs font-mono" dir="ltr">S⃗ = (E⃗×B⃗)/μ₀ [W/m²]</p>
+        <p className="text-xs font-mono" dir="ltr">⟨S⟩ = E₀²/(2μ₀c)</p>
+        <p className="text-xs font-mono" dir="ltr">P = ⟨S⟩·A</p>
+      </div>
+    ),
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: (
+      <div className="space-y-2 text-sm text-slate-300">
+        <p className="text-xs font-bold text-yellow-400">שאלות נפוצות:</p>
+        <p className="text-xs">חשב עוצמת גל מ-E_max: S = E_max² ÷ (2μ₀c)</p>
+        <p className="text-xs mt-1">כיוון פוינטינג = כיוון התפשטות הגל. השתמש בכלל יד ימין: k̂ = Ê × B̂</p>
+        <p className="text-xs mt-1">נותנים B → מצא E: E₀ = c·B₀ = 3×10⁸·B₀</p>
+        <p className="text-xs font-bold text-red-400 mt-2">טעות נפוצה:</p>
+        <p className="text-xs">לא לשכוח שE ו-B מאונכים זה לזה ולכיוון ההתקדמות. שלושתם ניצבים!</p>
       </div>
     ),
   },
@@ -345,8 +353,8 @@ const intro = (
 const theory: TheoryCard = {
   summary: 'גל אלקטרומגנטי הוא תנודה משותפת של שדה חשמלי ומגנטי שמתפשטת במרחב. E ו-B תמיד מאונכים זה לזה ולכיוון התפשטות הגל. בוואקום — תמיד במהירות c.',
   formulas: [
-    { label: 'יחס שדות ומהירות אור', tex: 'c = \\dfrac{E}{B} = \\dfrac{1}{\\sqrt{\\mu_0 \\varepsilon_0}}' },
-    { label: 'עוצמת גל (וקטור פוינטינג)', tex: 'I = \\langle S \\rangle = \\dfrac{E_0^2}{2\\mu_0 c} = \\dfrac{c\\varepsilon_0 E_0^2}{2}' },
+    { label: 'יחס שדות ומהירות אור', tex: 'c = \\dfrac{E}{B} = \\dfrac{1}{\\sqrt{\\mu_0 \\varepsilon_0}}', verbal: 'מהירות האור = יחס E לB, ונגזרת ממשוואות מקסוול. E ו-B תמיד מאונכים זה לזה ולכיוון ההתפשטות' },
+    { label: 'עוצמת גל (וקטור פוינטינג)', tex: 'I = \\langle S \\rangle = \\dfrac{E_0^2}{2\\mu_0 c} = \\dfrac{c\\varepsilon_0 E_0^2}{2}', verbal: 'עוצמת הגל — הספק ממוצע ליחידת שטח. לחישוב: S = E_max² ÷ (2μ₀c)' },
   ],
   when: 'בשאלות על גלי EM: מצא E₀ → B₀ = E₀/c → I = E₀²/(2μ₀c). כיוון: כלל יד ימין — E×B = כיוון התפשטות.',
 }

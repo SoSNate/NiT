@@ -221,7 +221,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'מה האיבר הראשון שאינו אפס בפיתוח מקלורן של sin(x)?',
     options: ['1', 'x', 'x²/2!', '-x³/3!'],
@@ -243,7 +243,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ──────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'מה cos(x) סביב x=0 עד סדר 2?',
     options: ['1 - x + x²', '1 - x²/2', '1 + x²/2', 'x - x²/2'],
@@ -287,24 +287,30 @@ const greenNote = [
 // ── GUIDES ────────────────────────────────────────────────────────────────────
 const guides: GuideSection[] = [
   {
-    title: 'מתי להשתמש',
+    title: '📋 נוסחאות',
     content: <div className="space-y-2 text-sm text-slate-300">
-      <p className="text-yellow-400 font-bold text-xs">3 מקרים עיקריים</p>
-      <p className="text-xs">1. גבולות מסוג 0/0 → פתח + פשט</p>
-      <p className="text-xs">2. חישוב מספרי מדויק (π, e, √2)</p>
-      <p className="text-xs">3. אינטגרלים ללא נוסחה סגורה</p>
-      <Note color="blue" children={<>תמיד ציין את רדיוס ההתכנסות!</>} />
+      <p className="text-yellow-400 font-bold text-xs">טורי מקלורן סטנדרטיים (שנן!):</p>
+      <p className="text-xs font-mono" dir="ltr">eˣ = 1 + x + x²/2! + x³/3! + ...  (R=∞)</p>
+      <p className="text-xs font-mono" dir="ltr">sin x = x - x³/3! + x⁵/5! - ...  (R=∞)</p>
+      <p className="text-xs font-mono" dir="ltr">cos x = 1 - x²/2! + x⁴/4! - ...  (R=∞)</p>
+      <p className="text-xs font-mono" dir="ltr">ln(1+x) = x - x²/2 + x³/3 - ...  (|x|≤1)</p>
+      <p className="text-xs font-mono" dir="ltr">1/(1-x) = 1 + x + x² + ...  (|x|&lt;1)</p>
+      <p className="text-blue-400 font-bold text-xs mt-2">שארית לגרנז':</p>
+      <p className="text-xs font-mono" dir="ltr">|Rₙ(x)| ≤ M·|x-x₀|^(n+1) / (n+1)!</p>
+      <p className="text-xs">M = מקסימום |f⁽ⁿ⁺¹⁾| בקטע</p>
     </div>,
   },
   {
-    title: 'שגיאות נפוצות',
-    content: <div className="space-y-2 text-sm">
-      <p className="text-red-400 text-xs font-bold">שגיאה #1 — שכחת מינוס ב-cos</p>
-      <p className="text-slate-300 text-xs">cos(x) = 1 - x²/2! + x⁴/4! — לא +(x²/2!)</p>
-      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — ln(x) במקום ln(1+x)</p>
-      <p className="text-slate-300 text-xs">הטור הוא של ln(1+x). עבור ln(x) → צריך להחליף.</p>
-      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #3 — R לטיילור כללי</p>
-      <p className="text-slate-300 text-xs">רדיוס התכנסות לא מוגדר סביב x₀ ≠ 0 — צריך לחשב מחדש.</p>
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>גבול 0/0 → פתח טיילור של המונה והמכנה עד שמשהו נשאר</p>
+      <p className="text-yellow-400 font-bold text-xs">שלבים לחישוב גבול עם טיילור:</p>
+      <p className="text-xs">1. זהה את הפונקציות במונה/מכנה</p>
+      <p className="text-xs">2. פתח כל אחת לטיילור (סביב 0) עד הסדר הנדרש</p>
+      <p className="text-xs">3. פשט — בטל את האיברים הזהים</p>
+      <p className="text-xs">4. קח את הגבול — בדרך כלל נשאר מקדם בלבד</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאות נפוצות:</p>
+      <p className="text-xs">cos(x) = 1 - x²/2! (לא +). ln(1+x) ולא ln(x)</p>
     </div>,
   },
 ]
@@ -327,10 +333,10 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'טור טיילור מייצג פונקציה כסכום אינסופי של חזקות (x-x₀)ⁿ. מקלורן הוא המקרה x₀=0. הטורים הסטנדרטיים (eˣ, sin, cos, ln) הם כלי מפתח לגבולות, קירובים ואינטגרלים.',
   formulas: [
-    { label: 'טיילור', tex: 'f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n' },
+    { label: 'טיילור', tex: 'f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n', verbal: 'כל פונקציה חלקה אפשר לקרב ע"י פולינום. n! במכנה מבטל את הנגזרות החוזרות' },
     { label: 'eˣ', tex: 'e^x = \\sum_{n=0}^{\\infty} \\frac{x^n}{n!}' },
     { label: 'sin x', tex: '\\sin x = \\sum_{n=0}^{\\infty} \\frac{(-1)^n x^{2n+1}}{(2n+1)!}' },
-    { label: 'שארית', tex: '|R_n| \\leq \\frac{M|x-x_0|^{n+1}}{(n+1)!}' },
+    { label: 'שארית', tex: '|R_n| \\leq \\frac{M|x-x_0|^{n+1}}{(n+1)!}', verbal: 'מגבילה את השגיאה של קירוב. כך אנחנו יודעים כמה הפולינום מדויק' },
   ],
   when: 'גבול 0/0 → פתח טיילור. חישוב מספרי → הוסף איברים עד הדיוק הנדרש. ∫f(x)dx בלי נוסחה → אינטגרל הטור.',
 }

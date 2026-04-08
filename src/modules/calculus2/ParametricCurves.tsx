@@ -184,7 +184,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'x = cos(t), y = sin(t). מהו dy/dx ב-t = π/4?',
     options: ['-1', '1', '-tan(t)', 'cos(t)'],
@@ -206,7 +206,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ──────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'x=t+1, y=t². מה שיפוע המשיק ב-t=2?',
     options: ['4', '2', '1', '8'],
@@ -250,22 +250,30 @@ const greenNote = [
 // ── GUIDES ────────────────────────────────────────────────────────────────────
 const guides: GuideSection[] = [
   {
-    title: 'מתי להשתמש',
+    title: '📋 נוסחאות',
     content: <div className="space-y-2 text-sm text-slate-300">
-      <p className="text-yellow-400 font-bold text-xs">אבחון</p>
-      <p className="text-xs">1. עקומה עם פרמטר t → dy/dx = ẏ/ẋ</p>
-      <p className="text-xs">2. קוטביים + שטח → A = ½∫r²dθ</p>
-      <p className="text-xs">3. קוטביים + אורך → L = ∫√(r²+(dr/dθ)²) dθ</p>
-      <Note color="blue" children={<>חפש סימטריה — חשב רבע/חצי ×2/4</>} />
+      <p className="text-yellow-400 font-bold text-xs">פרמטרי x(t), y(t):</p>
+      <p className="text-xs font-mono" dir="ltr">dy/dx = (dy/dt) / (dx/dt)</p>
+      <p className="text-xs font-mono" dir="ltr">d²y/dx² = [d(dy/dx)/dt] / (dx/dt)</p>
+      <p className="text-xs font-mono" dir="ltr">L = ∫√[(dx/dt)² + (dy/dt)²] dt</p>
+      <p className="text-purple-400 font-bold text-xs mt-2">קוטביות r(θ):</p>
+      <p className="text-xs font-mono" dir="ltr">A = ½ ∫[α,β] r(θ)² dθ</p>
+      <p className="text-xs font-mono" dir="ltr">L = ∫√[r² + (dr/dθ)²] dθ</p>
+      <p className="text-xs">המרה: x=rcosθ, y=rsinθ, r²=x²+y²</p>
+      <p className="text-blue-400 font-bold text-xs mt-2">עלה וורד r = a·sin(nθ):</p>
+      <p className="text-xs">n אי-זוגי → n עלים. n זוגי → 2n עלים</p>
     </div>,
   },
   {
-    title: 'שגיאות נפוצות',
-    content: <div className="space-y-2 text-sm">
-      <p className="text-red-400 text-xs font-bold">שגיאה #1 — שכחת ½ בשטח</p>
-      <p className="text-slate-300 text-xs">A = ½∫r²dθ. תמיד! (לא ∫r²dθ)</p>
-      <p className="text-red-400 text-xs font-bold mt-2">שגיאה #2 — גבולות בעלי וורד</p>
-      <p className="text-slate-300 text-xs">לעלה אחד — חשב גבולות מ-r=0 ל-r=0. אל תשים 0 עד 2π אוטומטית.</p>
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>בדוק סימטריה לפני האינטגרל — חוסך חישוב. לעלה וורד: חשב עלה אחד והכפל</p>
+      <p className="text-yellow-400 font-bold text-xs">שלבים לשטח קוטבי:</p>
+      <p className="text-xs">1. מצא גבולות: מ-r=0 ל-r=0 (לעלה) או לפי הגדרה</p>
+      <p className="text-xs">2. A = ½∫r²dθ — אל תשכח את ה-½!</p>
+      <p className="text-xs">3. השתמש ב-sin²θ = (1-cos2θ)/2</p>
+      <p className="text-red-400 text-xs font-bold mt-2">שגיאות נפוצות:</p>
+      <p className="text-xs">שכחת ½ בשטח קוטבי. גבולות שגויים לעלי וורד (לא 0 עד 2π אוטומטית)</p>
     </div>,
   },
 ]
@@ -288,9 +296,9 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'עקומות פרמטריות x(t),y(t) מאפשרות תיאור של צורות מורכבות. נגזרות, אורך קשת ושטח מחושבים בנוסחאות ייחודיות. קוטליות r(θ) שימושיות לצורות עם סימטריה מעגלית.',
   formulas: [
-    { label: 'נגזרת', tex: '\\frac{dy}{dx} = \\frac{dy/dt}{dx/dt}' },
-    { label: 'אורך קשת', tex: 'L = \\int_a^b \\sqrt{\\dot{x}^2 + \\dot{y}^2}\\, dt' },
-    { label: 'שטח קוטבי', tex: 'A = \\frac{1}{2}\\int_\\alpha^\\beta r(\\theta)^2\\, d\\theta' },
+    { label: 'נגזרת', tex: '\\frac{dy}{dx} = \\frac{dy/dt}{dx/dt}', verbal: 'שיפוע עקומה פרמטרית — מחלקים את הנגזרות. כבר לא צריך לבטל t' },
+    { label: 'אורך קשת', tex: 'L = \\int_a^b \\sqrt{\\dot{x}^2 + \\dot{y}^2}\\, dt', verbal: 'אורך עקומה — מסכמים צעדי אורך אינפיניטסימליים לאורך העקומה' },
+    { label: 'שטח קוטבי', tex: 'A = \\frac{1}{2}\\int_\\alpha^\\beta r(\\theta)^2\\, d\\theta', verbal: 'במקום (x,y) — מרחק וזווית. נוח לעקומות עם סימטריה סיבובית כמו ורד' },
   ],
   when: 'עקומה עם פרמטר → dy/dx = ẏ/ẋ. שטח/אורך בקוטליות → נוסחאות מיוחדות. בדוק סימטריה!',
 }

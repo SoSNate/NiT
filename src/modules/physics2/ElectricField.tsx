@@ -241,7 +241,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ (מבוחנים אמיתיים HIT) ───────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'מטען +Q יוצר שדה E₀ במרחק r. מה השדה במרחק 2r?',
     options: ['2E₀', 'E₀/2', 'E₀/4', '4E₀'],
@@ -263,7 +263,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ──────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'מטען q=2nC בשדה E=500N/C. הכוח עליו?',
     options: ['1000 N', '1 μN', '250 N', '0.004 N'],

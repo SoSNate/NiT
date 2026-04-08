@@ -334,7 +334,7 @@ function Step3() {
 }
 
 // ── QUIZ & PRACTICE ───────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'חוט ישר אינסופי עם זרם I. מה B במרחק r מהחוט?',
     options: ['B = μ₀I/(4πr²)', 'B = μ₀I/(2πr)', 'B = μ₀Ir/(2π)', 'B = μ₀I/(4πr)'],
@@ -355,7 +355,7 @@ const quiz: QuizQuestion[] = [
   },
 ]
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'חוט עם I = 20 A. מה B במרחק r = 0.1 m?',
     options: ['4×10⁻⁵ T', '4×10⁻⁴ T', '2×10⁻⁵ T', '8×10⁻⁵ T'],

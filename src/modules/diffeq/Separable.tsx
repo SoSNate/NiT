@@ -172,7 +172,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'איזו מהמשוואות הבאות ניתנת להפרדת משתנים?',
     options: ['dy/dx = x + y', "dy/dx = x·sin(y)", 'dy/dx = xy + 1', "y' + 2y = eˣ"],
@@ -288,7 +288,7 @@ const theory: TheoryCard = {
   when: 'כשניתן לבודד y מצד אחד ו-x מצד שני — לרוב כשיש מכפלה f(x)·g(y)',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'איזו משוואה ניתן לפתור בהפרדת משתנים?',
     options: ["dy/dx = x·y", "dy/dx = x + y", "dy/dx = y + x²", "dy/dx = y/x + x"],

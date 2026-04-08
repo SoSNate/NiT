@@ -183,7 +183,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ─────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'שטף מגנטי עולה מ-0 ל-0.5 Wb ב-0.1 שניות. מה |ε|?',
     options: ['0.5 V', '5 V', '50 V', '0.05 V'],
@@ -205,7 +205,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ─────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'לולאה 0.3×0.4 m, B=0.8 T יורד לאפס ב-0.2 s. מה |ε|?',
     options: ['0.48 V', '0.096 V', '0.24 V', '2.4 V'],

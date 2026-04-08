@@ -147,7 +147,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'div(F) = 0 בכל V. מה ∯_S F·dS?',
     options: ['0', '∯ = ∭ div F dV = 0', 'תלוי בצורת S', 'תשובות א ו-ב נכונות'],
@@ -177,18 +177,30 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'נוסחאות',
-    content: <div className="space-y-2 text-sm" dir="ltr">
-      <p className="text-blue-400 font-bold text-xs">Gauss (Divergence)</p>
-      <p className="font-mono text-xs text-slate-300">∯_S F·dS = ∭_V div(F) dV</p>
-      <p className="font-mono text-xs text-slate-300">div(F) = F_x + G_y + H_z</p>
-      <p className="text-purple-400 font-bold text-xs mt-2">Stokes</p>
-      <p className="font-mono text-xs text-slate-300">∬_S curl(F)·dS = ∮_∂S F·dr</p>
-      <p className="text-teal-400 font-bold text-xs mt-2">Direct: z=g(x,y)</p>
-      <p className="font-mono text-xs text-slate-300">∬ F·dS = ∬_D (-Pg_x-Qg_y+R) dA</p>
+    title: '📋 משפטים',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-blue-400 font-bold text-xs">גאוס (Divergence Theorem):</p>
+      <p className="text-xs font-mono" dir="ltr">∯_S F·dS = ∭_V div(F) dV</p>
+      <p className="text-xs">div(F) = ∂P/∂x + ∂Q/∂y + ∂R/∂z</p>
+      <p className="text-xs">שטף דרך משטח סגור = אינטגרל של div(F) על הנפח</p>
+      <p className="text-purple-400 font-bold text-xs mt-2">סטוקס (Stokes):</p>
+      <p className="text-xs font-mono" dir="ltr">∬_S curl(F)·dS = ∮_∂S F·dr</p>
+      <p className="text-xs">curl(F) = ∇×F — מודד כמה השדה "מסתחרר"</p>
+      <p className="text-teal-400 font-bold text-xs mt-2">ישיר (z=g(x,y)):</p>
+      <p className="text-xs font-mono" dir="ltr">∬_S F·dS = ∬_D (-Pg_x - Qg_y + R) dA</p>
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>גאוס: כשיש נפח סגור וקל לחשב div. סטוקס: כשיש לולאה וקל לחשב curl. בחר את הקל יותר</p>
+      <p className="text-yellow-400 text-xs font-bold">אבחון מהיר:</p>
+      <p className="text-xs">משטח סגור (כדור, חרוט+בסיס) → גאוס</p>
+      <p className="text-xs">אינטגרל קווי ↔ אינטגרל שטח של רוטור → סטוקס</p>
+      <p className="text-xs">div(F)=0 → שטף דרך מעטפת סגורה = 0</p>
+      <p className="text-xs">גאוס + קוטביות גלילית: x=rcosθ, y=rsinθ, z=z</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -205,13 +217,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'שטף = כמה "נוזל" עובר דרך משטח. לחישוב שטף ישיר — מפרמטרים את המשטח. אבל הכלי החזק הוא גאוס (Divergence Theorem): הופך שטף דרך מעטפת סגורה לאינטגרל נפחי — לרוב הרבה יותר קל. סטוקס: מחבר שטף של רוטור לאינטגרל קווי על הגבול.',
   formulas: [
-    { label: 'גאוס', tex: '\\oiint_S \\mathbf{F}\\cdot d\\mathbf{S} = \\iiint_V \\nabla\\cdot\\mathbf{F}\\,dV' },
-    { label: 'סטוקס', tex: '\\iint_S (\\nabla\\times\\mathbf{F})\\cdot d\\mathbf{S} = \\oint_{\\partial S} \\mathbf{F}\\cdot d\\mathbf{r}' },
+    { label: 'גאוס', tex: '\\oiint_S \\mathbf{F}\\cdot d\\mathbf{S} = \\iiint_V \\nabla\\cdot\\mathbf{F}\\,dV', verbal: 'משפט הסטייה — שטף דרך משטח סגור = אינטגרל של div(F) על הנפח. כמו גאוס בפיזיקה' },
+    { label: 'סטוקס', tex: '\\iint_S (\\nabla\\times\\mathbf{F})\\cdot d\\mathbf{S} = \\oint_{\\partial S} \\mathbf{F}\\cdot d\\mathbf{r}', verbal: 'מחבר אינטגרל קווי עם אינטגרל שטח. curl מודד כמה השדה "מסתחרר"' },
   ],
   when: 'משטח סגור → גאוס. השטח לא סגור ויש רוטור → סטוקס. אחרת → ישיר עם פרמטריזציה.',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'F = (x,y,z). מהו div(F)?',
     options: ["0", "1", "3", "x+y+z"],

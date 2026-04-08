@@ -149,7 +149,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'Σ n!/nⁿ — מבחן יחס נותן:',
     options: ['L = 1/e < 1 → מתכנס', 'L = 1 → לא ניתן לסיווג', 'L = e > 1 → מתבדר', 'L = 0'],
@@ -264,7 +264,7 @@ const theory: TheoryCard = {
   when: 'התחל תמיד עם מבחן יחס. L=1? → נסה Raabe, השוואה, או p-טור. טור מתחלף? → לייבניץ',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'Σ(1/n!). מבחן יחס: L = ?',
     options: ["1", "0", "∞", "1/2"],

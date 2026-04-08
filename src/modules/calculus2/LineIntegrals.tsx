@@ -142,7 +142,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'P=y, Q=x. האם השדה שמור?',
     options: ['כן, ∂P/∂y=1=∂Q/∂x', 'לא, ∂P/∂y≠∂Q/∂x', 'רק על עקומות סגורות', 'תלוי בנתיב'],
@@ -183,7 +183,18 @@ const guides: GuideSection[] = [
       <p className="font-mono text-xs text-slate-300">∮_L Pdx+Qdy = ∬_D(∂Q/∂x-∂P/∂y)dA</p>
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>בדוק שמרנות: ∂P/∂y = ∂Q/∂x. אם שמרני — מצא פוטנציאל. אם לא — השתמש בגרין או פרמטריזציה</p>
+      <p className="text-yellow-400 text-xs font-bold">שלבי הפתרון:</p>
+      <p className="text-xs">1. בדוק: ∂P/∂y =? ∂Q/∂x</p>
+      <p className="text-xs">2. שמרני → מצא φ: φ_x=P, φ_y=Q → חשב φ(B)-φ(A)</p>
+      <p className="text-xs">3. לא שמרני + קו סגור → גרין: ∬(Q_x-P_y)dA</p>
+      <p className="text-xs">4. לא שמרני + קו פתוח → פרמטריזציה: x=x(t), y=y(t)</p>
+      <p className="text-teal-400 text-xs mt-2">∫_L F·dr לשדה וקטורי = ∫_L P dx + Q dy — מחשב עבודה שעושה השדה בהזזת חלקיק לאורך C</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -200,13 +211,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'אינטגרל קווי ∫_L P dx + Q dy מחשב "עבודה" של שדה לאורך עקומה. אם ∂P/∂y = ∂Q/∂x — השדה שמור ויש פוטנציאל φ, ואז ∫_L = φ(B) - φ(A) — לא צריך לחשב את הנתיב! לקו סגור — משפט גרין הופך לאינטגרל כפול.',
   formulas: [
-    { label: 'שימור', tex: '\\frac{\\partial P}{\\partial y} = \\frac{\\partial Q}{\\partial x} \\;\\Rightarrow\\; \\int_L = \\varphi(B)-\\varphi(A)' },
-    { label: 'גרין', tex: '\\oint_L P\\,dx+Q\\,dy = \\iint_D\\!\\left(\\frac{\\partial Q}{\\partial x}-\\frac{\\partial P}{\\partial y}\\right)dA' },
+    { label: 'שימור', tex: '\\frac{\\partial P}{\\partial y} = \\frac{\\partial Q}{\\partial x} \\;\\Rightarrow\\; \\int_L = \\varphi(B)-\\varphi(A)', verbal: 'שדה שמור נגזר מפוטנציאל. אז ∫F·dr = φ(B)-φ(A) — תלוי רק בנקודות הקצה, לא במסלול' },
+    { label: 'גרין', tex: '\\oint_L P\\,dx+Q\\,dy = \\iint_D\\!\\left(\\frac{\\partial Q}{\\partial x}-\\frac{\\partial P}{\\partial y}\\right)dA', verbal: 'משפט גרין מחבר אינטגרל קווי סגור לאינטגרל כפול על התחום. שימושי לשניהם' },
   ],
   when: 'בדוק ∂P/∂y מול ∂Q/∂x תמיד! שווים → שמור → פוטנציאל. קו סגור → גרין.',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'P = 2xy, Q = x². האם השדה שמור?',
     options: [

@@ -141,7 +141,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'f(x,y) = x²sin(y). מהי ∂f/∂y?',
     options: ['x²cos(y)', '2x·sin(y)', '2x·sin(y) + x²cos(y)', 'cos(y)'],
@@ -191,11 +191,15 @@ const guides: GuideSection[] = [
     </div>,
   },
   {
-    // Placeholder for lecture notes — user will provide
-    title: 'מהרצאה',
-    content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center">
-      <p>📖 סיכום ההרצאה יתווסף כאן</p>
-      <p className="text-xs mt-1">שלח לי את קובץ "השבוע 1" ואוסיף את התוכן</p>
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>נגזרת מכוונת: Dᵤf = ∇f·û. חשוב: û חייב להיות מנורמל (אורך 1)</p>
+      <p>∇f = (∂f/∂x, ∂f/∂y) — הגרדיאנט הוא וקטור שמצביע לכיוון העלייה התלולה ביותר. גודלו = שיעור השינוי המקסימלי</p>
+      <p>כלל השרשרת: כשיש הרכבת פונקציות: df/dt = (∂f/∂x)(dx/dt) + (∂f/∂y)(dy/dt)</p>
+      <p className="text-yellow-400 text-xs font-bold">שלבים לבדיקת דיפרנציאביליות ב-(0,0):</p>
+      <p className="text-xs">1. חשב f_x(0,0) ו-f_y(0,0) מהגדרה</p>
+      <p className="text-xs">2. בדוק אם הגבול [f(h,k)-f(0,0)-f_x·h-f_y·k]/r → 0</p>
+      <p className="text-xs">3. אם לא → f אינה דיפרנציאבילית</p>
     </div>,
   },
 ]
@@ -218,13 +222,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'נגזרת חלקית ∂f/∂x מודדת כמה f משתנה כש-x זז — בעוד y קבוע. גוזרים ל-x כאילו y מספר רגיל. דיפרנציאביליות היא תנאי חזק יותר מרציפות: f דיפרנציאבילית ב-(0,0) אם המישור המשיק "מתאים טוב" לגרף — בודקים עם הגדרה או ע"י רציפות הנגזרות.',
   formulas: [
-    { label: 'נגזרת חלקית', tex: '\\frac{\\partial f}{\\partial x} = \\lim_{h\\to 0}\\frac{f(x+h,y)-f(x,y)}{h}' },
-    { label: 'בדיקת דיפרנציאביליות', tex: '\\lim_{(h,k)\\to(0,0)}\\frac{f(h,k)-f(0,0)-f_x(0,0)h-f_y(0,0)k}{\\sqrt{h^2+k^2}}=0' },
+    { label: 'נגזרת חלקית', tex: '\\frac{\\partial f}{\\partial x} = \\lim_{h\\to 0}\\frac{f(x+h,y)-f(x,y)}{h}', verbal: 'נגזרת חלקית לפי x — גוזרים לפי x כאילו y קבוע. מודדת כמה f משתנה כשרק x זז' },
+    { label: 'בדיקת דיפרנציאביליות', tex: '\\lim_{(h,k)\\to(0,0)}\\frac{f(h,k)-f(0,0)-f_x(0,0)h-f_y(0,0)k}{\\sqrt{h^2+k^2}}=0', verbal: 'המישור הנוגע לגרף f(x,y) בנקודה (a,b). נבנה מהנגזרות החלקיות' },
   ],
   when: 'שאלה קלאסית: f(x,y)=(x³+y³)/(x²+y²). חשב f_x(0,0) ו-f_y(0,0) מההגדרה, בדוק דיפרנציאביליות',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'f(x,y) = x²y + sin(y). מהי ∂f/∂x?',
     options: ["2xy + cos(y)", "2xy", "x² + cos(y)", "x²y·cos(y)"],

@@ -192,7 +192,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'שני מטענים חיוביים: q₁ = 2C, q₂ = 5C, מרחק r = 3m. מהו כוח הדחייה? (k = 9×10⁹)',
     options: ['10¹⁰ N', '10⁹ N', '10⁸ N', '3×10⁹ N'],
@@ -214,7 +214,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE (שלוש רמות) ─────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   // 🟢 רמה 1 — הבנה בסיסית
   {
     question: 'שני מטענים +q ו-+q במרחק r. מה קורה לכוח ביניהם אם מחצינים את המרחק?',
@@ -279,6 +279,26 @@ const guides: GuideSection[] = [
       <p className="text-slate-300 text-xs">תמיד ציין כיוון (שמאל/ימין, +x/-x) — לא רק גודל.</p>
     </div>,
   },
+  {
+    title: '📋 נוסחאות',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">נוסחאות מרכזיות</p>
+      <Formula c="F = k|q₁||q₂|/r²" color="text-yellow-300" />
+      <p className="text-xs" dir="ltr">k = 9×10⁹ N·m²/C²</p>
+      <Formula c="k = 1/(4πε₀)" color="text-blue-300" />
+      <p className="text-slate-400 text-xs">קבוע קולון — כמו G בכבידה, רק לחשמל. ε₀ היא חדירות החלל הריק</p>
+      <Formula c="F⃗ = (kq₁q₂/r²)r̂" color="text-emerald-300" />
+      <p className="text-slate-400 text-xs">הגרסה הוקטורית — r̂ הוא כיוון הכוח: דחייה כשמטענים שווי סימן, משיכה כשהפוכים</p>
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">טיפ מרכזי למבחן</p>
+      <p className="text-xs">כמעט תמיד שואלים על סופרפוזיציה — מערכת של 3 מטענים, מה הכוח על האמצעי. מחשבים כל כוח בנפרד ומחברים וקטורית</p>
+      <Note color="blue" children={<>שלבים: (1) חשב F₁₂ (2) חשב F₃₂ (3) קבע כיוון כל כוח (4) חבר ווקטורית</>} />
+    </div>,
+  },
 ]
 
 // ── INTRO ──────────────────────────────────────────────────────────────────────
@@ -299,8 +319,8 @@ const bridge = <div className="space-y-2">
 const theory: TheoryCard = {
   summary: 'שני מטענים מפעילים כוח אחד על השני. הכוח גדל ככל שהמטענים גדולים יותר, וקטן בריבוע המרחק. שווים → דוחים. הפוכים → נמשכים. חוק ניוטון השלישי: הכוח הדדי ושווה בגודל.',
   formulas: [
-    { label: 'חוק קולון', tex: 'F = k\\dfrac{|q_1||q_2|}{r^2},\\quad k = 9\\times 10^9\\,\\frac{\\text{N}\\cdot\\text{m}^2}{\\text{C}^2}' },
-    { label: 'כוח→תאוצה', tex: 'a = \\frac{qE}{m} \\;\\Rightarrow\\; v = at = \\frac{qE}{m}\\cdot t' },
+    { label: 'חוק קולון', tex: 'F = k\\dfrac{|q_1||q_2|}{r^2},\\quad k = 9\\times 10^9\\,\\frac{\\text{N}\\cdot\\text{m}^2}{\\text{C}^2}', verbal: 'הכוח בין שני מטענים. גדל ככל שהמטענים גדולים יותר, קטן ביחס לריבוע המרחק. k=9×10⁹ הוא קבוע קולון' },
+    { label: 'כוח→תאוצה', tex: 'a = \\frac{qE}{m} \\;\\Rightarrow\\; v = at = \\frac{qE}{m}\\cdot t', verbal: 'מהכוח החשמלי מחשבים תאוצה עם F=ma. אחר כך קינמטיקה רגילה: v = at' },
   ],
   when: 'מטענים נקודתיים עם מרחק ידוע → קולון ישר. כמה מטענים → חשב כל כוח בנפרד וחבר כוקטורים',
 }

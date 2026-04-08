@@ -131,7 +131,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: "y' + 3y = 6. מה גורם האינטגרציה?",
     options: ['e^(3x)', 'e^(-3x)', 'e^(x/3)', '3x'],
@@ -239,7 +239,7 @@ const theory: TheoryCard = {
   when: 'כשy מופיעה בחזקה ראשונה בלבד — אין y², אין 1/y, אין y·y\'',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'מהו גורם האינטגרציה למשוואה y\' + 3y = 0?',
     options: ["e^(3x)", "e^(-3x)", "3x", "e^(x/3)"],

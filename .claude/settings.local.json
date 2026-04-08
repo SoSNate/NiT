@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/12nat/Desktop/**)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(npx vite:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(curl -s http://localhost:5175/)",
+      "Bash(git commit -m 'Add GitHub Actions deploy workflow for GitHub Pages:*)",
+      "Bash(ls /c/Users/12nat/Desktop/stat-physics/src/components/PracticeMode*)",
+      "Bash(git commit -m 'Fix practiceBank: rename .ts → .tsx \\(JSX requires .tsx extension\\):*)"
+    ]
+  }
+}

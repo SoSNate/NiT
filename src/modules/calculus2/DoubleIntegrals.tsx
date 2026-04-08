@@ -146,7 +146,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: '∬_D (x²+y²) dA, D: x²+y²≤4. מה התשובה?',
     options: ['8π', '4π', '16π', '2π'],
@@ -188,7 +188,19 @@ const guides: GuideSection[] = [
       <p className="font-mono text-xs text-slate-300">J = |∂x/∂u · ∂y/∂v - ∂x/∂v · ∂y/∂u|</p>
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>כשהתחום הוא עיגול/חלק ממנו — עבור לקוטביות. חשב נפח, שטח, מסה, מרכז כובד</p>
+      <p className="text-yellow-400 text-xs font-bold">מתי לעבור לקוטביות:</p>
+      <p className="text-xs">x²+y² מופיע בביטוי → קוטביות</p>
+      <p className="text-xs">התחום הוא עיגול, טבעת, חרוט, כדור → קוטביות</p>
+      <p className="text-yellow-400 text-xs font-bold mt-2">שינוי סדר אינטגרציה:</p>
+      <p className="text-xs">1. ציר את התחום D מהגבולות המקוריים</p>
+      <p className="text-xs">2. הפוך — כתוב גבולות חדשים מהתמונה</p>
+      <p className="text-xs">3. שינוי סדר מועיל כשהאינטגרל הפנימי קשה לחישוב</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -205,13 +217,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'אינטגרל כפול מחשב שטח/נפח מתחת למשטח. עפ"י פובייני — אנגדלים פעמיים: קודם לפי y (עם x קבוע), אחר כך לפי x. לאזורים עגולים, טבעות, כדורים — מעבר לקואורדינטות קוטביות חוסך זמן רב. בקוטביות — לא לשכוח את גורם r!',
   formulas: [
-    { label: 'פובייני', tex: '\\iint_D f\\,dA = \\int_a^b\\!\\int_{g_1(x)}^{g_2(x)} f(x,y)\\,dy\\,dx' },
-    { label: 'קוטביות', tex: 'x=r\\cos\\theta,\\;y=r\\sin\\theta,\\quad dA = r\\,dr\\,d\\theta' },
+    { label: 'פובייני', tex: '\\iint_D f\\,dA = \\int_a^b\\!\\int_{g_1(x)}^{g_2(x)} f(x,y)\\,dy\\,dx', verbal: 'פובייני אומר שאפשר לפרק לאינטגרל חד-ממדי פנימי ואז חיצוני. סדר האינטגרציה לפעמים חשוב' },
+    { label: 'קוטביות', tex: 'x=r\\cos\\theta,\\;y=r\\sin\\theta,\\quad dA = r\\,dr\\,d\\theta', verbal: 'כשהתחום עגול — קוטביות הרבה יותר נוחה. אל תשכח את r ביעקוביאן!' },
   ],
   when: 'אזורים עגולים/טבעתיים → קוטביות. אזורים מלבניים → פובייני ישיר. קשה לאנגדל? → החלף סדר',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: '∬_D dA כש-D: x²+y²≤4. מה הערך?',
     options: ["π", "2π", "4π", "8π"],

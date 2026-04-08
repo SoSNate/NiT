@@ -102,7 +102,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: "dy/dx = (x² + xy + y²)/x². האם הומוגנית?",
     options: ['כן — ניתן לכתוב כ-F(y/x)', 'לא — תלויה ב-x² בנפרד', 'כן — לינארית', 'לא — ברנולי'],
@@ -132,11 +132,28 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'זיהוי',
+    title: '📋 נוסחאות',
     content: <div className="space-y-2 text-sm text-slate-300">
-      <p className="text-purple-400 font-bold text-xs">כיצד לבדוק הומוגנית?</p>
-      <p className="text-xs">החלף x→tx, y→ty. אם f(tx,ty) = f(x,y) → הומוגנית ממעלה 0.</p>
-      <Note color="purple" children={<>לדוגמה: (tx+ty)/(tx) = (x+y)/x ✓</>} />
+      <p className="text-xs font-bold text-purple-400">שיטת פתרון — צעד אחר צעד:</p>
+      <p className="text-xs">1. זהה שהמשוואה הומוגנית: dy/dx = F(y/x)</p>
+      <p className="text-xs mt-1">2. הצב v = y/x → y = vx → y' = v + xv'</p>
+      <p className="text-xs mt-1">3. קבל: v + xv' = F(v) → xv' = F(v) - v</p>
+      <p className="text-xs mt-1">4. הפרד משתנים: dv/(F(v)-v) = dx/x</p>
+      <p className="text-xs mt-1">5. אנגדל שני הצדדים</p>
+      <p className="text-xs mt-1">6. חזור ל-y: y = v·x; הצב תנאי ראשוני</p>
+      <p className="text-xs font-bold text-purple-400 mt-2">בדיקת הומוגניות:</p>
+      <p className="text-xs">החלף x→tx, y→ty. אם f(tx,ty) = f(x,y) → הומוגנית ממעלה 0</p>
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-xs font-bold text-yellow-400">שאלות נפוצות:</p>
+      <p className="text-xs">בדרך כלל נותנים dy/dx = (ax+by)/(cx+dy) — כתוב כ-F(y/x) על ידי חלוקה ב-x</p>
+      <p className="text-xs mt-1">לאחר ההצבה v=y/x תמיד מתקבלת הפרדת משתנים — אנגדל ישר</p>
+      <p className="text-xs mt-1">אל תשכח להציב חזרה y = vx בסוף ולהיעזר בתנאי ראשוני למציאת C</p>
+      <p className="text-xs font-bold text-red-400 mt-2">טעות נפוצה:</p>
+      <p className="text-xs">לשכוח שy' = v + xv' (כלל המכפלה!) — לא רק v'</p>
     </div>,
   },
 ]
@@ -152,13 +169,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'משוואה הומוגנית היא כזו שבה dy/dx תלויה רק ביחס y/x — לא ב-x וב-y בנפרד. הטריק: מציבים v = y/x, כלומר y = vx, ואז מגיעים למשוואה עם הפרדת משתנים רגילה.',
   formulas: [
-    { label: 'הצבה', tex: 'v = \\frac{y}{x} \\;\\Rightarrow\\; y = vx,\\quad y\' = v + xv\'' },
-    { label: 'תוצאה', tex: 'x\\,v\' = F(v) - v \\quad\\Rightarrow\\quad \\text{הפרדת משתנים}' },
+    { label: 'הצבה', tex: 'v = \\frac{y}{x} \\;\\Rightarrow\\; y = vx,\\quad y\' = v + xv\'', verbal: 'הצבת v=y/x: נגזרת y לפי x היא v+x·dv/dx. מציבים ומפרידים משתנים' },
+    { label: 'תוצאה', tex: 'x\\,v\' = F(v) - v \\quad\\Rightarrow\\quad \\text{הפרדת משתנים}', verbal: 'המד"ר הומוגנית אם אפשר לכתוב אותה כפונקציה של y/x בלבד — הצבת v=y/x הופכת אותה לניתנת להפרדה' },
   ],
   when: 'כשמחליפים x→tx, y→ty המשוואה לא משתנה — סימן שהיא הומוגנית ממעלה 0',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'איזה בדיקה מאשרת שמשוואה הומוגנית?',
     options: [

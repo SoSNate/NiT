@@ -237,7 +237,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'קבל מישורי עם מרחק d מחובר למתח V. מכפילים את d פי 2 (המתח קבוע). מה קורה לאנרגיה?',
     options: ['מוכפלת פי 2', 'מוכפלת פי 4', 'מחצית', 'לא משתנה'],
@@ -259,7 +259,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ──────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'קבל 10μF מחובר ל-V=5V. כמה מטען אגור?',
     options: ['2 μC', '50 μC', '0.5 μC', '15 μC'],
@@ -323,6 +323,35 @@ const guides: GuideSection[] = [
       <p className="text-slate-300 text-xs">U = ½CV², לא CV²! הגורם ½ תמיד שם.</p>
     </div>,
   },
+  {
+    title: '📋 נוסחאות',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">נוסחאות מרכזיות</p>
+      <Formula c="C = Q/V" color="text-yellow-300" />
+      <p className="text-slate-400 text-xs">קיבול = כמה מטען נאגר לכל וולט מתח</p>
+      <Formula c="C = ε₀A/d" color="text-blue-300" />
+      <Formula c="U = Q²/2C = CV²/2" color="text-emerald-300" />
+      <div className="grid grid-cols-2 gap-1 text-xs mt-1">
+        <div className="bg-blue-900/30 rounded p-1.5 text-center">
+          <p className="text-blue-300 font-bold">טורי</p>
+          <p className="text-slate-300" dir="ltr">1/C_eq = Σ1/Cᵢ</p>
+        </div>
+        <div className="bg-emerald-900/30 rounded p-1.5 text-center">
+          <p className="text-emerald-300 font-bold">מקבילי</p>
+          <p className="text-slate-300" dir="ltr">C_eq = ΣCᵢ</p>
+        </div>
+      </div>
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">שאלות נפוצות</p>
+      <p className="text-xs">שאלות נפוצות: מטען לאחר חיבור/ניתוק מסוללה (מה נשמר — Q או V?)</p>
+      <Note color="yellow" children={<>כשמנתקים מסוללה — Q נשמר. כשנשאר מחובר — V נשמר</>} />
+      <p className="text-slate-400 text-xs">לדוגמה: מכניסים דיאלקטריק לקבל מנותק — C גדל, V קטן, U קטן (כי Q נשמר)</p>
+    </div>,
+  },
 ]
 
 // ── INTRO + BRIDGE ────────────────────────────────────────────────────────────
@@ -345,10 +374,10 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'קבל מאחסן מטען ואנרגיה. קיבולו תלוי בגיאומטריה. חיבורים טוריים ומקבילים שולטים על Ceq.',
   formulas: [
-    { label: 'קיבול מישורי', tex: 'C = \\dfrac{\\varepsilon_0 A}{d}' },
-    { label: 'אנרגיה', tex: 'U = \\dfrac{1}{2}CV^2 = \\dfrac{Q^2}{2C}' },
-    { label: 'טורי', tex: '\\dfrac{1}{C_{eq}} = \\sum \\dfrac{1}{C_i}' },
-    { label: 'מקבילי', tex: 'C_{eq} = \\sum C_i' },
+    { label: 'קיבול מישורי', tex: 'C = \\dfrac{\\varepsilon_0 A}{d}', verbal: 'קבל מישורי: פנים גדול יותר → יותר מקום למטען. מרחק קטן יותר → שדה חזק יותר, יותר מטען' },
+    { label: 'אנרגיה', tex: 'U = \\dfrac{1}{2}CV^2 = \\dfrac{Q^2}{2C}', verbal: 'אנרגיה המאוחסנת בקבל — כמו אנרגיה בקפיץ. אפשר לחשב עם Q או עם V' },
+    { label: 'טורי', tex: '\\dfrac{1}{C_{eq}} = \\sum \\dfrac{1}{C_i}', verbal: 'בטורי המתח מתחלק בין הקבלים, הקיבול הכולל קטן מהקטן שבהם' },
+    { label: 'מקבילי', tex: 'C_{eq} = \\sum C_i', verbal: 'במקבילי כל הקבלים רואים את אותו מתח, הקיבול מצטבר' },
   ],
   when: 'שאלות על מטען, מתח, אנרגיה בקבל — בדוק אם בודד / טורי / מקבילי → Ceq → Q = CeqV → U = ½CeqV²',
 }

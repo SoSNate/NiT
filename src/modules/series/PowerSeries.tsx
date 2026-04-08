@@ -144,7 +144,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'רדיוס התכנסות של Σ xⁿ/n:',
     options: ['R=1', 'R=∞', 'R=e', 'R=0'],
@@ -268,7 +268,7 @@ const theory: TheoryCard = {
   when: 'מקלורן = טיילור סביב 0. לפתח פונקציה = זהה את הטור הבסיסי + החלפת משתנה',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'מהי הצורה הנכונה של sin(x) כטור מקלורן?',
     options: [

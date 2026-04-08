@@ -151,7 +151,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: "lim(x,y)→(0,0) (x²-y²)/(x²+y²) — מה הגבול?",
     options: ['0', '1', '-1', 'הגבול לא קיים'],
@@ -273,7 +273,7 @@ const theory: TheoryCard = {
   when: 'כשמציבים (0,0) ומקבלים 0/0 — בדוק מסלולים שונים. אם שונים → ∄ גבול. אם כולם 0 → הוכח עם קוטביות/Squeeze',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'f(x,y) = xy/(x²+y²). מה הגבול ב-(0,0) לאורך y=0?',
     options: ["0", "1/2", "1", "∞"],

@@ -117,7 +117,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: "(2xy + 3)dx + (x² + 4y)dy = 0 — האם מדויקת?",
     options: ['כן, ∂M/∂y = ∂N/∂x = 2x', 'לא, ∂M/∂y ≠ ∂N/∂x', 'כן, אבל רק לאחר כפל ב-x', 'לא ניתן לבדוק'],
@@ -147,15 +147,18 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'שיטה',
+    title: '📋 שלבי הפתרון',
     content: <div className="space-y-2 text-sm text-slate-300">
-      <Note color="teal" children={<span className="font-mono text-xs" dir="ltr">∂M/∂y = ∂N/∂x → exact!</span>} />
-      <p className="text-xs text-slate-400 mt-2">גורם אינטגרציה נפוץ:</p>
-      <ul className="text-xs space-y-0.5 font-mono" dir="ltr">
-        <li>μ(x): (My-Nx)/N = f(x) only</li>
-        <li>μ(y): (Nx-My)/M = g(y) only</li>
-        <li>μ = xᵃyᵇ: try common powers</li>
-      </ul>
+      <p>1. בדוק ∂M/∂y = ∂N/∂x — אם שווים, המשוואה מדויקת</p>
+      <p>2. אנגדל M לפי x: F(x,y) = ∫M dx + g(y)</p>
+      <p>3. קבל F(x,y) + g(y) — g(y) עדיין לא ידוע</p>
+      <p>4. גזור F לפי y ושווה ל-N: ∂F/∂y = N → מצא g′(y) → אנגדל</p>
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>אם לא מדויקת — בדוק גורם אינטגרציה μ(x) או μ(y). נפוץ: μ=(∂M/∂y-∂N/∂x)/N תלוי ב-x בלבד</p>
     </div>,
   },
 ]
@@ -175,13 +178,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'משוואה מדויקת M dx + N dy = 0 היא בעצם dF = 0 מוסווה — קיימת פונקציה F(x,y) שהפתרון שלה הוא F = C. הבדיקה: ∂M/∂y = ∂N/∂x. אם לא מתקיים — מחפשים גורם אינטגרציה μ שיהפוך אותה למדויקת.',
   formulas: [
-    { label: 'תנאי דיוק', tex: '\\frac{\\partial M}{\\partial y} = \\frac{\\partial N}{\\partial x}' },
-    { label: 'מציאת F', tex: 'F = \\int M\\,dx + g(y),\\quad g\'(y) = N - \\frac{\\partial}{\\partial y}\\!\\int\\! M\\,dx' },
+    { label: 'תנאי דיוק', tex: '\\frac{\\partial M}{\\partial y} = \\frac{\\partial N}{\\partial x}', verbal: 'תנאי המדויקות — בודקים זאת קודם. אם מתקיים, מחפשים F כך ש-∂F/∂x=M ו-∂F/∂y=N' },
+    { label: 'מציאת F', tex: 'F = \\int M\\,dx + g(y),\\quad g\'(y) = N - \\frac{\\partial}{\\partial y}\\!\\int\\! M\\,dx', verbal: 'הפתרון הכללי — F נמצאת על ידי אינטגרציה. F=C הוא הפתרון המשתמע' },
   ],
   when: 'כשהמשוואה בצורה M dx + N dy = 0 — בדוק תמיד ∂M/∂y מול ∂N/∂x לפני שבוחרים שיטה',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'M = 2xy, N = x². האם המשוואה מדויקת?',
     options: ["כן — ∂M/∂y = 2x = ∂N/∂x", "לא — ∂M/∂y ≠ ∂N/∂x", "רק אם x>0", "צריך גורם אינטגרציה"],

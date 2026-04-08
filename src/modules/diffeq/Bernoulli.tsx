@@ -107,7 +107,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: "y' + y = y³. מה ההצבה הנכונה?",
     options: ['u = y²', 'u = y^(-2)', 'u = y^(-1)', 'u = ln(y)'],
@@ -137,15 +137,28 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'שיטה',
+    title: '📋 נוסחאות',
     content: <div className="space-y-2 text-sm text-slate-300">
-      <p className="text-yellow-400 font-bold text-xs">ברנולי = ברנולי → לינארית:</p>
-      <ol className="space-y-1 text-xs">
-        <li>1. מצא n (החזקה של y באגף ימין)</li>
-        <li>2. הצב <span className="font-mono text-yellow-300">u = y^(1-n)</span></li>
-        <li>3. המשוואה: <span className="font-mono" dir="ltr">u' + (1-n)Pu = (1-n)Q</span></li>
-        <li>4. פתור לינארית; חזור ל-y</li>
-      </ol>
+      <p className="text-xs font-bold text-yellow-400">שיטת פתרון — צעד אחר צעד:</p>
+      <p className="text-xs">1. זהה n: הצורה y' + P(x)y = Q(x)·yⁿ</p>
+      <p className="text-xs mt-1">2. חלק את כל המשוואה ב-yⁿ</p>
+      <p className="text-xs mt-1">3. הצב u = y^(1-n) → u' = (1-n)·y^(-n)·y'</p>
+      <p className="text-xs mt-1">4. קבל משוואה לינארית: u' + (1-n)P·u = (1-n)Q</p>
+      <p className="text-xs mt-1">5. פתור עם גורם אינטגרציה μ = e^(∫(1-n)P dx)</p>
+      <p className="text-xs mt-1">6. חזור ל-y: y = u^(1/(1-n))</p>
+      <p className="text-xs font-bold text-yellow-400 mt-2">הכי נפוץ במבחנים — n=2:</p>
+      <p className="text-xs font-mono" dir="ltr">u = y^(-1) = 1/y, u' = -y'/y²</p>
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-xs font-bold text-yellow-400">שאלות נפוצות:</p>
+      <p className="text-xs">הכי נפוץ: n=2. הצב u=1/y, קבל u' - (1-n)P·u = -(1-n)Q ← שים לב לסימן!</p>
+      <p className="text-xs mt-1">אחרי שפותרים u(x) — חזור ל-y = 1/u (עבור n=2)</p>
+      <p className="text-xs mt-1">תנאי ראשוני y(x₀)=y₀ → u(x₀) = y₀^(1-n), מצא C</p>
+      <p className="text-xs font-bold text-red-400 mt-2">טעות נפוצה:</p>
+      <p className="text-xs">לשכוח להכפיל (1-n) גם ב-P וגם ב-Q לאחר ההצבה. בדוק את הסימנים בזהירות!</p>
     </div>,
   },
 ]
@@ -163,13 +176,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'משוואת ברנולי נראית מפחידה בגלל yⁿ — אבל ההצבה u = y^(1-n) מסירה את אי-הלינאריות ומביאה למשוואה לינארית רגילה. אחרי שפותרים ל-u, חוזרים ל-y = u^(1/(1-n)).',
   formulas: [
-    { label: 'ההצבה', tex: 'u = y^{1-n} \\;\\Rightarrow\\; u\' = (1-n)y^{-n}y\'' },
-    { label: 'משוואה חדשה', tex: 'u\' + (1-n)P\\,u = (1-n)Q' },
+    { label: 'ההצבה', tex: 'u = y^{1-n} \\;\\Rightarrow\\; u\' = (1-n)y^{-n}y\'', verbal: 'ההצבה הקסומה — אחרי שמציבים u=y^(1-n), המשוואה הופכת לינארית ב-u ואפשר לפתור עם גורם אינטגרציה' },
+    { label: 'משוואה חדשה', tex: 'u\' + (1-n)P\\,u = (1-n)Q', verbal: 'מד"ר ברנולי — לינארית כמעט. הטריק: מחלקים ב-yⁿ ומציבים u=y^(1-n) שהופכת אותה ללינארית רגילה' },
   ],
   when: 'כש-y מופיעה בחזקה n (n≠0, n≠1) באגף ימין — בדרך כלל n=2 במבחנים',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'במשוואת ברנולי y\' + 2y = y³, מה n?',
     options: ["1", "2", "3", "-1"],

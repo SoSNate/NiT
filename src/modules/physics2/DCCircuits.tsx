@@ -220,7 +220,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ──────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'נגד 10Ω עם זרם 2A. ההספק המפוזר?',
     options: ['20 W', '40 W', '5 W', '0.2 W'],
@@ -242,7 +242,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ──────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'V=6V, R=2Ω. זרם?',
     options: ['12 A', '3 A', '0.33 A', '8 A'],
@@ -304,6 +304,36 @@ const guides: GuideSection[] = [
       <p className="text-slate-300 text-xs">טורי: Req = ΣR. מקבילי: Req = (R₁·R₂)/(R₁+R₂) לשניים.</p>
     </div>,
   },
+  {
+    title: '📋 נוסחאות',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">נוסחאות מרכזיות</p>
+      <Formula c="V = IR" color="text-yellow-300" />
+      <div className="grid grid-cols-2 gap-1 text-xs">
+        <div className="bg-blue-900/30 rounded p-1.5 text-center">
+          <p className="text-blue-300 font-bold">טורי</p>
+          <p className="text-slate-300" dir="ltr">R_eq = ΣRᵢ</p>
+          <p className="text-slate-400">I שווה</p>
+        </div>
+        <div className="bg-emerald-900/30 rounded p-1.5 text-center">
+          <p className="text-emerald-300 font-bold">מקבילי</p>
+          <p className="text-slate-300" dir="ltr">1/R_eq = Σ1/Rᵢ</p>
+          <p className="text-slate-400">V שווה</p>
+        </div>
+      </div>
+      <Formula c="KCL: ΣI = 0" color="text-blue-300" />
+      <Formula c="KVL: ΣV = 0" color="text-emerald-300" />
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">שאלות RC נפוצות</p>
+      <p className="text-xs">שאלות RC נפוצות מאוד: V(t)=V₀(1-e^(-t/RC)) בטעינה. τ=RC הוא קבוע הזמן. אחרי t=5τ הקבל טעון 99%</p>
+      <Note color="blue" children={<>τ=RC: ב-t=τ טעון 63%, ב-t=2τ טעון 86%, ב-t=5τ טעון 99%</>} />
+      <p className="text-slate-400 text-xs">בפריקה: V(t) = V₀·e^(-t/RC) — יורד מ-V₀ לאפס</p>
+    </div>,
+  },
 ]
 
 // ── INTRO + BRIDGE ────────────────────────────────────────────────────────────
@@ -323,12 +353,12 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 </div>
 
 const theory: TheoryCard = {
-  summary: 'מעגלי DC ניתחים באמצעות חוק אוהם לנגד בודד וחוקי קירשהוף KCL/KVL למעגלים מסועפים. מעגלי RC מציגים התנהגות זמן עם קבוע τ=RC.',
+  summary: 'מעגלי DC ניתחים באמצעות חוק אוהם לנגד בודד וחוקי קירשהוף KCL/KVL למעגלים מסועבים. מעגלי RC מציגים התנהגות זמן עם קבוע τ=RC.',
   formulas: [
-    { label: 'אוהם', tex: 'V = IR' },
-    { label: 'הספק', tex: 'P = IV = I^2R = V^2/R' },
-    { label: 'KCL', tex: '\\sum I_{\\text{נכנס}} = \\sum I_{\\text{יוצא}}' },
-    { label: 'RC טעינה', tex: 'V_C(t) = V\\left(1 - e^{-t/RC}\\right)' },
+    { label: 'אוהם', tex: 'V = IR', verbal: 'המתח הוא "לחץ" שדוחף זרם דרך התנגדות. כמו לחץ מים בצינור' },
+    { label: 'הספק', tex: 'P = IV = I^2R = V^2/R', verbal: 'הספק = כמה אנרגיה מפוזרת בשנייה. שלוש צורות — בחר לפי מה ידוע' },
+    { label: 'KCL', tex: '\\sum I_{\\text{נכנס}} = \\sum I_{\\text{יוצא}}', verbal: 'חוק קירשהוף לזרמים: בכל צומת — סכום הזרמים הנכנסים = היוצאים. מטען לא נעלם' },
+    { label: 'RC טעינה', tex: 'V_C(t) = V\\left(1 - e^{-t/RC}\\right)', verbal: 'מתח הקבל עולה בהדרגה. ב-t=τ=RC הוא עלה ל-63% מהמתח הסופי. ב-5τ — כמעט מלא' },
   ],
   when: 'מעגל פשוט → Req → I=V/Req. מסועף → KCL+KVL. RC → V_C(t) עם τ=RC.',
 }

@@ -236,7 +236,7 @@ function Step3() {
   )
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'ניסוי יאנג: d = 0.2 mm, L = 1.5 m, λ = 600 nm. מה מרחק הפסים Δy?',
     options: ['Δy = 4.5 mm', 'Δy = 2.25 mm', 'Δy = 0.9 mm', 'Δy = 9 mm'],
@@ -263,7 +263,7 @@ const practice: QuizQuestion[] = [
   },
 ]
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'ניסוי Young: d=0.1mm, λ=500nm, D=1m. מה מרחק הפסים?',
     options: ['0.5 mm', '5 mm', '0.05 mm', '50 mm'],
@@ -293,39 +293,31 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'נוסחאות',
+    title: '📋 נוסחאות',
     content: (
-      <div className="space-y-3 text-sm">
-        <div>
-          <p className="text-purple-400 font-bold mb-1">Young כפול-סדק</p>
-          <ul className="space-y-0.5 text-slate-300 font-mono text-xs" dir="ltr">
-            <li>חיזוק: d·sinθ = mλ</li>
-            <li>כיחוד: d·sinθ = (m+½)λ</li>
-            <li>Δy = λD/d</li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-purple-400 font-bold mb-1">עקיפה מסדק יחיד</p>
-          <ul className="space-y-0.5 text-slate-300 font-mono text-xs" dir="ltr">
-            <li>מינימום: a·sinθ = mλ (m≠0)</li>
-            <li>רוחב מרכזי: 2λD/a</li>
-          </ul>
-        </div>
+      <div className="space-y-2 text-sm text-slate-300">
+        <p className="text-xs font-bold text-purple-400">Young כפול-סדק</p>
+        <p className="text-xs font-mono" dir="ltr">Δy = λD/d — מרחק בין פרינג'ים. D=מרחק למסך, d=מרחק בין חריצים</p>
+        <p className="text-xs font-mono mt-1" dir="ltr">מקסימום: d·sin(θ) = mλ — הפרש מסלולים = m אורכי גל</p>
+        <p className="text-xs font-mono mt-1" dir="ltr">מינימום: d·sin(θ) = (m+½)λ — ביטול</p>
+        <p className="text-xs font-bold text-purple-400 mt-2">עקיפה מסדק יחיד</p>
+        <p className="text-xs font-mono" dir="ltr">מינימום: a·sin(θ) = mλ — a הוא רוחב החריץ</p>
+        <p className="text-xs font-mono mt-1" dir="ltr">רוחב פסה מרכזית: 2λD/a</p>
+        <p className="text-xs font-bold text-purple-400 mt-2">שני צבעים</p>
+        <p className="text-xs font-mono" dir="ltr">חפיפה: m₁λ₁ = m₂λ₂ → m₁/m₂ = λ₂/λ₁</p>
       </div>
     ),
   },
   {
-    title: 'טיפים',
+    title: '🎯 במבחן HIT',
     content: (
       <div className="space-y-2 text-sm text-slate-300">
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
-          <p className="text-yellow-400 font-bold text-xs mb-1">⚠️ טעות נפוצה</p>
-          <p>לא לבלבל בין אינטרפרנציה (שני מקורות) לעקיפה (סדק יחיד)!</p>
-        </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <p className="text-emerald-400 font-bold text-xs mb-1">✓ שני צבעים</p>
-          <p>חפיפה: m₁λ₁=m₂λ₂ → m₁/m₂ = λ₂/λ₁ → מצא יחס שלם קטן ביותר.</p>
-        </div>
+        <p className="text-xs font-bold text-yellow-400">שאלות נפוצות:</p>
+        <p className="text-xs">נותנים Δy, D, d → מצא λ: λ = Δy·d/D</p>
+        <p className="text-xs mt-1">שני צבעים — מתי הפסים חופפים? פתור m₁λ₁ = m₂λ₂, מצא יחס שלם קטן ביותר</p>
+        <p className="text-xs mt-1">מכפילים D פי 2 → הפסים מתרחקים פי 2. מכפילים d פי 2 → הפסים מתקרבים פי 2</p>
+        <p className="text-xs font-bold text-red-400 mt-2">טעות נפוצה:</p>
+        <p className="text-xs">לא לבלבל בין אינטרפרנציה (d = מרחק בין חריצים) לעקיפה (a = רוחב חריץ יחיד)!</p>
       </div>
     ),
   },
@@ -350,9 +342,9 @@ const intro = (
 const theory: TheoryCard = {
   summary: 'אור הוא גל — ולכן גלים ממקורות שונים יכולים לחזק או לבטל זה את זה. הגברה קורה כשהגלים "בפאזה" (הפרש מסלולים = mλ). ביטול — כשהם "הפוכים" (הפרש = (m+½)λ).',
   formulas: [
-    { label: 'ניסוי יאנג — מרחק פרינג\'ה', tex: '\\Delta y = \\dfrac{\\lambda L}{d}' },
-    { label: 'מקסימום בגריד עקיפה', tex: 'd \\sin\\theta = m\\lambda' },
-    { label: 'הגברה בסרט דק', tex: '2nt = m\\lambda \\quad (m = 1,2,3,\\ldots)' },
+    { label: 'ניסוי יאנג — מרחק פרינג\'ה', tex: '\\Delta y = \\dfrac{\\lambda L}{d}', verbal: 'מרחק בין פרינג\'ים בניסוי Young. D=מרחק למסך, d=מרחק בין חריצים, λ=אורך גל' },
+    { label: 'מקסימום בגריד עקיפה', tex: 'd \\sin\\theta = m\\lambda', verbal: 'בניסוי Young, מקסימום מתקבל כשהפרש המסלולים הוא מספר שלם של אורכי גל' },
+    { label: 'הגברה בסרט דק', tex: '2nt = m\\lambda \\quad (m = 1,2,3,\\ldots)', verbal: 'מינימום בעקיפה דרך חריץ יחיד — a הוא רוחב החריץ. כאן 2nt הוא הפרש המסלול בתוך הסרט' },
   ],
   when: 'שני סדקים (יאנג): השתמש ב-Δy. גריד עקיפה: השתמש ב-d·sinθ = mλ. סרט דק: עקוב אחרי ההפרש במסלול בתוך הסרט.',
 }

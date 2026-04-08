@@ -255,7 +255,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ (3 שאלות רמת HIT) ───────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'כדור מוליך בעל מטען Q. מה השדה החשמלי בנקודה על פני הכדור (r = R)?',
     options: ['E = 0', 'E = kQ/R²', 'E = kQ/(2R²)', 'E = 2kQ/R²'],
@@ -277,7 +277,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE (5 שאלות, 3 רמות — מ-spec PRACTICE_QUESTIONS) ──────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   // easy
   {
     question: 'משטח סגור ריק (ללא מטען). מה השטף הכולל דרכו?',

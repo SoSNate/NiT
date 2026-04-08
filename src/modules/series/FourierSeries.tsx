@@ -158,7 +158,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'f(x)=x² בתקופה 2π. מה bₙ?',
     options: ['bₙ=0 (f זוגית)', 'bₙ=2/nπ', 'bₙ=(-1)ⁿ·2/n', 'bₙ=4/n²π'],
@@ -273,7 +273,7 @@ const theory: TheoryCard = {
   when: 'בדוק זוגיות לפני שמחשב! חצי מהמקדמים נאפסים → זמן עבודה חצי. פרסוול → סכומי טורים מיוחדים',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'f(x) = x² בתקופה [-π,π]. האם זוגית?',
     options: [

@@ -177,7 +177,7 @@ const step3 = <WorkedExample
 />
 
 // ── QUIZ ─────────────────────────────────────────────────────────────────────
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'מעגל LC עם L=0.4H, C=100μF. מה תדר התהודה?',
     options: ['≈ 25 Hz', '≈ 2.5 Hz', '≈ 79.6 Hz', '≈ 50 Hz'],
@@ -199,7 +199,7 @@ const quiz: QuizQuestion[] = [
 ]
 
 // ── PRACTICE ─────────────────────────────────────────────────────────────────
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'מעגל RC: R=1 kΩ, C=100 μF. מה קבוע זמן τ?',
     options: ['τ = 0.1 s', 'τ = 10 s', 'τ = 1 ms', 'τ = 100 s'],
@@ -257,6 +257,26 @@ const guides: GuideSection[] = [
       <p className="text-slate-300 text-xs">כוח ממוצע על L ו-C = 0. רק R צורך כוח.</p>
     </div>,
   },
+  {
+    title: '📋 נוסחאות',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">נוסחאות מרכזיות</p>
+      <Formula c="ω₀ = 1/√(LC)" color="text-yellow-300" />
+      <Formula c="X_L = ωL,  X_C = 1/(ωC)" color="text-blue-300" />
+      <Formula c="Z = √(R² + (X_L - X_C)²)" color="text-purple-300" />
+      <Formula c="I_max = V₀/Z" color="text-emerald-300" />
+      <p className="text-slate-400 text-xs">בתהודה: X_L = X_C → Z = R → I_max = V₀/R</p>
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-yellow-400 font-bold text-xs">שאלות נפוצות</p>
+      <p className="text-xs">בתהודה (ω=ω₀): Z=R בלבד, cos(φ)=1. שאלות נפוצות: מצא ω₀, מצא Zmin, מצא Imax=V/R</p>
+      <Note color="blue" children={<>שלבים: (1) חשב ω₀=1/√(LC) (2) חשב X_L וX_C (3) חשב Z (4) I=V/Z</>} />
+      <p className="text-slate-400 text-xs">גורם הספק: cos(φ) = R/Z. בתהודה φ=0 → cos(φ)=1 → כל ההספק ב-R</p>
+    </div>,
+  },
 ]
 
 // ── INTRO + BRIDGE ────────────────────────────────────────────────────────────
@@ -275,9 +295,9 @@ const bridge = <div className="space-y-2 text-sm text-slate-300">
 const theory: TheoryCard = {
   summary: 'מעגל RLC מכיל R, L, C. בתדר תהודה ω₀=1/√(LC) העכבה מינימלית והזרם מקסימלי. L ו-C מחליפים אנרגיה; R מפזר אותה.',
   formulas: [
-    { label: 'תדר תהודה', tex: '\\omega_0 = \\dfrac{1}{\\sqrt{LC}}' },
-    { label: 'עכבה כוללת', tex: 'Z = \\sqrt{R^2 + (X_L - X_C)^2}' },
-    { label: 'עכבת L ו-C', tex: 'X_L = \\omega L \\,,\\quad X_C = \\dfrac{1}{\\omega C}' },
+    { label: 'תדר תהודה', tex: '\\omega_0 = \\dfrac{1}{\\sqrt{LC}}', verbal: 'תדר התהודה — בו העכבות של L ו-C מבטלות זו את זו, הזרם מקסימלי' },
+    { label: 'עכבה כוללת', tex: 'Z = \\sqrt{R^2 + (X_L - X_C)^2}', verbal: 'עכבה כוללת — כמו התנגדות, אבל תלויה בתדר. ב-R בלבד: Z=R' },
+    { label: 'עכבת L ו-C', tex: 'X_L = \\omega L \\,,\\quad X_C = \\dfrac{1}{\\omega C}', verbal: 'עכבת סליל גדלה עם התדר — חוסם בתדר גבוה. עכבת קבל קטנה עם התדר — חוסם בתדר נמוך' },
   ],
   when: 'בתהודה: X_L=X_C, Z=R, I=V₀/R מקסימלי. מחוץ לתהודה: L שולט בתדרים גבוהים, C בנמוכים.',
 }

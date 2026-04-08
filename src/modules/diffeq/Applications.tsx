@@ -127,7 +127,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: "גוף מתקרר: T₀=100°, T_env=0°. אחרי 5 דק\' T=50°. מה k?",
     options: ['k = ln(2)/5', 'k = 1/5', 'k = 2/5', 'k = ln(2)'],
@@ -157,7 +157,7 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'מודלים',
+    title: '📋 מודלים נפוצים',
     content: <div className="space-y-2 text-sm text-slate-300">
       {[
         { name: 'ניוטון', eq: 'T\' = -k(T-Tₑ)', sol: 'T = Tₑ + (T₀-Tₑ)e^(-kt)' },
@@ -171,6 +171,15 @@ const guides: GuideSection[] = [
           <p className="font-mono text-xs text-emerald-400" dir="ltr">{m.sol}</p>
         </div>
       ))}
+    </div>,
+  },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>שאלות קירור: תמיד מציבים תנאי התחלה כדי למצוא k.</p>
+      <p>שלב 1: כתוב T(t) = T_env + (T₀ - T_env)e^(kt)</p>
+      <p>שלב 2: הצב נקודה ידועה T(t₁) = T₁</p>
+      <p>שלב 3: מצא k ואז חשב את הזמן המבוקש</p>
     </div>,
   },
 ]
@@ -189,13 +198,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'מד"ר לא חיה רק בנייר — היא מגדירה כיצד הטבע משתנה בזמן. שלוש משוואות מרכזיות: (1) קירור ניוטון — dT/dt = -k(T-Tₑ), (2) גידול/ריקבון — dN/dt = ±kN, (3) תערובות — שיעור כניסה פחות שיעור יציאה. כולן הפרדת משתנים או לינארית.',
   formulas: [
-    { label: 'קירור ניוטון', tex: '\\frac{dT}{dt} = -k(T - T_{\\text{env}}) \\;\\Rightarrow\\; T = T_{\\text{env}} + Ce^{-kt}' },
-    { label: 'גידול/ריקבון', tex: '\\frac{dN}{dt} = \\pm kN \\;\\Rightarrow\\; N = N_0 e^{\\pm kt}' },
+    { label: 'קירור ניוטון', tex: '\\frac{dT}{dt} = -k(T - T_{\\text{env}}) \\;\\Rightarrow\\; T = T_{\\text{env}} + Ce^{-kt}', verbal: 'חוק קירור ניוטון — קצב שינוי הטמפרטורה פרופורציונלי להפרש מהסביבה. k<0 לקירור, k>0 לחימום. הפתרון: הטמפרטורה מתקרבת לסביבה אקספוננציאלית. כשt→∞: T→T_env' },
+    { label: 'גידול/ריקבון', tex: '\\frac{dN}{dt} = \\pm kN \\;\\Rightarrow\\; N = N_0 e^{\\pm kt}', verbal: 'גידול/ריקבון אקספוננציאלי — k>0 גידול, k<0 ריקבון. זמן מחצית חיים: t₁/₂ = ln(2)/|k| — הזמן שלוקח לחצי מהחומר להתפרק, לא תלוי בכמות ההתחלתית' },
   ],
   when: 'כשהשאלה מתארת תהליך שמשתנה בקצב פרופורציונלי לגודל הנוכחי — כתוב מד"ר, פתור, הצב תנאים',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'קפה ב-90°C מתקרר בחדר 20°C. איזו מד"ר מתארת זאת?',
     options: [

@@ -137,7 +137,7 @@ const step3 = (
   />
 )
 
-const quiz: QuizQuestion[] = [
+export const quiz: QuizQuestion[] = [
   {
     question: 'F{f\'(t)} = ?',
     options: ['iω·F(ω)', 'F(ω)/iω', 'F\'(ω)', 'ω·F(ω)'],
@@ -167,26 +167,33 @@ const greenNote = [
 
 const guides: GuideSection[] = [
   {
-    title: 'נוסחאות',
-    content: <div className="space-y-2 text-sm" dir="ltr">
-      <p className="text-cyan-400 font-bold text-xs">Definition</p>
-      <p className="font-mono text-xs text-slate-300">{'F(ω) = ∫f(t)e^{-iωt}dt'}</p>
-      <p className="text-cyan-400 font-bold text-xs mt-2">Properties</p>
+    title: '📋 נוסחאות',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p className="text-cyan-400 font-bold text-xs">הגדרה והיפוך:</p>
+      <p className="font-mono text-xs">F(ω) = ∫f(t)e^(-iωt)dt</p>
+      <p className="font-mono text-xs">f(t) = (1/2π)∫F(ω)e^(iωt)dω</p>
+      <p className="text-cyan-400 font-bold text-xs mt-1">זוגות נפוצים:</p>
       {[
-        ['f(t-a)', 'e^{-iaω}F(ω)'],
-        ["f'(t)", 'iωF(ω)'],
-        ['eᵃᵗf(t)', 'F(ω-ia)'],
-        ['f(-t)', 'F(-ω)'],
-        ['f*g', 'F·G'],
-      ].map(([p, r]) => (
-        <div key={p} className="flex justify-between bg-white/5 rounded p-1">
-          <span className="font-mono text-xs text-slate-400">{p}</span>
-          <span className="font-mono text-xs text-cyan-400">{r}</span>
+        ['e^(-a|t|)', '2a/(a²+ω²)'],
+        ['rect(t/2a)', '2sin(aω)/ω'],
+        ['e^(-at)u(t)', '1/(a+iω)'],
+        ['δ(t)', '1'],
+      ].map(([f, F]) => (
+        <div key={f} className="flex justify-between bg-white/5 rounded p-1">
+          <span className="font-mono text-xs text-slate-400">{f}</span>
+          <span className="font-mono text-xs text-cyan-400">{F}</span>
         </div>
       ))}
     </div>,
   },
-  { title: 'מהרצאה', content: <div className="text-slate-400 text-sm p-3 border border-dashed border-slate-700 rounded-xl text-center"><p>📖 סיכום ההרצאה יתווסף כאן</p></div> },
+  {
+    title: '🎯 במבחן HIT',
+    content: <div className="space-y-2 text-sm text-slate-300">
+      <p>שאלות פרסוול: מחשבים F(ω), ואז משווים ∫|f|²dt = (1/2π)∫|F|²dω כדי לפתור אינטגרל קשה</p>
+      <p>זכור תכונות: היסט f(t-a)→e^(-iωa)F(ω), גזירה f′(t)→iωF(ω)</p>
+      <p>f זוגית → F ממשי. f אי-זוגית → F דמיוני טהור</p>
+    </div>,
+  },
 ]
 
 const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
@@ -203,13 +210,13 @@ const intro = <div className="space-y-4 text-slate-300 text-sm leading-relaxed">
 const theory: TheoryCard = {
   summary: 'התמרת פורייה F(ω) = ∫f(t)e^(-iωt)dt מפרקת אות כללי (לאו דווקא תקופתי) לתדרים. בניגוד לטורי פורייה — כאן f לא חייבת להיות תקופתית. תכונות: היסט בזמן → כפל ב-e^(-iωa), גזירה → כפל ב-iω. פרסוול: אנרגיה בזמן = אנרגיה בתדר.',
   formulas: [
-    { label: 'הגדרה', tex: 'F(\\omega) = \\int_{-\\infty}^{\\infty} f(t)\\,e^{-i\\omega t}\\,dt' },
-    { label: 'גזירה', tex: '\\mathcal{F}\\{f\'(t)\\} = i\\omega \\cdot F(\\omega)' },
+    { label: 'הגדרה', tex: 'F(\\omega) = \\int_{-\\infty}^{\\infty} f(t)\\,e^{-i\\omega t}\\,dt', verbal: 'ההתמרה מפרקת פונקציה לתדרים. F(ω) אומר כמה מכל תדר ω יש בפונקציה' },
+    { label: 'גזירה', tex: '\\mathcal{F}\\{f\'(t)\\} = i\\omega \\cdot F(\\omega)', verbal: 'ההתמרה ההפוכה — f(t) = (1/2π)∫F(ω)e^(iωt)dω — מחזירה מתחום התדר לתחום הזמן. אנרגיית האות שמורה: ∫|f|²dt = (1/2π)∫|F|²dω (פרסוול) — שימושי לחשב אינטגרלים קשים' },
   ],
   when: 'חשב ∫ ישיר. זיהה תכונות (היסט, גזירה, קיפול) לחסוך חישוב. פרסוול לשאלות אנרגיה.',
 }
 
-const practice: QuizQuestion[] = [
+export const practice: QuizQuestion[] = [
   {
     question: 'F{f\'(t)} = ?',
     options: ["F(ω)/iω", "iω·F(ω)", "ω·F(ω)", "-iω·F(ω)"],
