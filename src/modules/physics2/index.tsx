@@ -12,6 +12,8 @@ import PhysicsLab from './PhysicsLab'
 import Capacitors from './Capacitors'
 import DCCircuits from './DCCircuits'
 import ElectricPotential from './ElectricPotential'
+import { broadcastState } from '../../utils/sync'
+
 
 type ModuleId = 'coulomb' | 'gauss' | 'efield' | 'potential' | 'bfield' | 'induction' | 'rlc' | 'emwaves' | 'optics' | 'lab' | 'capacitors' | 'dc' | null
 
@@ -156,7 +158,18 @@ interface Props {
 export default function Physics2Hub({ onBack }: Props) {
   const [activeModule, setActiveModule] = useState<ModuleId>(null)
 
-  const backToHub = () => setActiveModule(null)
+  const changeModule = (modId: ModuleId) => {
+    setActiveModule(modId)
+    if (modId) {
+      broadcastState({
+        courseId: 'physics2',
+        moduleId: modId,
+        subtopicId: ''
+      })
+    }
+  }
+
+  const backToHub = () => changeModule(null)
 
   if (activeModule === 'coulomb') return <CoulombsLaw onBack={backToHub} />
   if (activeModule === 'gauss') return <GaussLaw onBack={backToHub} />
@@ -210,7 +223,7 @@ export default function Physics2Hub({ onBack }: Props) {
           {MODULES.map(mod => (
             <button
               key={mod.id}
-              onClick={() => setActiveModule(mod.id)}
+              onClick={() => changeModule(mod.id)}
               className={`
                 text-right p-5 rounded-2xl border backdrop-blur-xl transition-all duration-200
                 bg-gradient-to-br ${mod.color} ${mod.border}

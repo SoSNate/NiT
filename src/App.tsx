@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Zap, BookOpen, Activity, BarChart2, ChevronLeft, LineChart, Target, Award } from 'lucide-react'
 import Physics2Hub from './modules/physics2/index'
 import DiffeqHub from './modules/diffeq/index'
@@ -9,6 +9,8 @@ import Onboarding from './components/Onboarding'
 import LearningJournal, { JournalProvider } from './components/LearningJournal'
 import PracticeMode from './components/PracticeMode'
 import ExamMode from './components/ExamMode'
+import MobileCompanion from './components/MobileCompanion'
+
 
 type Course = 'home' | 'physics2' | 'diffeq' | 'calculus2' | 'series' | 'dashboard' | 'practice' | 'exam'
 
@@ -69,10 +71,20 @@ const COURSES: CourseCard[] = [
 ]
 
 export default function App() {
+  const [isMobileMode, setIsMobileMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(
     () => !localStorage.getItem('onboarding_seen')
   )
   const [activeCourse, setActiveCourse] = useState<Course>('home')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('view') === 'mobile' || params.get('mode') === 'mobile') {
+      setIsMobileMode(true)
+    }
+  }, [])
+
+  if (isMobileMode) return <MobileCompanion />
 
   if (showOnboarding) return <Onboarding onDone={() => setShowOnboarding(false)} />
 
